@@ -1,4 +1,4 @@
-﻿using Bookify.Web.Core.ViewModels;
+﻿using Bookify.Web.Core.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

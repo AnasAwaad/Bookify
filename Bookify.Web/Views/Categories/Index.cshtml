@@ -47,22 +47,45 @@
                             <rect fill="#000000" x="11" y="17" width="2" height="2" rx="1" />
                         </g>
                     </svg><!--end::Svg Icon-->
-                </span>                    <!--end::Icon-->
+                </span>
+                <!--end::Icon-->
                 <!--begin::Content-->
                 <div class="d-flex flex-column pe-0 pe-sm-10 align-self-center">
                     <h4 class="fw-semibold">There is no categories found !</h4>
                 </div>
                 <!--end::Content-->
-                <!--begin::Close-->
-                <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
-                    <i class="ki-duotone ki-cross fs-1 text-danger"><span class="path1"></span><span class="path2"></span></i>
-                </button>
-                <!--end::Close-->
             </div>
         }
         else
         {
-            
+			<div class="table-responsive">
+				<table class="table gs-7 gy-7 gx-7">
+					<thead>
+						<tr class="fw-semibold fs-6 text-gray-800 border-bottom border-gray-200">
+							<th>Name</th>
+							<th>IsActive</th>
+							<th>Created On</th>
+                            <th>Last Updated On</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var category in Model)
+                        {
+                            <tr>
+                                <td>@category.Name</td>
+                                <td><span class="badge badge-@(category.IsActive?"success":"danger")">@(category.IsActive ? "Avalible" : "Deleted")</span></td>
+                                <td>@category.CreatedOn</td>
+                                <td>@category.LastUpdatedOn</td>
+                                <td>
+                                    <a class="btn btn-light-primary btn-sm" asp-controller="Categories" asp-action="Update" asp-route-id="@category.Id">Edit</a>
+                                </td>
+                            </tr>
+                        }
+						
+					</tbody>
+				</table>
+			</div>
         }
     </div>
     
