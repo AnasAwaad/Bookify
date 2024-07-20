@@ -1,0 +1,133 @@
+﻿@model IEnumerable<Category>
+
+@{
+	ViewBag.Title = "Categories";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h3 class="card-title">
+            <span class="svg-icon svg-icon-primary svg-icon-2x">
+                <!--begin::Svg Icon | path:/var/www/preview.keenthemes.com/metronic/releases/2021-05-14-112058/theme/html/demo8/dist/../src/media/svg/icons/Shopping/Box2.svg-->
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                    <title>Stockholm-icons / Shopping / Box2</title>
+                    <desc>Created with Sketch.</desc>
+                    <defs />
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <rect x="0" y="0" width="24" height="24" />
+                        <path d="M4,9.67471899 L10.880262,13.6470401 C10.9543486,13.689814 11.0320333,13.7207107 11.1111111,13.740321 L11.1111111,21.4444444 L4.49070127,17.526473 C4.18655139,17.3464765 4,17.0193034 4,16.6658832 L4,9.67471899 Z M20,9.56911707 L20,16.6658832 C20,17.0193034 19.8134486,17.3464765 19.5092987,17.526473 L12.8888889,21.4444444 L12.8888889,13.6728275 C12.9050191,13.6647696 12.9210067,13.6561758 12.9368301,13.6470401 L20,9.56911707 Z" fill="#000000" />
+                        <path d="M4.21611835,7.74669402 C4.30015839,7.64056877 4.40623188,7.55087574 4.5299008,7.48500698 L11.5299008,3.75665466 C11.8237589,3.60013944 12.1762411,3.60013944 12.4700992,3.75665466 L19.4700992,7.48500698 C19.5654307,7.53578262 19.6503066,7.60071528 19.7226939,7.67641889 L12.0479413,12.1074394 C11.9974761,12.1365754 11.9509488,12.1699127 11.9085461,12.2067543 C11.8661433,12.1699127 11.819616,12.1365754 11.7691509,12.1074394 L4.21611835,7.74669402 Z" fill="#000000" opacity="0.3" />
+                    </g>
+                </svg><!--end::Svg Icon-->
+            </span>
+            Category
+        </h3>
+        <div class="card-toolbar">
+            <a asp-action="Create" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-lg"></i>
+                Add
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (!Model.Any())
+        {
+            <div class="alert alert-dismissible bg-light-warning d-flex flex-column flex-sm-row w-100 p-5 mb-10 ">
+                <!--begin::Icon-->
+                <span class="svg-icon svg-icon-primary svg-icon-2x me-3 mt-2">
+                    <!--begin::Svg Icon | path:/var/www/preview.keenthemes.com/metronic/releases/2021-05-14-112058/theme/html/demo8/dist/../src/media/svg/icons/Code/Warning-2.svg-->
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                        <title>Stockholm-icons / Code / Warning-2</title>
+                        <desc>Created with Sketch.</desc>
+                        <defs />
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <rect x="0" y="0" width="24" height="24" />
+                            <path d="M11.1669899,4.49941818 L2.82535718,19.5143571 C2.557144,19.9971408 2.7310878,20.6059441 3.21387153,20.8741573 C3.36242953,20.9566895 3.52957021,21 3.69951446,21 L21.2169432,21 C21.7692279,21 22.2169432,20.5522847 22.2169432,20 C22.2169432,19.8159952 22.1661743,19.6355579 22.070225,19.47855 L12.894429,4.4636111 C12.6064401,3.99235656 11.9909517,3.84379039 11.5196972,4.13177928 C11.3723594,4.22181902 11.2508468,4.34847583 11.1669899,4.49941818 Z" fill="#000000" opacity="0.3" />
+                            <rect fill="#000000" x="11" y="9" width="2" height="7" rx="1" />
+                            <rect fill="#000000" x="11" y="17" width="2" height="2" rx="1" />
+                        </g>
+                    </svg><!--end::Svg Icon-->
+                </span>
+                <!--end::Icon-->
+                <!--begin::Content-->
+                <div class="d-flex flex-column pe-0 pe-sm-10 align-self-center">
+                    <h4 class="fw-semibold">There is no categories found !</h4>
+                </div>
+                <!--end::Content-->
+            </div>
+        }
+        else
+        {
+			<div class="table-responsive">
+				<table class="table gs-7 gy-7 gx-7">
+					<thead>
+						<tr class="fw-semibold fs-6 text-gray-800 border-bottom border-gray-200">
+							<th>Name</th>
+							<th>IsActive</th>
+							<th>Created On</th>
+                            <th>Last Updated On</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var category in Model)
+                        {
+                            <tr>
+                                <td>@category.Name</td>
+                                <td><span class="js-toggle-status  badge badge-@(category.IsActive?"success":"danger")">@(category.IsActive ? "Avalible" : "Deleted")</span></td>
+                                <td>@category.CreatedOn</td>
+                                <td class="js-last-updated-on">@category.LastUpdatedOn</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light btn-flex btn-center btn-active-light-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Actions
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" asp-controller="Categories" asp-action="Update" asp-route-id="@category.Id">Update</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item js-btn-toggle-status" data-id="@category.Id" href="javaScript:;">Toggle Status</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+						
+					</tbody>
+				</table>
+			</div>
+        }
+    </div>
+    
+</div>
+@Html.AntiForgeryToken()
+@section Scripts{
+    <script >
+        $(function () {
+            // Attach a click event handler to all elements with class 'js-btn-toggle-status'
+            $('.js-btn-toggle-status').on('click', function () {
+                var btn = $(this); 
+
+                // Make an AJAX POST request to the server to toggle the status
+                $.ajax({
+                    url: "/Categories/ToggleStatus/" + btn.data('id'),
+                    method: "post",
+                    data: {
+                        "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (res) { 
+                        var isActiveCell = btn.parents('tr').find('.js-toggle-status'); 
+                        var newStatus = isActiveCell.html() === "Available" ? "Deleted" : "Available";
+                        isActiveCell.html(newStatus); 
+                        isActiveCell.toggleClass('badge-success badge-danger');
+
+                        // Update the last updated on cell with the new timestamp from the server response
+                        btn.parents('tr').find('.js-last-updated-on').html(res.lastUpdatedOn);
+                    },
+                    error: function () { 
+                        alert('An error occurred while toggling the status.'); 
+                    }
+                });
+            });
+        });
+    </script>
+}
