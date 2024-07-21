@@ -62,5 +62,5 @@
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
 
-# Exclude specific CSS bundle files
-Bookify.Web/wwwroot/assets/css/*.css linguist-vendored
+# Exclude CSS files
+*.css linguist-language=CSS

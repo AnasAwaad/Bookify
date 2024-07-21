@@ -1,7 +1,7 @@
-﻿using Bookify.Web.Core.Models;
-using Bookify.Web.Core.ViewModels;
+﻿
 using Bookify.Web.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bookify.Web.Controllers
 {
@@ -16,7 +16,7 @@ namespace Bookify.Web.Controllers
 
         public IActionResult Index()
 		{
-			return View(_context.Categories.ToList());
+			return View(_context.Categories.AsNoTracking().ToList());
 		}
 
         [HttpGet]
@@ -27,6 +27,7 @@ namespace Bookify.Web.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(UpsertCategoryViewModel model)
         {
             if (!ModelState.IsValid)
@@ -64,21 +65,42 @@ namespace Bookify.Web.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Update(UpsertCategoryViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return View("UpsertForm",model);
             }
-            var category = new Category
-            {
-                Id=model.Id,
-                Name = model.Name,
-            };
-            _context.Categories.Update(category);
+            var category = _context.Categories.Find(model.Id);
+
+            if(category == null)
+                return NotFound();
+
+            category.LastUpdatedOn = DateTime.Now;
+            category.Name = model.Name;
+
             _context.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
+
+        #region Ajax Request Handles
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ToggleStatus(int id)
+        {
+            var category = _context.Categories.Find(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+            category.LastUpdatedOn = DateTime.Now;
+            category.IsActive=!category.IsActive;
+            _context.SaveChanges();
+            return Json(new { lastUpdatedOn = category.LastUpdatedOn.ToString() } );
+        }
+        #endregion
 
     }
 }
