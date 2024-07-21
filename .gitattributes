@@ -63,4 +63,4 @@
 #*.RTF   diff=astextplain
 
 # Exclude CSS files
-*.css linguist-language=CSS
+*.css linguist-vendored
