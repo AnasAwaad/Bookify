@@ -74,20 +74,11 @@
                         {
                             <tr>
                                 <td>@category.Name</td>
-                                <td><span class="js-toggle-status  badge badge-@(category.IsActive?"success":"danger")">@(category.IsActive ? "Avalible" : "Deleted")</span></td>
+                                <td><span class="badge badge-@(category.IsActive?"success":"danger")">@(category.IsActive ? "Avalible" : "Deleted")</span></td>
                                 <td>@category.CreatedOn</td>
-                                <td class="js-last-updated-on">@category.LastUpdatedOn</td>
+                                <td>@category.LastUpdatedOn</td>
                                 <td>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-light btn-flex btn-center btn-active-light-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Actions
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" asp-controller="Categories" asp-action="Update" asp-route-id="@category.Id">Update</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item js-btn-toggle-status" data-id="@category.Id" href="javaScript:;">Toggle Status</a></li>
-                                        </ul>
-                                    </div>
+                                    <a class="btn btn-light-primary btn-sm" asp-controller="Categories" asp-action="Update" asp-route-id="@category.Id">Edit</a>
                                 </td>
                             </tr>
                         }
@@ -99,35 +90,3 @@
     </div>
     
 </div>
-@Html.AntiForgeryToken()
-@section Scripts{
-    <script >
-        $(function () {
-            // Attach a click event handler to all elements with class 'js-btn-toggle-status'
-            $('.js-btn-toggle-status').on('click', function () {
-                var btn = $(this); 
-
-                // Make an AJAX POST request to the server to toggle the status
-                $.ajax({
-                    url: "/Categories/ToggleStatus/" + btn.data('id'),
-                    method: "post",
-                    data: {
-                        "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function (res) { 
-                        var isActiveCell = btn.parents('tr').find('.js-toggle-status'); 
-                        var newStatus = isActiveCell.html() === "Available" ? "Deleted" : "Available";
-                        isActiveCell.html(newStatus); 
-                        isActiveCell.toggleClass('badge-success badge-danger');
-
-                        // Update the last updated on cell with the new timestamp from the server response
-                        btn.parents('tr').find('.js-last-updated-on').html(res.lastUpdatedOn);
-                    },
-                    error: function () { 
-                        alert('An error occurred while toggling the status.'); 
-                    }
-                });
-            });
-        });
-    </script>
-}
