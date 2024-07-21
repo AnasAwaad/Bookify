@@ -61,3 +61,7 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+# Exclude specific CSS bundle files
+wwwroot/assets/css/plugins.bundle.css linguist-vendored
+wwwroot/assets/css/style.bundle.css linguist-vendored
