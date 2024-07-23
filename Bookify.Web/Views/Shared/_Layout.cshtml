@@ -17,6 +17,7 @@
 	<!--toastr library-->
 	<link href="~/lib/toastr.js/toastr.min.css" rel="stylesheet" />
     <!--end::Global Stylesheets Bundle-->
+	@await RenderSectionAsync("DataTableStyles",false)
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Bookify.Web.styles.css" asp-append-version="true" />
 </head>
@@ -90,6 +91,7 @@
 		@* toastr library *@
 		<script src="~/lib/toastr.js/toastr.min.js"></script>
 		<!--end::Global Javascript Bundle-->
+		@await RenderSectionAsync("DataTableScripts",false)
 		<script src="~/js/site.js" asp-append-version="true"></script>
 		@await RenderSectionAsync("Scripts", required: false)
 	</body>
