@@ -11,7 +11,7 @@
                 Actions
             </button>
             <ul class="dropdown-menu">
-                <li><a class="dropdown-item" asp-controller="Categories" asp-action="Update" asp-route-id="@Model.Id">Update</a></li>
+                <li><a class="dropdown-item js-render-modal" href="javaScript:;" data-update="true"  data-modal-title="Edit Category" data-url="/Categories/Update/@Model.Id">Update</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item js-btn-toggle-status" data-id="@Model.Id" href="javaScript:;">Toggle Status</a></li>
             </ul>

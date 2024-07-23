@@ -24,7 +24,7 @@
         </h3>
         <div class="card-toolbar">
             @* data for generic modal *@
-            <a href="javascript:;" id="js-render-modal" data-modal-title="Create Category" data-url="/Categories/Create"  class="btn btn-sm btn-primary">
+            <a href="javascript:;" data-modal-title="Create Category" data-url="/Categories/Create" class="btn btn-sm btn-primary js-render-modal">
                 <i class="bi bi-plus-lg"></i>
                 Add
             </a>
@@ -88,65 +88,4 @@
 
     <partial name="_ValidationScriptsPartial"/>
 
-    <script >
-        $(function () {
-            // Attach a click event handler to all elements with class 'js-btn-toggle-status'
-            $('.js-btn-toggle-status').on('click', function () {
-                var btn = $(this); 
-
-                // Make an AJAX POST request to the server to toggle the status
-                $.ajax({
-                    url: "/Categories/ToggleStatus/" + btn.data('id'),
-                    method: "post",
-                    data: {
-                        "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function (res) { 
-                        var isActiveCell = btn.parents('tr').find('.js-toggle-status'); 
-                        var newStatus = isActiveCell.html() === "Available" ? "Deleted" : "Available";
-                        isActiveCell.html(newStatus); 
-                        if (newStatus == "Deleted")
-                            isActiveCell.removeClass("badge-success").addClass('badge-danger');
-                        else
-                            isActiveCell.removeClass("badge-danger").addClass('badge-success');
-                        // isActiveCell.toggleClass('badge-success badge-danger');
-
-                        // Update the last updated on cell with the new timestamp from the server response
-                        btn.parents('tr').find('.js-last-updated-on').html(res.lastUpdatedOn);
-                        ShowToastrMessage('success', 'Toggled successfully');
-                    },
-                    error: function () { 
-                        alert('An error occurred while toggling the status.'); 
-                    }
-                });
-            });
-
-
-            // Handle bootstrap modal
-            $('#js-render-modal').on('click', function () {
-                var modal = $('#Modal');
-                var btn = $(this);
-
-                modal.modal('show');
-                $('#ModalLabel').text(btn.data('modal-title'));
-
-                $.ajax({
-                    url: btn.data('url'),
-                    method: 'GET',
-                    success: function (res) {
-                        modal.find('.modal-body').html(res);
-                        //apply validation on form when add form (because validation scripts exsits before and we added form after it and didn't know to apply validations on form)
-                        $.validator.unobtrusive.parse(modal);
-                    },
-                    error: function () {
-                        ShowErrorMessage();
-                    }
-                });
-
-            });
-
-            
-
-        });
-    </script>
 }

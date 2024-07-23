@@ -1,5 +1,6 @@
 ﻿
 using Bookify.Web.Data;
+using Bookify.Web.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,11 +20,11 @@ namespace Bookify.Web.Controllers
 			return View(_context.Categories.AsNoTracking().ToList());
 		}
 
-        [HttpGet]
+        [AjaxOnly]
         public IActionResult Create()
         {
             return PartialView("_UpsertForm");
-        }
+        }   
 
 
         [HttpPost]
@@ -40,9 +41,10 @@ namespace Bookify.Web.Controllers
             };
             _context.Categories.Add(category);
             _context.SaveChanges();
-            return Ok(category);
+            return PartialView("_CategoryRow",category);
         }
 
+        [AjaxOnly]
         public IActionResult Update(int? id)
         {
             if(id == null || id==0)
@@ -60,7 +62,7 @@ namespace Bookify.Web.Controllers
                 Name = category.Name,
             };
 
-            return View("_UpsertForm",categoryViewModel);
+            return PartialView("_UpsertForm",categoryViewModel);
         }
 
 
@@ -81,7 +83,7 @@ namespace Bookify.Web.Controllers
             category.Name = model.Name;
 
             _context.SaveChanges();
-            return RedirectToAction(nameof(Index));
+            return PartialView("_CategoryRow", category);
         }
 
         #region Ajax Request Handles

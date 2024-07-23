@@ -1,6 +1,6 @@
 ﻿@model UpsertCategoryViewModel
 
-<form method="post" asp-action="@(Model?.Id>0?"Edit":"Create")" data-ajax="true" data-ajax-method="post" data-ajax-success="OnSuccessSubmit" data-ajax-failure="ShowErrorMessage">
+<form method="post" asp-action="@(Model?.Id>0?"Update":"Create")" data-ajax="true" data-ajax-method="post" data-ajax-success="OnSuccessSubmit" data-ajax-failure="ShowErrorMessage">
     @if (Model?.Id > 0)
     {
         <input type="hidden" asp-for="Id"/>
