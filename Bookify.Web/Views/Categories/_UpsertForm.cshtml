@@ -1,0 +1,15 @@
+﻿@model UpsertCategoryViewModel
+
+<form method="post" asp-action="@(Model?.Id>0?"Update":"Create")" data-ajax="true" data-ajax-method="post" data-ajax-success="OnSuccessSubmit" data-ajax-failure="ShowErrorMessage">
+    @if (Model?.Id > 0)
+    {
+        <input type="hidden" asp-for="Id"/>
+    }
+    <div class="form-floating mb-7">
+        <input asp-for="Name" class="form-control" placeholder="Name">
+        <label asp-for="Name"></label>
+        <span asp-validation-for="Name" class="text-danger"></span>
+
+    </div>
+    <partial name="_ModalFooter"/>
+</form>
