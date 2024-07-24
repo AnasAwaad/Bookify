@@ -1,4 +1,5 @@
 ﻿
+using AutoMapper;
 using Bookify.Web.Data;
 using Bookify.Web.Filters;
 using Microsoft.AspNetCore.Mvc;
@@ -6,25 +7,29 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Bookify.Web.Controllers
 {
-	public class CategoriesController : Controller
-	{
-		private readonly ApplicationDbContext _context;
+    public class CategoriesController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+		private readonly IMapper mapper;
 
-        public CategoriesController(ApplicationDbContext context)
+		public CategoriesController(ApplicationDbContext context,IMapper mapper)
         {
             _context = context;
-        }
+			this.mapper = mapper;
+		}
 
         public IActionResult Index()
-		{
-			return View(_context.Categories.AsNoTracking().ToList());
-		}
+        {
+            var category = _context.Categories.AsNoTracking().ToList();
+
+			return View(mapper.Map<IEnumerable<CategoryViewModel>>(category));
+        }
 
         [AjaxOnly]
         public IActionResult Create()
         {
             return PartialView("_UpsertForm");
-        }   
+        }
 
 
         [HttpPost]
@@ -32,22 +37,22 @@ namespace Bookify.Web.Controllers
         public IActionResult Create(UpsertCategoryViewModel model)
         {
             if (!ModelState.IsValid)
-            { 
+            {
                 return NotFound();
             }
-            var category = new Category
-            {
-                Name = model.Name,
-            };
+            
+            var category = mapper.Map<Category>(model);  
             _context.Categories.Add(category);
             _context.SaveChanges();
-            return PartialView("_CategoryRow",category);
+
+            var cateogryVM = mapper.Map<CategoryViewModel>(category);
+            return PartialView("_CategoryRow", cateogryVM);
         }
 
         [AjaxOnly]
         public IActionResult Update(int? id)
         {
-            if(id == null || id==0)
+            if (id == null || id == 0)
             {
                 return NotFound();
             }
@@ -56,13 +61,10 @@ namespace Bookify.Web.Controllers
             {
                 return NotFound();
             }
-            var categoryViewModel = new UpsertCategoryViewModel()
-            {
-                Id = category.Id,
-                Name = category.Name,
-            };
+            
+            var categoryVM = mapper.Map<UpsertCategoryViewModel>(category);
 
-            return PartialView("_UpsertForm",categoryViewModel);
+            return PartialView("_UpsertForm", categoryVM);
         }
 
 
@@ -72,19 +74,41 @@ namespace Bookify.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View("_UpsertForm",model);
+                return View("_UpsertForm", model);
             }
             var category = _context.Categories.Find(model.Id);
 
-            if(category == null)
+            if (category == null)
                 return NotFound();
 
+            category = mapper.Map(model, category);
+            
             category.LastUpdatedOn = DateTime.Now;
-            category.Name = model.Name;
+            
 
             _context.SaveChanges();
-            return PartialView("_CategoryRow", category);
+            return PartialView("_CategoryRow", mapper.Map<CategoryViewModel>(category));
         }
+
+
+        [HttpPost]
+        public IActionResult IsCategoryAllowed(UpsertCategoryViewModel model)
+        {
+            var category = _context.Categories.SingleOrDefault(c => c.Name == model.Name);
+            // for new category null 
+            // for update category without change the name => category will be filled 
+            // check for id of the category with the same name equal model.Id
+            if (category == null || category.Id==model.Id)
+                return Json(true);
+            return Json(false);
+        }
+
+
+
+
+
+
+
 
         #region Ajax Request Handles
 
