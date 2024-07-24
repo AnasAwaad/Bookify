@@ -1,4 +1,5 @@
 ﻿
+using AutoMapper;
 using Bookify.Web.Data;
 using Bookify.Web.Filters;
 using Microsoft.AspNetCore.Mvc;
@@ -9,15 +10,19 @@ namespace Bookify.Web.Controllers
     public class CategoriesController : Controller
     {
         private readonly ApplicationDbContext _context;
+		private readonly IMapper mapper;
 
-        public CategoriesController(ApplicationDbContext context)
+		public CategoriesController(ApplicationDbContext context,IMapper mapper)
         {
             _context = context;
-        }
+			this.mapper = mapper;
+		}
 
         public IActionResult Index()
         {
-            return View(_context.Categories.AsNoTracking().ToList());
+            var category = _context.Categories.AsNoTracking().ToList();
+
+			return View(mapper.Map<IEnumerable<CategoryViewModel>>(category));
         }
 
         [AjaxOnly]
@@ -35,13 +40,13 @@ namespace Bookify.Web.Controllers
             {
                 return NotFound();
             }
-            var category = new Category
-            {
-                Name = model.Name,
-            };
+            
+            var category = mapper.Map<Category>(model);  
             _context.Categories.Add(category);
             _context.SaveChanges();
-            return PartialView("_CategoryRow", category);
+
+            var cateogryVM = mapper.Map<CategoryViewModel>(category);
+            return PartialView("_CategoryRow", cateogryVM);
         }
 
         [AjaxOnly]
@@ -56,13 +61,10 @@ namespace Bookify.Web.Controllers
             {
                 return NotFound();
             }
-            var categoryViewModel = new UpsertCategoryViewModel()
-            {
-                Id = category.Id,
-                Name = category.Name,
-            };
+            
+            var categoryVM = mapper.Map<UpsertCategoryViewModel>(category);
 
-            return PartialView("_UpsertForm", categoryViewModel);
+            return PartialView("_UpsertForm", categoryVM);
         }
 
 
@@ -79,11 +81,13 @@ namespace Bookify.Web.Controllers
             if (category == null)
                 return NotFound();
 
+            category = mapper.Map(model, category);
+            
             category.LastUpdatedOn = DateTime.Now;
-            category.Name = model.Name;
+            
 
             _context.SaveChanges();
-            return PartialView("_CategoryRow", category);
+            return PartialView("_CategoryRow", mapper.Map<CategoryViewModel>(category));
         }
 
 

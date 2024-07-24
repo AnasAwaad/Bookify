@@ -23,6 +23,15 @@ function OnSuccessSubmit(row) {
     ShowSuccessMessage();
 }
 
+function OnBeginModal() {
+    $('body :submit').attr('disabled', 'disabled');
+    $('body :submit').attr('data-kt-indicator', 'on');
+}
+function OnCompleteModal() {
+    $('body :submit').removeAttr('disabled');
+    $('body :submit').removeAttr('data-kt-indicator');
+}
+
 function ShowSuccessMessage(message = "Saved Successfully") {
     Swal.fire({
         position: "center",
@@ -143,7 +152,6 @@ $(function () {
             // Init datatable --- more info on datatables: https://datatables.net/manual/
             datatable = $(table).DataTable({
                 "info": true,
-                'order': [],
                 'pageLength': 10,
             });
         }
