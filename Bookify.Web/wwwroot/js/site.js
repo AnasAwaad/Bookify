@@ -66,168 +66,172 @@ function ShowToastrMessage(type, message) {
 
 }
 
-
-// Handle Toggle status 
-// Attach a click event handler to all elements with class 'js-btn-toggle-status'
-$('table').on('click', '.js-btn-toggle-status', function () {
-    var btn = $(this);
-
-    // Make an AJAX POST request to the server to toggle the status
-    $.ajax({
-        url: "/Categories/ToggleStatus/" + btn.data('id'),
-        method: "post",
-        data: {
-            "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-        },
-        success: function (res) {
-            var isActiveCell = btn.parents('tr').find('.js-toggle-status');
-            var newStatus = isActiveCell.html() === "Available" ? "Deleted" : "Available";
+$(function () {
 
 
-            isActiveCell.html(newStatus);
-            isActiveCell.toggleClass("badge-success badge-danger");
+    // Handle Toggle status 
+    // Attach a click event handler to all elements with class 'js-btn-toggle-status'
+    $('table').on('click', '.js-btn-toggle-status', function () {
+        var btn = $(this);
 
-            // Update the last updated on cell with the new timestamp from the server response
-            btn.parents('tr').find('.js-last-updated-on').html(res.lastUpdatedOn);
-            ShowToastrMessage('success', 'Toggled successfully');
-        },
-        error: function () {
-            ShowErrorMessage();
-        }
-    });
-});
-
-// Handle bootstrap modal
-$('body').on('click', '.js-render-modal', function () {
-    var modal = $('#Modal');
-    var btn = $(this);
-
-    modal.modal('show');
-    $('#ModalLabel').text(btn.data('modal-title'));
-
-    // for update row 
-    if (btn.data("update") != undefined)
-        updatedRow = btn.parents("tr");
-    $.ajax({
-        url: btn.data('url'),
-        method: 'GET',
-        success: function (res) {
-            modal.find('.modal-body').html(res);
-            //apply validation on form when add form (because validation scripts exsits before and we added form after it and didn't know to apply validations on form)
-            $.validator.unobtrusive.parse(modal);
-        },
-        error: function () {
-            ShowErrorMessage();
-        }
-    });
-
-});
-
-// handle header in export datatable 
-var headers = $('th');
-$.each(headers, function () {
-    var col = $(this);
-    if (!col.hasClass('js-no-export'))
-        exportedCols.push(col);
-})
-//Handle DataTable
-
-var KTDatatables = function () {
-    
-
-    // Private functions
-    var initDatatable = function () {
-
-        // Init datatable --- more info on datatables: https://datatables.net/manual/
-        datatable = $(table).DataTable({
-            "info": true,
-            'order': [],
-            'pageLength': 10,
-        });
-    }
-
-    // Hook export buttons
-    var exportButtons = () => {
-        const documentTitle = $('.js-data-table').data("export-title");
-        var buttons = new $.fn.dataTable.Buttons(table, {
-            buttons: [
-                {
-                    extend: 'copyHtml5',
-                    title: documentTitle,
-                    exportOptions: {
-                        columns:exportedCols
-                    }
-                },
-                {
-                    extend: 'excelHtml5',
-                    title: documentTitle,
-                    exportOptions: {
-                        columns: exportedCols
-                    }
-                },
-                {
-                    extend: 'csvHtml5',
-                    title: documentTitle,
-                    exportOptions: {
-                        columns: exportedCols
-                    }
-                },
-                {
-                    extend: 'pdfHtml5',
-                    title: documentTitle,
-                    exportOptions: {
-                        columns: exportedCols
-                    }
-                }
-            ]
-        }).container().appendTo($('#kt_datatable_example_buttons'));
-
-        // Hook dropdown menu click event to datatable export buttons
-        const exportButtons = document.querySelectorAll('#kt_datatable_example_export_menu [data-kt-export]');
-        exportButtons.forEach(exportButton => {
-            exportButton.addEventListener('click', e => {
-                e.preventDefault();
-
-                // Get clicked export value
-                const exportValue = e.target.getAttribute('data-kt-export');
-                const target = document.querySelector('.dt-buttons .buttons-' + exportValue);
-
-                // Trigger click event on hidden datatable export buttons
-                target.click();
-            });
-        });
-    }
-
-    // Search Datatable --- official docs reference: https://datatables.net/reference/api/search()
-    var handleSearchDatatable = () => {
-        const filterSearch = document.querySelector('[data-kt-filter="search"]');
-        filterSearch.addEventListener('keyup', function (e) {
-            datatable.search(e.target.value).draw();
-        });
-    }
+        // Make an AJAX POST request to the server to toggle the status
+        $.ajax({
+            url: btn.data('url'),
+            method: "post",
+            data: {
+                "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+            },
+            success: function (res) {
+                var isActiveCell = btn.parents('tr').find('.js-toggle-status');
+                var newStatus = isActiveCell.html() === "Available" ? "Deleted" : "Available";
 
 
-    // Public methods
-    return {
-        init: function () {
-            table = document.querySelector('.js-datatables');
+                isActiveCell.html(newStatus);
+                isActiveCell.toggleClass("badge-success badge-danger");
 
-            if (!table) {
-                return;
+                // Update the last updated on cell with the new timestamp from the server response
+                btn.parents('tr').find('.js-last-updated-on').html(res.lastUpdatedOn);
+                ShowToastrMessage('success', 'Toggled successfully');
+            },
+            error: function () {
+                ShowErrorMessage();
             }
+        });
+    });
 
-            initDatatable();
-            exportButtons();
-            handleSearchDatatable();
+    // Handle bootstrap modal
+    $('body').on('click', '.js-render-modal', function () {
+        var modal = $('#Modal');
+        var btn = $(this);
+
+        modal.modal('show');
+        $('#ModalLabel').text(btn.data('modal-title'));
+
+        // for update row 
+        if (btn.data("update") != undefined)
+            updatedRow = btn.parents("tr");
+        $.ajax({
+            url: btn.data('url'),
+            method: 'GET',
+            success: function (res) {
+                modal.find('.modal-body').html(res);
+                //apply validation on form when add form (because validation scripts exsits before and we added form after it and didn't know to apply validations on form)
+                $.validator.unobtrusive.parse(modal);
+            },
+            error: function () {
+                ShowErrorMessage();
+            }
+        });
+
+    });
+
+    // handle header in export datatable 
+    var headers = $('th');
+    $.each(headers, function () {
+        var col = $(this);
+        if (!col.hasClass('js-no-export'))
+            exportedCols.push(col);
+    })
+    //Handle DataTable
+
+    var KTDatatables = function () {
+
+
+        // Private functions
+        var initDatatable = function () {
+
+            // Init datatable --- more info on datatables: https://datatables.net/manual/
+            datatable = $(table).DataTable({
+                "info": true,
+                'order': [],
+                'pageLength': 10,
+            });
         }
-    };
 
-}();
-// On document ready
-KTUtil.onDOMContentLoaded(function () {
-    KTDatatables.init();
-});
+        // Hook export buttons
+        var exportButtons = () => {
+            const documentTitle = $('.js-data-table').data("export-title");
+            var buttons = new $.fn.dataTable.Buttons(table, {
+                buttons: [
+                    {
+                        extend: 'copyHtml5',
+                        title: documentTitle,
+                        exportOptions: {
+                            columns: exportedCols
+                        }
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        title: documentTitle,
+                        exportOptions: {
+                            columns: exportedCols
+                        }
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        title: documentTitle,
+                        exportOptions: {
+                            columns: exportedCols
+                        }
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        title: documentTitle,
+                        exportOptions: {
+                            columns: exportedCols
+                        }
+                    }
+                ]
+            }).container().appendTo($('#kt_datatable_example_buttons'));
+
+            // Hook dropdown menu click event to datatable export buttons
+            const exportButtons = document.querySelectorAll('#kt_datatable_example_export_menu [data-kt-export]');
+            exportButtons.forEach(exportButton => {
+                exportButton.addEventListener('click', e => {
+                    e.preventDefault();
+
+                    // Get clicked export value
+                    const exportValue = e.target.getAttribute('data-kt-export');
+                    const target = document.querySelector('.dt-buttons .buttons-' + exportValue);
+
+                    // Trigger click event on hidden datatable export buttons
+                    target.click();
+                });
+            });
+        }
+
+        // Search Datatable --- official docs reference: https://datatables.net/reference/api/search()
+        var handleSearchDatatable = () => {
+            const filterSearch = document.querySelector('[data-kt-filter="search"]');
+            filterSearch.addEventListener('keyup', function (e) {
+                datatable.search(e.target.value).draw();
+            });
+        }
+
+
+        // Public methods
+        return {
+            init: function () {
+                table = document.querySelector('.js-datatables');
+
+                if (!table) {
+                    return;
+                }
+
+                initDatatable();
+                exportButtons();
+                handleSearchDatatable();
+            }
+        };
+
+    }();
+    // On document ready
+    KTUtil.onDOMContentLoaded(function () {
+        KTDatatables.init();
+    });
 
 
 
 
+
+})
