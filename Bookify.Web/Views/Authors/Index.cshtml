@@ -1,0 +1,157 @@
+﻿@model IEnumerable<AuthorViewModel>
+
+@{
+	ViewBag.Title = "Authors";
+}
+
+<div class="card shadow-sm">
+	<div class="card-header">
+		<h3 class="card-title">
+			<span class="svg-icon svg-icon-primary svg-icon-2x">
+				<!--begin::Svg Icon | path:/var/www/preview.keenthemes.com/metronic/releases/2021-05-14-112058/theme/html/demo8/dist/../src/media/svg/icons/Shopping/Box2.svg-->
+				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+					<title>Stockholm-icons / Shopping / Box2</title>
+					<desc>Created with Sketch.</desc>
+					<defs />
+					<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+						<rect x="0" y="0" width="24" height="24" />
+						<path d="M4,9.67471899 L10.880262,13.6470401 C10.9543486,13.689814 11.0320333,13.7207107 11.1111111,13.740321 L11.1111111,21.4444444 L4.49070127,17.526473 C4.18655139,17.3464765 4,17.0193034 4,16.6658832 L4,9.67471899 Z M20,9.56911707 L20,16.6658832 C20,17.0193034 19.8134486,17.3464765 19.5092987,17.526473 L12.8888889,21.4444444 L12.8888889,13.6728275 C12.9050191,13.6647696 12.9210067,13.6561758 12.9368301,13.6470401 L20,9.56911707 Z" fill="#000000" />
+						<path d="M4.21611835,7.74669402 C4.30015839,7.64056877 4.40623188,7.55087574 4.5299008,7.48500698 L11.5299008,3.75665466 C11.8237589,3.60013944 12.1762411,3.60013944 12.4700992,3.75665466 L19.4700992,7.48500698 C19.5654307,7.53578262 19.6503066,7.60071528 19.7226939,7.67641889 L12.0479413,12.1074394 C11.9974761,12.1365754 11.9509488,12.1699127 11.9085461,12.2067543 C11.8661433,12.1699127 11.819616,12.1365754 11.7691509,12.1074394 L4.21611835,7.74669402 Z" fill="#000000" opacity="0.3" />
+					</g>
+				</svg><!--end::Svg Icon-->
+			</span>
+			Author
+		</h3>
+		<div class="card-toolbar">
+			@* data for generic modal *@
+			<a href="javascript:;" data-modal-title="Create Author" data-url="/Authors/Create" class="btn btn-sm btn-primary js-render-modal">
+				<i class="bi bi-plus-lg"></i>
+				Add
+			</a>
+		</div>
+	</div>
+	<div class="card-body">
+
+
+		<div class="card card-p-0 card-flush">
+			<div class="card-header align-items-center py-5 gap-2 gap-md-5">
+				<div class="card-title">
+					<!--begin::Search-->
+					<div class="d-flex align-items-center position-relative my-1">
+						<span class="svg-icon fs-1 position-absolute ms-4">
+							<span class="svg-icon svg-icon-primary svg-icon-2x">
+								<!--begin::Svg Icon | path:/var/www/preview.keenthemes.com/metronic/releases/2021-05-14-112058/theme/html/demo1/dist/../src/media/svg/icons/General/Search.svg-->
+								<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+									<title>Stockholm-icons / General / Search</title>
+									<desc>Created with Sketch.</desc>
+									<defs />
+									<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+										<rect x="0" y="0" width="24" height="24" />
+										<path d="M14.2928932,16.7071068 C13.9023689,16.3165825 13.9023689,15.6834175 14.2928932,15.2928932 C14.6834175,14.9023689 15.3165825,14.9023689 15.7071068,15.2928932 L19.7071068,19.2928932 C20.0976311,19.6834175 20.0976311,20.3165825 19.7071068,20.7071068 C19.3165825,21.0976311 18.6834175,21.0976311 18.2928932,20.7071068 L14.2928932,16.7071068 Z" fill="#000000" fill-rule="nonzero" opacity="0.3" />
+										<path d="M11,16 C13.7614237,16 16,13.7614237 16,11 C16,8.23857625 13.7614237,6 11,6 C8.23857625,6 6,8.23857625 6,11 C6,13.7614237 8.23857625,16 11,16 Z M11,18 C7.13400675,18 4,14.8659932 4,11 C4,7.13400675 7.13400675,4 11,4 C14.8659932,4 18,7.13400675 18,11 C18,14.8659932 14.8659932,18 11,18 Z" fill="#000000" fill-rule="nonzero" />
+									</g>
+								</svg><!--end::Svg Icon-->
+							</span>
+						</span>
+						<input type="text" data-kt-filter="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search Report" />
+					</div>
+					<!--end::Search-->
+					<!--begin::Export buttons-->
+					<div id="kt_datatable_example_1_export" class="d-none"></div>
+					<!--end::Export buttons-->
+				</div>
+				<div class="card-toolbar flex-row-fluid justify-content-end gap-5">
+					<!--begin::Export dropdown-->
+					<button type="button" class="btn btn-light-primary" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
+						<span class=" svg-icon svg-icon-primary svg-icon-2x">
+							<!--begin::Svg Icon | path:/var/www/preview.keenthemes.com/metronic/releases/2021-05-14-112058/theme/html/demo1/dist/../src/media/svg/icons/Files/Download.svg-->
+							<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+								<title>Stockholm-icons / Files / Download</title>
+								<desc>Created with Sketch.</desc>
+								<defs />
+								<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+									<rect x="0" y="0" width="24" height="24" />
+									<path d="M2,13 C2,12.5 2.5,12 3,12 C3.5,12 4,12.5 4,13 C4,13.3333333 4,15 4,18 C4,19.1045695 4.8954305,20 6,20 L18,20 C19.1045695,20 20,19.1045695 20,18 L20,13 C20,12.4477153 20.4477153,12 21,12 C21.5522847,12 22,12.4477153 22,13 L22,18 C22,20.209139 20.209139,22 18,22 L6,22 C3.790861,22 2,20.209139 2,18 C2,15 2,13.3333333 2,13 Z" fill="#000000" fill-rule="nonzero" opacity="0.3" />
+									<rect fill="#000000" opacity="0.3" transform="translate(12.000000, 8.000000) rotate(-180.000000) translate(-12.000000, -8.000000) " x="11" y="1" width="2" height="14" rx="1" />
+									<path d="M7.70710678,15.7071068 C7.31658249,16.0976311 6.68341751,16.0976311 6.29289322,15.7071068 C5.90236893,15.3165825 5.90236893,14.6834175 6.29289322,14.2928932 L11.2928932,9.29289322 C11.6689749,8.91681153 12.2736364,8.90091039 12.6689647,9.25670585 L17.6689647,13.7567059 C18.0794748,14.1261649 18.1127532,14.7584547 17.7432941,15.1689647 C17.3738351,15.5794748 16.7415453,15.6127532 16.3310353,15.2432941 L12.0362375,11.3779761 L7.70710678,15.7071068 Z" fill="#000000" fill-rule="nonzero" transform="translate(12.000004, 12.499999) rotate(-180.000000) translate(-12.000004, -12.499999) " />
+								</g>
+							</svg><!--end::Svg Icon-->
+						</span>
+						Export
+					</button>
+					<!--begin::Menu-->
+					<div id="kt_datatable_example_export_menu" class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-200px py-4" data-kt-menu="true">
+						<!--begin::Menu item-->
+						<div class="menu-item px-3">
+							<a href="#" class="menu-link px-3" data-kt-export="copy">
+								Copy to clipboard
+							</a>
+						</div>
+						<!--end::Menu item-->
+						<!--begin::Menu item-->
+						<div class="menu-item px-3">
+							<a href="#" class="menu-link px-3" data-kt-export="excel">
+								Export as Excel
+							</a>
+						</div>
+						<!--end::Menu item-->
+						<!--begin::Menu item-->
+						<div class="menu-item px-3">
+							<a href="#" class="menu-link px-3" data-kt-export="csv">
+								Export as CSV
+							</a>
+						</div>
+						<!--end::Menu item-->
+						<!--begin::Menu item-->
+						<div class="menu-item px-3">
+							<a href="#" class="menu-link px-3" data-kt-export="pdf">
+								Export as PDF
+							</a>
+						</div>
+						<!--end::Menu item-->
+					</div>
+					<!--end::Menu-->
+					<!--end::Export dropdown-->
+					<!--begin::Hide default export buttons-->
+					<div id="kt_datatable_example_buttons" class="d-none"></div>
+				</div>
+			</div>
+			<div class="card-body">
+				<table class="table align-middle rounded table-row-dashed fs-6 g-5 js-datatables" data-export-title="Categories ">
+					<thead>
+						<tr class="fw-semibold fs-6 text-gray-800 border-gray-200">
+							<th>Name</th>
+							<th>IsActive</th>
+							<th>Created On</th>
+							<th>Last Updated On</th>
+							<th class="js-no-export">Actions</th>
+						</tr>
+					</thead>
+					<tbody class="fw-semibold text-gray-600">
+
+						@foreach (var author in Model)
+						{
+							<partial name="_AuthorRow" model="author" />
+						}
+
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+
+	</div>
+
+</div>
+@Html.AntiForgeryToken()
+@section Scripts {
+
+	<partial name="_ValidationScriptsPartial" />
+
+}
+@section DataTableScripts {
+	<script src="~/assets/plugins/datatables/datatables.bundle.js"></script>
+}
+@section DataTableStyles {
+	<link href="~/assets/plugins/datatables/datatables.bundle.css" rel="stylesheet" />
+}
