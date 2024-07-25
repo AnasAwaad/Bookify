@@ -1,51 +1,45 @@
-﻿using AutoMapper;
-using Bookify.Web.Data;
-using Bookify.Web.Filters;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-namespace Bookify.Web.Controllers;
+﻿namespace Bookify.Web.Controllers;
 public class AuthorsController : Controller
 {
-	private readonly ApplicationDbContext _context;
-	private readonly IMapper _mapper;
+    private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-	public AuthorsController(ApplicationDbContext context, IMapper mapper)
-	{
-		_context = context;
-		_mapper = mapper;
-	}
+    public AuthorsController(ApplicationDbContext context, IMapper mapper)
+    {
+        _context = context;
+        _mapper = mapper;
+    }
 
-	public IActionResult Index()
-	{
-		var authors = _context.Authors.AsNoTracking().ToList();
-		var authorsVM = _mapper.Map<IEnumerable<AuthorViewModel>>(authors);
-		return View(authorsVM);
-	}
+    public IActionResult Index()
+    {
+        var authors = _context.Authors.AsNoTracking().ToList();
+        var authorsVM = _mapper.Map<IEnumerable<AuthorViewModel>>(authors);
+        return View(authorsVM);
+    }
 
-	[AjaxOnly]
-	public IActionResult Create()
-	{
-		return PartialView("_UpsertForm");
-	}
+    [AjaxOnly]
+    public IActionResult Create()
+    {
+        return PartialView("_UpsertForm");
+    }
 
 
-	[HttpPost]
-	[ValidateAntiForgeryToken]
-	public IActionResult Create(UpsertAuthorViewModel model)
-	{
-		if (!ModelState.IsValid)
-		{
-			return NotFound();
-		}
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Create(UpsertAuthorViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return NotFound();
+        }
 
-		var author = _mapper.Map<Author>(model);
-		_context.Authors.Add(author);
-		_context.SaveChanges();
+        var author = _mapper.Map<Author>(model);
+        _context.Authors.Add(author);
+        _context.SaveChanges();
 
-		var authorVM = _mapper.Map<AuthorViewModel>(author);
-		return PartialView("_AuthorRow", authorVM);
-	}
+        var authorVM = _mapper.Map<AuthorViewModel>(author);
+        return PartialView("_AuthorRow", authorVM);
+    }
 
     [AjaxOnly]
     public IActionResult Update(int? id)
@@ -87,6 +81,19 @@ public class AuthorsController : Controller
         _context.SaveChanges();
         return PartialView("_AuthorRow", _mapper.Map<AuthorViewModel>(author));
     }
+
+    [HttpPost]
+    public IActionResult IsAuthorAllowed(UpsertAuthorViewModel model)
+    {
+        var author = _context.Authors.SingleOrDefault(c => c.Name == model.Name);
+        // for new category null 
+        // for update category without change the name => category will be filled 
+        // check for id of the category with the same name equal model.Id
+        if (author == null || author.Id == model.Id)
+            return Json(true);
+        return Json(false);
+    }
+
 
 
     #region Ajax Request Handles

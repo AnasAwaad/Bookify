@@ -1,28 +1,22 @@
 ﻿
-using AutoMapper;
-using Bookify.Web.Data;
-using Bookify.Web.Filters;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
 namespace Bookify.Web.Controllers
 {
     public class CategoriesController : Controller
     {
         private readonly ApplicationDbContext _context;
-		private readonly IMapper mapper;
+        private readonly IMapper mapper;
 
-		public CategoriesController(ApplicationDbContext context,IMapper mapper)
+        public CategoriesController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
-			this.mapper = mapper;
-		}
+            this.mapper = mapper;
+        }
 
         public IActionResult Index()
         {
             var category = _context.Categories.AsNoTracking().ToList();
 
-			return View(mapper.Map<IEnumerable<CategoryViewModel>>(category));
+            return View(mapper.Map<IEnumerable<CategoryViewModel>>(category));
         }
 
         [AjaxOnly]
@@ -40,8 +34,8 @@ namespace Bookify.Web.Controllers
             {
                 return NotFound();
             }
-            
-            var category = mapper.Map<Category>(model);  
+
+            var category = mapper.Map<Category>(model);
             _context.Categories.Add(category);
             _context.SaveChanges();
 
@@ -61,7 +55,7 @@ namespace Bookify.Web.Controllers
             {
                 return NotFound();
             }
-            
+
             var categoryVM = mapper.Map<UpsertCategoryViewModel>(category);
 
             return PartialView("_UpsertForm", categoryVM);
@@ -82,9 +76,9 @@ namespace Bookify.Web.Controllers
                 return NotFound();
 
             category = mapper.Map(model, category);
-            
+
             category.LastUpdatedOn = DateTime.Now;
-            
+
 
             _context.SaveChanges();
             return PartialView("_CategoryRow", mapper.Map<CategoryViewModel>(category));
@@ -98,7 +92,7 @@ namespace Bookify.Web.Controllers
             // for new category null 
             // for update category without change the name => category will be filled 
             // check for id of the category with the same name equal model.Id
-            if (category == null || category.Id==model.Id)
+            if (category == null || category.Id == model.Id)
                 return Json(true);
             return Json(false);
         }
@@ -122,9 +116,9 @@ namespace Bookify.Web.Controllers
                 return NotFound();
             }
             category.LastUpdatedOn = DateTime.Now;
-            category.IsActive=!category.IsActive;
+            category.IsActive = !category.IsActive;
             _context.SaveChanges();
-            return Json(new { lastUpdatedOn = category.LastUpdatedOn.ToString() } );
+            return Json(new { lastUpdatedOn = category.LastUpdatedOn.ToString() });
         }
         #endregion
 
