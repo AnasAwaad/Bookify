@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Bookify.Web.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class AddBooksAndBookTableCategoryTable : Migration
+    public partial class AddBookAndbookCategoryModels : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,10 +19,12 @@ namespace Bookify.Web.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     AuthorId = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Publisher = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     PublishingDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Hall = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    IsAvaliableForRental = table.Column<bool>(type: "bit", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastUpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -53,13 +55,13 @@ namespace Bookify.Web.Data.Migrations
                         column: x => x.BookId,
                         principalTable: "Books",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_BookCategories_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(

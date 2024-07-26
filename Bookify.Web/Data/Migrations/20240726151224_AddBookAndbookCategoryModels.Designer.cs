@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bookify.Web.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240725182050_AddBooksAndBookTableCategoryTable")]
-    partial class AddBooksAndBookTableCategoryTable
+    [Migration("20240726151224_AddBookAndbookCategoryModels")]
+    partial class AddBookAndbookCategoryModels
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -73,10 +73,18 @@ namespace Bookify.Web.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Hall")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsAvaliableForRental")
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastUpdatedOn")
