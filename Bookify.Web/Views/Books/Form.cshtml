@@ -1,4 +1,7 @@
 ﻿@model BookFormViewModel
+@{
+	ViewBag.Title = (Model.Id.Equals(0) ? "Create" : "Update" ) +" Book";
+}
 <div class="card shadow-sm">
 	<div class="card-body">
 		<div class="row justify-content-between">
@@ -58,7 +61,7 @@
 					</div>
 
 					<div class="form-floating mb-7">
-						<input type="file" asp-for="ImageFile" class="form-control" placeholder="Image">
+						<input type="file" asp-for="ImageFile" class="form-control" placeholder="Image" accept=".jpg,.png,.jpeg">
 						<label asp-for="ImageFile"></label>
 						<span asp-validation-for="ImageFile" class="text-danger"></span>
 
@@ -71,7 +74,14 @@
 
 					</div>
 
-					<button type="submit" class="btn btn-primary mt-4 px-8">Save</button>
+					<button type="submit" class="btn btn-primary">
+						<span class="indicator-label">
+							Save
+						</span>
+						<span class="indicator-progress">
+							Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+						</span>
+					</button>
 
 
 				</form>

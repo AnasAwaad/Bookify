@@ -13,6 +13,6 @@ public static class Uploader
 		using (var Stream = new FileStream(finalPath, FileMode.Create))
 		file.CopyTo(Stream);
 
-		return Path.Combine(FileName);
+		return FileName;
 	}
 }

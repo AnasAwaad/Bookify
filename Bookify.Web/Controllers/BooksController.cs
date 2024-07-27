@@ -1,4 +1,5 @@
-﻿using Bookify.Web.Helper;
+﻿using Bookify.Web.Core.Consts;
+using Bookify.Web.Helper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,8 +9,8 @@ public class BooksController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
-	private readonly IList<string> AllowedExtensions = new List<string>() { ".png", ".jpg" };
-	private readonly int AllowedSize = 1048576;
+	private readonly IList<string> _allowedExtensions = new List<string>() { ".png", ".jpg",".jpeg" };
+	private readonly int _allowedSize = 1048576;
 	private readonly IWebHostEnvironment _webHostEnvironment;
 	public BooksController(ApplicationDbContext context, IMapper mapper, IWebHostEnvironment webHostEnvironment)
 	{
@@ -26,7 +27,7 @@ public class BooksController : Controller
     public IActionResult Create()
     {
         
-        return View("Form", CreateBookFormVM());
+        return View("Form", PopulateBookVM());
     }
 
 	[HttpPost]
@@ -34,36 +35,46 @@ public class BooksController : Controller
 	{
 
 		if (!ModelState.IsValid)
+			return View("Form", PopulateBookVM());
+		// check extension of image
+		if (!_allowedExtensions.Contains(Path.GetExtension(model.ImageFile.FileName).ToLower()))
 		{
-			return View("Form", CreateBookFormVM());
+			ModelState.AddModelError("ImageFile", Errors.AllowedExtensions);
+			return View("Form", PopulateBookVM(model));
 		}
-
-		if (model.ImageFile is not null && !AllowedExtensions.Contains(Path.GetExtension(model.ImageFile.FileName).ToLower()))
+		// check size of image
+		if(model.ImageFile.Length > _allowedSize)
 		{
-			
-			ModelState.AddModelError("ImageFile", "Only .jpg and .png are allowed");
-			return View("Form", CreateBookFormVM(model));
+			ModelState.AddModelError("ImageFile", Errors.AllowedSize);
+			return View("Form", PopulateBookVM(model));
 		}
-
-		if(model.ImageFile is not null && model.ImageFile.Length > AllowedSize)
-		{
-			
-			ModelState.AddModelError("ImageFile", "Image cannot be more than 1 megabyte!");
-			return View("Form", CreateBookFormVM(model));
-		}
-
+		
 		var book = _mapper.Map<Book>(model);
-		book.ImageUrl = Uploader.UploadFile(model.ImageFile!,"Book",_webHostEnvironment);
+
+		// add categories for new book 
+		foreach (var category in model.SelectedCategories)
+			book.Categories.Add(new BookCategory() { CategoryId = category});
+
+
+
+		book.ImageUrl = Uploader.UploadFile(model.ImageFile,"Book",_webHostEnvironment);
 		_context.Books.Add(book);
 		_context.SaveChanges();
 		return RedirectToAction("Index");
 	}
 
-	private BookFormViewModel CreateBookFormVM(BookFormViewModel? model=null)
+
+
+	private BookFormViewModel PopulateBookVM(BookFormViewModel? model=null)
 	{
-		var bookVM = new BookFormViewModel();
-		bookVM.AuthorSelectList = _mapper.Map<IEnumerable<SelectListItem>>(_context.Authors.ToList());
-		bookVM.CategorySelectList = _mapper.Map<IEnumerable<SelectListItem>>(_context.Categories.ToList());
+		
+		var bookVM = model is null ? new BookFormViewModel() : model;
+
+		var authors = _context.Authors.Where(a => a.IsActive).OrderBy(a=>a.Name).ToList();
+		var categories = _context.Categories.Where(c => c.IsActive).OrderBy(c=>c.Name).ToList();
+
+		bookVM.AuthorSelectList = _mapper.Map<IEnumerable<SelectListItem>>(authors);
+		bookVM.CategorySelectList = _mapper.Map<IEnumerable<SelectListItem>>(categories);
 		return bookVM;
 	}
 
