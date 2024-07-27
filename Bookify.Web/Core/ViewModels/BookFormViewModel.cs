@@ -17,9 +17,9 @@ public class BookFormViewModel
 	public string Publisher { get; set; } = null!;
 
 	[Display(Name = "Publishing Date")]
-	public DateTime PublishingDate { get; set; }
+	public DateTime PublishingDate { get; set; }= DateTime.Now;
 
-	public IFormFile? ImageFile { get; set; }
+	public IFormFile ImageFile { get; set; }
 
 	[MaxLength(50, ErrorMessage = Errors.MaxLength)]
 	public string Hall { get; set; } = null!;
