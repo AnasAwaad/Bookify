@@ -8,8 +8,8 @@ namespace Bookify.Web.Helper;
 // 2- name of attribute of tag heper   ( <a active-when="Home"></a> )
 // 3- value of active-when  , must be same of active-when but in pascal case           ( "Home") =>Controller name
 
-[HtmlTargetElement("a",Attributes ="active-when")]
-public class ActiveTag:TagHelper
+[HtmlTargetElement("a", Attributes = "active-when")]
+public class ActiveTag : TagHelper
 {
     public string? ActiveWhen { get; set; }
 

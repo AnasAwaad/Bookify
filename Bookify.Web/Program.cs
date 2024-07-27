@@ -1,7 +1,5 @@
-using Bookify.Web.Data;
 using Bookify.Web.Mapping;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace Bookify.Web
 {

@@ -1,0 +1,110 @@
+﻿@model BookFormViewModel
+@{
+	ViewBag.Title = (Model.Id.Equals(0) ? "Create" : "Update" ) +" Book";
+}
+<div class="card shadow-sm">
+	<div class="card-body">
+		<div class="row justify-content-between">
+			<div class="col-md-6">
+				<form asp-controller="Books" enctype="multipart/form-data">
+
+
+					<div class="form-floating mb-7">
+						<input asp-for="Title" class="form-control" placeholder="Name">
+						<label asp-for="Title"></label>
+						<span asp-validation-for="Title" class="text-danger"></span>
+
+					</div>
+					<div class="form-floating mb-7">
+						<input asp-for="Publisher" class="form-control" placeholder="Name">
+						<label asp-for="Publisher"></label>
+						<span asp-validation-for="Publisher" class="text-danger"></span>
+
+					</div>
+					<div class="form-floating mb-7">
+						<input asp-for="PublishingDate" class="form-control" placeholder="Name">
+						<label asp-for="PublishingDate"></label>
+						<span asp-validation-for="PublishingDate" class="text-danger"></span>
+
+					</div>
+
+					<div class="form-floating mb-7">
+						<input asp-for="Hall" class="form-control" placeholder="Hall">
+						<label asp-for="Hall"></label>
+						<span asp-validation-for="Hall" class="text-danger"></span>
+
+					</div>
+
+					<div class="form-floating mb-7">
+						<input asp-for="Description" class="form-control" placeholder="Description">
+						<label asp-for="Description"></label>
+						<span asp-validation-for="Description" class="text-danger"></span>
+
+					</div>
+					<div class="form-floating mb-7">
+						<label asp-for="AuthorId" class="pt-3"></label>
+						<select asp-for="AuthorId" asp-items="@Model.AuthorSelectList" class="form-control pt-8" placeholder="AuthorId">
+							<option hidden value="">-- select author --</option>
+						</select>
+						<span asp-validation-for="AuthorId" class="text-danger"></span>
+
+					</div>
+
+					<div class=" mb-7">
+						<label asp-for="SelectedCategories"></label>
+						<select asp-for="SelectedCategories" asp-items="@Model.CategorySelectList" class="form-select" placeholder="SelectedCategories">
+							<option hidden>-- select category --</option>
+						</select>
+
+						<span asp-validation-for="SelectedCategories" class="text-danger"></span>
+
+					</div>
+
+					<div class="form-floating mb-7">
+						<input type="file" asp-for="ImageFile" class="form-control" placeholder="Image" accept=".jpg,.png,.jpeg">
+						<label asp-for="ImageFile"></label>
+						<span asp-validation-for="ImageFile" class="text-danger"></span>
+
+					</div>
+
+					<div class="form-check">
+						<input asp-for="IsAvaliableForRental" class="form-check-input" type="checkbox">
+						<label class="form-check-label" asp-for="IsAvaliableForRental"></label>
+						<span asp-validation-for="IsAvaliableForRental" class="text-danger"></span>
+
+					</div>
+
+					<button type="submit" class="btn btn-primary">
+						<span class="indicator-label">
+							Save
+						</span>
+						<span class="indicator-progress">
+							Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+						</span>
+					</button>
+
+
+				</form>
+			</div>
+			<div class="d-none d-md-block col-md-6 col-lg-3">
+				<img id="poster-place" src="~/images/Book/no-image-available.jpg" class="w-100 h-50" alt="no selected image" />
+			</div>
+		</div>
+	</div>
+
+	
+</div>
+
+@section Scripts{
+	<partial name="_ValidationScriptsPartial"/>
+	<script>
+		$(function () {
+			$('#ImageFile').on('change', function () {
+				var img = this.files[0];
+				var imageUrl = window.URL.createObjectURL(img);
+				$('#poster-place').attr('src', imageUrl);
+
+			})
+		})
+	</script>
+}

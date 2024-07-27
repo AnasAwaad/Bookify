@@ -1,0 +1,20 @@
+﻿@model AuthorViewModel
+
+<tr>
+    <td>@Model.Name</td>
+    <td><span class="js-toggle-status  badge badge-@(Model.IsActive?"success":"danger")">@(Model.IsActive ? "Available" : "Deleted")</span></td>
+    <td>@Model.CreatedOn</td>
+    <td class="js-last-updated-on">@Model.LastUpdatedOn</td>
+    <td>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-light btn-flex btn-center btn-active-light-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Actions
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item js-render-modal" href="javaScript:;" data-update="true"  data-modal-title="Edit Author" data-url="/Authors/Update/@Model.Id">Update</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item js-btn-toggle-status" data-id="@Model.Id" href="javaScript:;" data-url="/Authors/ToggleStatus/@Model.Id">Toggle Status</a></li>
+            </ul>
+        </div>
+    </td>
+</tr>
