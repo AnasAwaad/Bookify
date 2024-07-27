@@ -8,6 +8,7 @@
 			<div class="col-md-6">
 				<form asp-controller="Books" enctype="multipart/form-data">
 
+					<input type="hidden" asp-for="ImageUrl"/>
 
 					<div class="form-floating mb-7">
 						<input asp-for="Title" class="form-control" placeholder="Name">
@@ -87,7 +88,7 @@
 				</form>
 			</div>
 			<div class="d-none d-md-block col-md-6 col-lg-3">
-				<img id="poster-place" src="~/images/Book/no-image-available.jpg" class="w-100 h-50" alt="no selected image" />
+				<img id="poster-place" src="~/images/Book/@(Model.ImageUrl is null ? "no-image-available.jpg" : Model.ImageUrl )" class="w-100 h-50" alt="no selected image" />
 			</div>
 		</div>
 	</div>

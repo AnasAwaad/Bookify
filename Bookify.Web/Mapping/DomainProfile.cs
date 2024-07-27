@@ -22,7 +22,7 @@ public class DomainProfile : Profile
 
 
 		// Book
-		CreateMap<BookFormViewModel, Book>();
+		CreateMap<BookFormViewModel, Book>().ReverseMap();
         
 
     }

@@ -36,6 +36,11 @@ public class BooksController : Controller
 
 		if (!ModelState.IsValid)
 			return View("Form", PopulateBookVM());
+		if(model.ImageFile is null)
+		{
+			ModelState.AddModelError("ImageFile", "The Image field is required.");
+			return View("Form", PopulateBookVM(model));
+		}
 		// check extension of image
 		if (!_allowedExtensions.Contains(Path.GetExtension(model.ImageFile.FileName).ToLower()))
 		{
@@ -63,6 +68,58 @@ public class BooksController : Controller
 		return RedirectToAction("Index");
 	}
 
+
+	public IActionResult Update(int id)
+	{
+		var book = _context.Books.Include(b=>b.Categories).SingleOrDefault(b=>b.Id==id);
+
+		if (book is null)
+			return NotFound();
+
+		var bookVM=_mapper.Map<BookFormViewModel>(book);
+		bookVM.SelectedCategories = book.Categories.Select(x=>x.CategoryId).ToList();
+		return View("Form", PopulateBookVM(bookVM));
+	}
+
+	[HttpPost]
+	public IActionResult Update(BookFormViewModel model)
+	{
+		if(!ModelState.IsValid)
+			return View("Form", PopulateBookVM(model));
+
+		var newBook = _mapper.Map<Book>(model);
+
+		// remove old categories that belongs to book
+		var oldBookCategories=_context.BookCategories.Where(b => b.BookId == model.Id).ToList();
+		_context.BookCategories.RemoveRange(oldBookCategories);
+		// add new categories that selected 
+		foreach (var category in model.SelectedCategories)
+			newBook.Categories.Add(new BookCategory() { CategoryId = category });
+
+		// remove old image and upload new image 
+		if (model.ImageFile is not null)
+		{
+			Uploader.RemoveFile(newBook.ImageUrl, _webHostEnvironment);
+
+			if (!_allowedExtensions.Contains(Path.GetExtension(model.ImageFile.FileName).ToLower()))
+			{
+				ModelState.AddModelError("ImageFile", Errors.AllowedExtensions);
+				return View("Form", PopulateBookVM(model));
+			}
+			// check size of image
+			if (model.ImageFile.Length > _allowedSize)
+			{
+				ModelState.AddModelError("ImageFile", Errors.AllowedSize);
+				return View("Form", PopulateBookVM(model));
+			}
+
+			newBook.ImageUrl = Uploader.UploadFile(model.ImageFile, "Book", _webHostEnvironment);
+		}
+
+		_context.Books.Update(newBook);
+		_context.SaveChanges();
+		return RedirectToAction(nameof(Index));
+	}
 
 
 	private BookFormViewModel PopulateBookVM(BookFormViewModel? model=null)

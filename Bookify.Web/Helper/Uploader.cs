@@ -15,4 +15,12 @@ public static class Uploader
 
 		return FileName;
 	}
+	public static void RemoveFile(string filePath,IWebHostEnvironment webHostEnvironment)
+	{
+		var oldImagePath = Path.Combine(webHostEnvironment.WebRootPath,"images","Book", filePath);
+		if (System.IO.File.Exists(oldImagePath))
+		{
+			System.IO.File.Delete(oldImagePath);
+		}
+	}
 }
