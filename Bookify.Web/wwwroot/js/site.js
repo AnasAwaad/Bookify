@@ -239,7 +239,24 @@ $(function () {
     });
 
 
+    // Handle tinymce 
+    var options = { selector: ".js-tinymce", height: "350" };
+
+    if (KTThemeMode.getMode() === "dark") {
+        options["skin"] = "oxide-dark";
+        options["content_css"] = "dark";
+    }
+    tinymce.init(options);
 
 
-
+    // Handle DatePicker
+    $('.js-datepicker').daterangepicker({
+        singleDatePicker: true,
+        showDropdowns: true,
+        minYear: 1901,
+        maxYear: parseInt(moment().format("YYYY"), 12),
+        autoApply: true,
+        timePicker:false,
+    }
+    );
 })
