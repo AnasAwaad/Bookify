@@ -121,6 +121,16 @@ public class BooksController : Controller
 		return RedirectToAction(nameof(Index));
 	}
 
+	[HttpPost]
+	public IActionResult IsBookAllowed(BookFormViewModel model)
+	{
+		
+		var book = _context.Books.SingleOrDefault(c => c.Title == model.Title && c.AuthorId == model.AuthorId);
+	
+		if (book == null || book.Id == model.Id)
+			return Json(true);
+		return Json(false);
+	}
 
 	private BookFormViewModel PopulateBookVM(BookFormViewModel? model=null)
 	{

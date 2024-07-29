@@ -254,7 +254,7 @@ $(function () {
         singleDatePicker: true,
         showDropdowns: true,
         minYear: 1901,
-        maxYear: parseInt(moment().format("YYYY"), 12),
+        maxDate:new Date(),
         autoApply: true,
         timePicker:false,
     }
