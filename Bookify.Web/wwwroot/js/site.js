@@ -23,13 +23,15 @@ function OnSuccessSubmit(row) {
     ShowSuccessMessage();
 }
 
+function DisableSubmitButton() {
+    $('body :submit').attr('disabled', 'disabled').attr('data-kt-indicator', 'on');
+}
+
 function OnBeginModal() {
-    $('body :submit').attr('disabled', 'disabled');
-    $('body :submit').attr('data-kt-indicator', 'on');
+    DisableSubmitButton();
 }
 function OnCompleteModal() {
-    $('body :submit').removeAttr('disabled');
-    $('body :submit').removeAttr('data-kt-indicator');
+    $('body :submit').removeAttr('disabled').removeAttr('data-kt-indicator');
 }
 
 function ShowSuccessMessage(message = "Saved Successfully") {
@@ -76,6 +78,11 @@ function ShowToastrMessage(type, message) {
 }
 
 $(function () {
+
+    // Handle disable submit button 
+    $('form').on('submit', function () {
+        if ($(this).valid()) DisableSubmitButton();
+    })
 
 
     // Handle Toggle status 
@@ -240,13 +247,27 @@ $(function () {
 
 
     // Handle tinymce 
-    var options = { selector: ".js-tinymce", height: "350" };
+    if ($('.js-tinymce').length > 0) { // check if there is tinymce library js file in page
+        
 
-    if (KTThemeMode.getMode() === "dark") {
-        options["skin"] = "oxide-dark";
-        options["content_css"] = "dark";
+        if (KTThemeMode.getMode() === "dark") {
+            options["skin"] = "oxide-dark";
+            options["content_css"] = "dark";
+        }
+        tinymce.init({
+            selector: ".js-tinymce",
+            height: "350",
+            setup: function (editor) {
+                // Sync content with textarea on change
+                editor.on('change', function () {
+                    editor.save();
+                    // Manually trigger form validation
+                    var textareaId = editor.getElement().id;
+                    $('form').validate().element("#" + textareaId);
+                });
+            }
+        });
     }
-    tinymce.init(options);
 
 
     // Handle DatePicker
@@ -257,6 +278,18 @@ $(function () {
         maxDate:new Date(),
         autoApply: true,
         timePicker:false,
-    }
-    );
+    });
+
+    // select2 event
+    // revalidation for this element when select item from selectList
+    $('.js-select2').on('select2:select', function (e) {
+        var selectItem = $(this);
+        $('form').validate().element("#"+selectItem.attr('id'));// ex: #AuthorId
+    });
+
+    // Trigger validation when file input changes
+    $('#ImageFile').on('change', function () {
+        // Clear the validation message when the input changes
+        $('#validationImageMessage').text('');
+    });
 })

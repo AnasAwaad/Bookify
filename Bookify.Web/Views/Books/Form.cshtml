@@ -37,7 +37,7 @@
 
 					<div class="mb-7">
 						
-						<select asp-for="AuthorId" asp-items="@Model.AuthorSelectList" class="form-select" data-control="select2" data-placeholder="Select an Author">
+						<select asp-for="AuthorId" asp-items="@Model.AuthorSelectList" class="form-select js-select2" data-control="select2" data-placeholder="Select an Author">
 							<option hidden value="">-- select author --</option>
 						</select>
 						<span asp-validation-for="AuthorId" class="text-danger"></span>
@@ -45,7 +45,7 @@
 					</div>
 
 					<div class=" mb-7">
-						<select asp-for="SelectedCategories" asp-items="@Model.CategorySelectList" class="form-select" data-control="select2" data-placeholder="Select Category">
+						<select asp-for="SelectedCategories" asp-items="@Model.CategorySelectList" class="form-select js-select2" data-control="select2" data-placeholder="Select Category">
 							<option hidden value="">-- select category --</option>
 						</select>
 						<span asp-validation-for="SelectedCategories" class="text-danger"></span>
@@ -105,7 +105,7 @@
 						<!--end::Cancel button-->
 						
 					</div>
-					<span asp-validation-for="ImageFile" class="text-danger d-block"></span>
+					<span asp-validation-for="ImageFile" id="validationImageMessage" class="text-danger d-block"></span>
 					<!--end::Image input-->
 				</div>
 
