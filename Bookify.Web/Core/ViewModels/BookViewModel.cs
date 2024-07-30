@@ -9,7 +9,7 @@ public class BookViewModel
 	public DateTime PublishingDate { get; set; }
 	public string ImageUrl { get; set; } = null!;
 	public string Hall { get; set; } = null!;
-	public bool IsAvaliableForRental { get; set; }
+	public bool IsAvailableForRental { get; set; }
 	public string Description { get; set; } = null!;
 	public bool IsActive { get; set; }
 	public DateTime CreatedOn { get; set; }

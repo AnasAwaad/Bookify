@@ -30,7 +30,7 @@ public class BookFormViewModel
 	public string Hall { get; set; } = null!;
 
 	[Display(Name = "Is avaliable for rental")]
-	public bool IsAvaliableForRental { get; set; }
+	public bool IsAvailableForRental { get; set; }
 
 	public string Description { get; set; } = null!;
 	// why

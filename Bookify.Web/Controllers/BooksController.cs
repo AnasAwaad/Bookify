@@ -3,6 +3,7 @@ using Bookify.Web.Helper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Linq.Dynamic.Core;
 
 namespace Bookify.Web.Controllers;
 public class BooksController : Controller
@@ -155,6 +156,30 @@ public class BooksController : Controller
 		bookVM.AuthorSelectList = _mapper.Map<IEnumerable<SelectListItem>>(authors);
 		bookVM.CategorySelectList = _mapper.Map<IEnumerable<SelectListItem>>(categories);
 		return bookVM;
+	}
+
+	[HttpPost]
+	public IActionResult GetBooks()
+	{
+		IQueryable<Book> books = _context.Books.Include(b=>b.Author);
+
+		var skip =Convert.ToInt32(Request.Form["start"]);
+		var pageSize = Convert.ToInt32(Request.Form["length"]);
+		var orderColumnIndex = Convert.ToInt32(Request.Form["order[0][column]"]);
+		var orderColumnName = Request.Form[$"columns[{orderColumnIndex}][name]"];
+		var orderColumnDirection = Request.Form["order[0][dir]"];
+		var searchValue = Request.Form["search[value]"];
+
+		if(!string.IsNullOrEmpty(searchValue))
+			books= books.Where(b=>b.Title.Contains(searchValue!) || b.Author!.Name.Contains(searchValue!));
+
+		books = books.OrderBy($"{orderColumnName} {orderColumnDirection}");  //orderBy from system.Linq.Dynamic lib
+
+		var data = books.Skip(skip).Take(pageSize).ToList();
+
+		var recordsTotal =books.Count();
+
+		return Json(new {recordsFiltered=recordsTotal,recordsTotal,data});
 	}
 
 	
