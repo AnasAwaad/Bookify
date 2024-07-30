@@ -23,7 +23,9 @@ public class DomainProfile : Profile
 
 		// Book
 		CreateMap<BookFormViewModel, Book>().ReverseMap();
-        
+		CreateMap<Book, BookViewModel>()
+			.ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author!.Name))
+			.ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories.Select(b=>b.Category!.Name).ToList()));
 
     }
 }

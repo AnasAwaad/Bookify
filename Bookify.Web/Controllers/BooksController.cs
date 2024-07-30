@@ -24,6 +24,18 @@ public class BooksController : Controller
         return View();
     }
 
+
+	public IActionResult Details(int id)
+	{
+		var book = _context.Books.Include(b=>b.Author).Include(b=>b.Categories).ThenInclude(b=>b.Category).SingleOrDefault(b=>b.Id==id);
+		if (book is null)
+			return NotFound();
+
+		var viewModel = _mapper.Map<BookViewModel>(book);
+		return View(viewModel);
+	}
+
+
     public IActionResult Create()
     {
         
