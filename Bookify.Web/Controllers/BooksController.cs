@@ -158,29 +158,49 @@ public class BooksController : Controller
 		return bookVM;
 	}
 
+
+
+	#region Ajax Request Handles
+
 	[HttpPost]
 	public IActionResult GetBooks()
 	{
-		IQueryable<Book> books = _context.Books.Include(b=>b.Author);
+		IQueryable<Book> books = _context.Books.Include(b => b.Author).Include(b => b.Categories).ThenInclude(b => b.Category);
 
-		var skip =Convert.ToInt32(Request.Form["start"]);
+		var skip = Convert.ToInt32(Request.Form["start"]);
 		var pageSize = Convert.ToInt32(Request.Form["length"]);
 		var orderColumnIndex = Convert.ToInt32(Request.Form["order[0][column]"]);
 		var orderColumnName = Request.Form[$"columns[{orderColumnIndex}][name]"];
 		var orderColumnDirection = Request.Form["order[0][dir]"];
 		var searchValue = Request.Form["search[value]"];
 
-		if(!string.IsNullOrEmpty(searchValue))
-			books= books.Where(b=>b.Title.Contains(searchValue!) || b.Author!.Name.Contains(searchValue!));
+		if (!string.IsNullOrEmpty(searchValue))
+			books = books.Where(b => b.Title.Contains(searchValue!) || b.Author!.Name.Contains(searchValue!));
 
 		books = books.OrderBy($"{orderColumnName} {orderColumnDirection}");  //orderBy from system.Linq.Dynamic lib
 
 		var data = books.Skip(skip).Take(pageSize).ToList();
+		var booksVM = _mapper.Map<IEnumerable<BookViewModel>>(data);
+		var recordsTotal = books.Count();
 
-		var recordsTotal =books.Count();
-
-		return Json(new {recordsFiltered=recordsTotal,recordsTotal,data});
+		return Json(new { recordsFiltered = recordsTotal, recordsTotal, data = booksVM });
 	}
 
 	
+	[ValidateAntiForgeryToken]
+	public IActionResult ToggleStatus(int id)
+	{
+		var book = _context.Books.Find(id);
+		if (book == null)
+		{
+			return NotFound();
+		}
+		book.LastUpdatedOn = DateTime.Now;
+		book.IsActive = !book.IsActive;
+		_context.SaveChanges();
+		return Ok();
+	}
+	#endregion
+
+
 }

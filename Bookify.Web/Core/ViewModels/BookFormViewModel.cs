@@ -25,6 +25,8 @@ public class BookFormViewModel
 
 	public IFormFile? ImageFile { get; set; }
 	public string? ImageUrl { get; set; }
+	public string? ImageThumbnailUrl { get; set; } = null!;
+	public int? ImagePublicId { get; set; }
 
 	[MaxLength(50, ErrorMessage = Errors.MaxLength)]
 	public string Hall { get; set; } = null!;

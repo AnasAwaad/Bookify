@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
 	ViewBag.Title = "Books";
 }
 
@@ -57,23 +56,23 @@
 				<div id="kt_datatable_example_1_export" class="d-none"></div>
 				<!--end::Export buttons-->
 			</div>
-			
+
 		</div>
 
 		<div class="card card-p-0 card-flush">
 			<div class="card-body">
-				<table id="BookTbl" class="table align-middle rounded table-row-dashed fs-6 g-5" >
+				<table id="BookTbl" class="table align-middle rounded table-row-dashed fs-6 g-5">
 					<thead>
 						<tr class="fw-semibold fs-6 text-gray-800 border-gray-200">
 							<th class="d-none"></th> @* for id *@
 							<th>Book</th>
-							@* <th>Publisher</th>
+							<th>Publisher</th>
 							<th>Publishing Date</th>
 							<th>Hall</th>
 							<th>Categories</th>
 							<th>Rental</th>
 							<th>Status</th>
-							<th>Actions</th> *@
+							<th>Actions</th>
 						</tr>
 					</thead>
 					<tbody class="fw-semibold text-gray-600">
@@ -87,14 +86,14 @@
 	</div>
 
 </div>
-
+@Html.AntiForgeryToken()
 @section DataTableScripts {
 	<script src="~/assets/plugins/datatables/datatables.bundle.js"></script>
 }
 @section DataTableStyles {
 	<link href="~/assets/plugins/datatables/datatables.bundle.css" rel="stylesheet" />
 }
-@section Scripts{
+@section Scripts {
 	<script>
 		$(function () {
 
@@ -103,24 +102,88 @@
 				DataTable.search(searchValue).draw();
 			});
 
-			var DataTable=$('#BookTbl').DataTable({
-				serverSide:true,
-				processing:true,
+			var DataTable = $('#BookTbl').DataTable({
+				serverSide: true,
+				processing: true,
+				stateSave: true,
 				ajax: {
-					url:"/Books/GetBooks",
-					type:"POST"
+					url: "/Books/GetBooks",
+					type: "POST"
 				},
-				order:[[1,'asc']],
-				columnDefs:[
+				order: [[1, 'asc']],
+				columnDefs: [
 					{
-						targets:[0],
-						searchable:false,
-						visible:false
+						targets: [0],
+						searchable: false,
+						visible: false
 					}
 				],
-				columns:[
-					{"data":"id" ,  "name":"Id","className":"d-none"},
-					{"data":"title","name":"Title"}
+				columns: [
+					{ "data": "id", "name": "Id", "className": "d-none" },
+					{
+						"name": "Title",
+						"className": "d-flex align-items-center w-200px",
+						"render": function (data, type, row) {
+							return `
+										<div class="symbol symbol-50px overflow-hidden me-3">
+											<a href="/Books/Details/${row.id}">
+												<div class="symbol-label h-75">
+															<img src="${(row.imageThumbnailUrl === null ? '/images/books/no-book.jpg' : row.imageThumbnailUrl)}" alt="${row.title}" class="w-100">
+												</div>
+											</a>
+										</div>
+
+										<div class="d-flex flex-column">
+											<a href="/Books/Details/${row.id}" class="text-primary mb-1">${row.title}</a>
+											<span>${row.authorName}</span>
+										</div>
+									`;
+						},
+					},
+					{ "data": "publisher", "name": "Publisher" },
+					{
+						"name": "PublishingDate",
+						"render": function (data, type, row) {
+							return moment(row.publishingDate).format("ll");
+						}
+					},
+					{ "data": "hall", "name": "Hall" },
+					{ "data": "categories", "name": "Categories", "orderable": false },
+					{ 
+						"data": "isAvailableForRental",
+						"name": "IsAvailableForRental",
+						"render": function (data, type, row) {
+							return `<span class=" badge badge-${row.isAvailableForRental ? "success" : "danger"}">
+										${row.isAvailableForRental ? "Available" : "Not Available"}
+									</span>`;
+						}
+					},
+					{ 
+						"name": "IsActive",
+						"render": function (data, type, row) {
+							return `<span class="js-toggle-status  badge badge-${row.isActive ? "success" : "danger"}">
+										${row.isActive ? "Available" : "Not Available"}
+									</span>`;
+						}
+					},
+					{
+						"orderable": false,
+						"render": function (data, type, row) {
+							return `
+									<div class="dropdown">
+										<button class="btn btn-sm btn-light btn-flex btn-center btn-active-light-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+											Actions
+										</button>
+										<ul class="dropdown-menu">
+											<li><a class="dropdown-item" href="/Books/Update/${row.id}" >Update</a></li>
+											<li><hr class="dropdown-divider"></li>
+											<li><a class="dropdown-item js-btn-toggle-status" data-id="${row.id}" href="javaScript:;" data-url="/Books/ToggleStatus/${row.id}"">Toggle Status</a></li>
+										</ul>
+									</div>`;
+						}
+					}
+
+
 				]
 			});
 		})
