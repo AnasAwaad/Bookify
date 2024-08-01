@@ -28,7 +28,12 @@ public class BooksController : Controller
 
 	public IActionResult Details(int id)
 	{
-		var book = _context.Books.Include(b=>b.Author).Include(b=>b.Categories).ThenInclude(b=>b.Category).SingleOrDefault(b=>b.Id==id);
+		var book = _context.Books
+			.Include(b=>b.BookCopies)
+			.Include(b=>b.Author)
+			.Include(b=>b.Categories)
+			.ThenInclude(b=>b.Category)
+			.SingleOrDefault(b=>b.Id==id);
 		if (book is null)
 			return NotFound();
 

@@ -1,0 +1,28 @@
+﻿@model BookCopyFormViewModel
+
+<form method="post"
+      asp-action="@(Model?.Id>0?"Update":"Create")"
+      data-ajax="true"
+      data-ajax-method="post"
+      data-ajax-success="OnSuccessSubmit"
+      data-ajax-failure="ShowErrorMessage"
+      data-ajax-begin="OnBeginModal"
+      data-ajax-complete="OnCompleteModal">
+    @if (Model?.Id > 0)
+    {
+        <input type="hidden" asp-for="Id" />
+    }
+    <input type="hidden" asp-for="BookId" />
+
+    <div class="form-floating mb-7">
+        <input asp-for="EditionNumber" class="form-control" placeholder="Edition ">
+        <label asp-for="EditionNumber"></label>
+        <span asp-validation-for="EditionNumber" class="text-danger"></span>
+
+    </div>
+    <partial name="_ModalFooter" />
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -9,4 +9,5 @@ public static class Errors
     public const string AllowedExtensions = "Only .jpg , .png and .jpeg are allowed";
     public const string AllowedSize = "Image cannot be more than 1 megabyte!";
     public const string NotAllowedDate = "The Date can't be in the future!";
+    public const string EditionNumberRange = "{0} must be in range {1} to {2}!";
 }

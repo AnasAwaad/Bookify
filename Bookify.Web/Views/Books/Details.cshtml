@@ -107,7 +107,7 @@
                                             <path fill-rule="evenodd" clip-rule="evenodd" d="M14.7857 7.125H6.21429C5.62255 7.125 5.14286 7.6007 5.14286 8.1875V18.8125C5.14286 19.3993 5.62255 19.875 6.21429 19.875H14.7857C15.3774 19.875 15.8571 19.3993 15.8571 18.8125V8.1875C15.8571 7.6007 15.3774 7.125 14.7857 7.125ZM6.21429 5C4.43908 5 3 6.42709 3 8.1875V18.8125C3 20.5729 4.43909 22 6.21429 22H14.7857C16.5609 22 18 20.5729 18 18.8125V8.1875C18 6.42709 16.5609 5 14.7857 5H6.21429Z" fill="currentColor" />
                                         </svg>
                                     </span>
-                                    <div class="fs-7 fw-bold" data-kt-countup="true" data-kt-countup-value="7">0</div>
+                                    <div class="fs-7 fw-bold" data-kt-countup="true" data-kt-countup-value="@Model.BookCopies.Count()">0</div>
                                 </div>
                                 <!--end::Number-->
                                 <!--begin::Label-->
@@ -172,17 +172,63 @@
                 <!--begin::Card title-->
                 <div class="card-title fs-3 fw-bold">Copies</div>
                 <!--end::Card title-->
+                <div class="card-toolbar">
+                    <a href="javascript:;" data-modal-title="Create Book Copy" data-url="/BookCopies/Create?bookId=@Model.Id" class="btn btn-sm btn-primary js-render-modal">
+                        <i class="bi bi-plus-lg"></i>
+                        Add
+                    </a>
+                </div>
             </div>
             <!--end::Card header-->
             <div class="card-body">
-                Copies
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Serial Number</th>
+                            <th>Edition</th>
+                            <th>Rental</th>
+                            <th>Status</th>
+                            <th>Created on</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var copy in Model.BookCopies)
+                        {
+                            <tr>
+                                <td>@copy.SerialNumber</td>
+                                <td>@copy.EditionNumber</td>
+                                <td><span class="badge badge-@(copy.IsAvailableForRental?"success":"danger")">@(copy.IsAvailableForRental ? "Available" : "Deleted")</span></td>
+                                <td><span class="js-toggle-status  badge badge-@(copy.IsActive?"success":"danger")">@(copy.IsActive ? "Available" : "Deleted")</span></td>
+                                <td>@copy.CreatedOn</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light btn-flex btn-center btn-active-light-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Actions
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item js-render-modal" href="javaScript:;" data-update="true" data-modal-title="Edit Book Copy" data-url="/BookCopies/Update/@copy.Id">Update</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item js-btn-toggle-status" data-id="@copy.Id" href="javaScript:;" data-url="/BookCopies/ToggleStatus/@copy.Id">Toggle Status</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
             </div>
         </div>
         <!--end::Card-->
     </div>
 </div>
+@Html.AntiForgeryToken()
 
 @section Plugins
 {
 	<script src="~/assets/plugins/fslightbox/fslightbox.bundle.js"></script>
+}
+@section Scripts{
+    <partial name="_ValidationScriptsPartial"/>
 }
