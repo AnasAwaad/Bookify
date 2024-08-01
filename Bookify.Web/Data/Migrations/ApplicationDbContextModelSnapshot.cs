@@ -75,6 +75,12 @@ namespace Bookify.Web.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int?>("ImagePublicId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageThumbnailUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -82,7 +88,7 @@ namespace Bookify.Web.Data.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsAvaliableForRental")
+                    b.Property<bool>("IsAvailableForRental")
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastUpdatedOn")

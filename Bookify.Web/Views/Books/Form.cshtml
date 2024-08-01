@@ -1,13 +1,17 @@
 ﻿@model BookFormViewModel
 @{
-	ViewBag.Title = (Model.Id.Equals(0) ? "Create" : "Update" ) +" Book";
+	ViewBag.Title = (Model.Id.Equals(0) ? "Create" : "Update") + " Book";
 }
 <div class="card shadow-sm">
 	<div class="card-body">
-		<div class="row justify-content-between">
-			<div class="col-md-6">
-				<form asp-controller="Books" enctype="multipart/form-data">
 
+		<form asp-controller="Books" enctype="multipart/form-data">
+			<div class="row justify-content-between">
+				<div class="col-md-6">
+					<input type="hidden" asp-for="Id"/>
+					<input type="hidden" asp-for="ImageUrl" />
+					<input type="hidden" asp-for="ImageThumbnailUrl" />
+					<input type="hidden" asp-for="ImagePublicId" />
 
 					<div class="form-floating mb-7">
 						<input asp-for="Title" class="form-control" placeholder="Name">
@@ -21,9 +25,8 @@
 						<span asp-validation-for="Publisher" class="text-danger"></span>
 
 					</div>
-					<div class="form-floating mb-7">
-						<input asp-for="PublishingDate" class="form-control" placeholder="Name">
-						<label asp-for="PublishingDate"></label>
+					<div class="mb-7">
+						<input type="text" asp-for="PublishingDate" class="form-control form-control-solid js-datepicker" placeholder="Publishing Date">
 						<span asp-validation-for="PublishingDate" class="text-danger"></span>
 
 					</div>
@@ -35,15 +38,9 @@
 
 					</div>
 
-					<div class="form-floating mb-7">
-						<input asp-for="Description" class="form-control" placeholder="Description">
-						<label asp-for="Description"></label>
-						<span asp-validation-for="Description" class="text-danger"></span>
-
-					</div>
-					<div class="form-floating mb-7">
-						<label asp-for="AuthorId" class="pt-3"></label>
-						<select asp-for="AuthorId" asp-items="@Model.AuthorSelectList" class="form-control pt-8" placeholder="AuthorId">
+					<div class="mb-7">
+						
+						<select asp-for="AuthorId" asp-items="@Model.AuthorSelectList" class="form-select js-select2" data-control="select2" data-placeholder="Select an Author">
 							<option hidden value="">-- select author --</option>
 						</select>
 						<span asp-validation-for="AuthorId" class="text-danger"></span>
@@ -51,60 +48,82 @@
 					</div>
 
 					<div class=" mb-7">
-						<label asp-for="SelectedCategories"></label>
-						<select asp-for="SelectedCategories" asp-items="@Model.CategorySelectList" class="form-select" placeholder="SelectedCategories">
-							<option hidden>-- select category --</option>
+						<select asp-for="SelectedCategories" asp-items="@Model.CategorySelectList" class="form-select js-select2" data-control="select2" data-placeholder="Select Category">
+							<option hidden value="">-- select category --</option>
 						</select>
-
 						<span asp-validation-for="SelectedCategories" class="text-danger"></span>
 
 					</div>
 
 					<div class="form-floating mb-7">
-						<input type="file" asp-for="ImageFile" class="form-control" placeholder="Image" accept=".jpg,.png,.jpeg">
-						<label asp-for="ImageFile"></label>
-						<span asp-validation-for="ImageFile" class="text-danger"></span>
+						<textarea asp-for="Description" class="form-control js-tinymce" placeholder="Description">
+
+						</textarea>
+						<label asp-for="Description"></label>
+						<span asp-validation-for="Description" class="text-danger"></span>
 
 					</div>
 
-					<div class="form-check">
-						<input asp-for="IsAvaliableForRental" class="form-check-input" type="checkbox">
-						<label class="form-check-label" asp-for="IsAvaliableForRental"></label>
-						<span asp-validation-for="IsAvaliableForRental" class="text-danger"></span>
 
+					<div class="form-check form-switch form-check-custom form-check-solid mb-5">
+						<input asp-for="IsAvailableForRental" class="form-check-input" type="checkbox">
+						<label class="form-check-label" asp-for="IsAvailableForRental"></label>
 					</div>
 
-					<button type="submit" class="btn btn-primary">
-						<span class="indicator-label">
-							Save
+
+					
+				</div>
+				<div class="col-md-4">
+					
+					<!--begin::Image input-->
+					<div class="image-input image-input-empty" data-kt-image-input="true" style="background-image: url('@Url.Content(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/image-placeholder.jpg" : $"{Model.ImageThumbnailUrl}")');">
+						<!--begin::Image preview wrapper-->
+						<div class="image-input-wrapper w-250px h-300px"></div>
+						<!--end::Image preview wrapper-->
+						<!--begin::Edit button-->
+						<label class="btn btn-icon btn-circle btn-color-muted btn-active-color-primary w-25px h-25px bg-body shadow"
+							   data-kt-image-input-action="change"
+							   data-bs-dismiss="click">
+							<i class="bi bi-pencil-fill fs-7"></i>
+
+							<!--begin::Inputs-->
+							<input type="file" asp-for="ImageFile" accept=".png, .jpg, .jpeg" />
+							<input type="hidden" name="avatar_remove" />
+							<!--end::Inputs-->
+						</label>
+						<!--end::Edit button-->
+						<!--begin::Cancel button-->
+						<span class="btn btn-icon btn-circle btn-color-muted btn-active-color-primary w-25px h-25px bg-body shadow"
+							  data-kt-image-input-action="cancel"
+							  data-bs-dismiss="click">
+							<i class="bi bi-x fs-2"></i>
 						</span>
-						<span class="indicator-progress">
-							Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
-						</span>
-					</button>
+						<!--end::Cancel button-->
+						
+					</div>
+					<span asp-validation-for="ImageFile" id="validationImageMessage" class="text-danger d-block"></span>
+					<!--end::Image input-->
+				</div>
 
 
-				</form>
 			</div>
-			<div class="d-none d-md-block col-md-6 col-lg-3">
-				<img id="poster-place" src="~/images/Book/no-image-available.jpg" class="w-100 h-50" alt="no selected image" />
-			</div>
-		</div>
+			<button type="submit" class="btn btn-primary">
+				<span class="indicator-label">
+					Save
+				</span>
+				<span class="indicator-progress">
+					Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+				</span>
+			</button>
+		</form>
+
 	</div>
 
-	
+
 </div>
 
-@section Scripts{
-	<partial name="_ValidationScriptsPartial"/>
-	<script>
-		$(function () {
-			$('#ImageFile').on('change', function () {
-				var img = this.files[0];
-				var imageUrl = window.URL.createObjectURL(img);
-				$('#poster-place').attr('src', imageUrl);
-
-			})
-		})
-	</script>
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+	<script src="~/assets/plugins/tinymce/tinymce.bundle.js"></script>
+	
 }

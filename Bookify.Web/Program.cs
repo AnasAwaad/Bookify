@@ -1,5 +1,6 @@
 using Bookify.Web.Mapping;
 using Microsoft.AspNetCore.Identity;
+using UoN.ExpressiveAnnotations.NetCore.DependencyInjection;
 
 namespace Bookify.Web
 {
@@ -20,8 +21,8 @@ namespace Bookify.Web
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddAutoMapper(typeof(DomainProfile));
-
-            var app = builder.Build();
+			builder.Services.AddExpressiveAnnotations();
+			var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

@@ -18,8 +18,10 @@ public class Book : BaseModel
 
     [MaxLength(50)]
     public string Hall { get; set; }= null!;
+    public string? ImageThumbnailUrl { get; set; }= null!;
+    public int? ImagePublicId { get; set; }
 
-    public bool IsAvaliableForRental { get; set; }
+    public bool IsAvailableForRental { get; set; }
 
     public string Description { get; set; }=null!;
 

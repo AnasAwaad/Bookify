@@ -36,6 +36,10 @@
         "toastr.min.js",
         "toastr.min.css"
       ]
+    },
+    {
+      "library": "expressive-annotations-validate@2.7.0",
+      "destination": "wwwroot/lib/expressive-annotations-validate/"
     }
   ]
 }
