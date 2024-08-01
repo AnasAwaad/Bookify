@@ -4,7 +4,7 @@
       asp-action="@(Model?.Id>0?"Update":"Create")"
       data-ajax="true"
       data-ajax-method="post"
-      data-ajax-success="OnSuccessSubmit"
+      data-ajax-success="OnAddCopyBook"
       data-ajax-failure="ShowErrorMessage"
       data-ajax-begin="OnBeginModal"
       data-ajax-complete="OnCompleteModal">
@@ -15,14 +15,21 @@
     <input type="hidden" asp-for="BookId" />
 
     <div class="form-floating mb-7">
-        <input asp-for="EditionNumber" class="form-control" placeholder="Edition ">
-        <label asp-for="EditionNumber"></label>
+        <input asp-for="EditionNumber" class="form-control" placeholder="Edition " value="">
+        <label asp-for="EditionNumber"></label> 
         <span asp-validation-for="EditionNumber" class="text-danger"></span>
-
     </div>
+    @if (Model!.IsBookAvailableForRental)
+    {
+        <div class="form-check form-switch form-check-custom form-check-solid mb-5">
+            <input asp-for="IsAvailableForRental" class="form-check-input" type="checkbox">
+            <label class="form-check-label" asp-for="IsAvailableForRental"></label>
+        </div>
+    }
     <partial name="_ModalFooter" />
 </form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    
 }

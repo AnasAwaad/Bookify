@@ -11,6 +11,7 @@ var exportedCols = [];
 function OnSuccessSubmit(row) {
     var newRow = $(row);
 
+
     // add new row to table
     datatable.row.add(newRow).draw();
     if (updatedRow !== undefined) {

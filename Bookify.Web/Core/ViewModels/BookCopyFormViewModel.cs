@@ -9,4 +9,6 @@ public class BookCopyFormViewModel
     public bool IsAvailableForRental { get; set; }
     [Display(Name ="Edition Number"), Range(1, 1000, ErrorMessage = Errors.EditionNumberRange)]
     public int EditionNumber { get; set; }
+
+    public bool IsBookAvailableForRental { get; set; }
 }

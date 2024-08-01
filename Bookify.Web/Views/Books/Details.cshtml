@@ -107,7 +107,7 @@
                                             <path fill-rule="evenodd" clip-rule="evenodd" d="M14.7857 7.125H6.21429C5.62255 7.125 5.14286 7.6007 5.14286 8.1875V18.8125C5.14286 19.3993 5.62255 19.875 6.21429 19.875H14.7857C15.3774 19.875 15.8571 19.3993 15.8571 18.8125V8.1875C15.8571 7.6007 15.3774 7.125 14.7857 7.125ZM6.21429 5C4.43908 5 3 6.42709 3 8.1875V18.8125C3 20.5729 4.43909 22 6.21429 22H14.7857C16.5609 22 18 20.5729 18 18.8125V8.1875C18 6.42709 16.5609 5 14.7857 5H6.21429Z" fill="currentColor" />
                                         </svg>
                                     </span>
-                                    <div class="fs-7 fw-bold" data-kt-countup="true" data-kt-countup-value="@Model.BookCopies.Count()">0</div>
+                                    <div class="fs-7 fw-bold js-copies-number" data-kt-countup="true" data-kt-countup-value="@Model.BookCopies.Count()">0</div>
                                 </div>
                                 <!--end::Number-->
                                 <!--begin::Label-->
@@ -181,42 +181,33 @@
             </div>
             <!--end::Card header-->
             <div class="card-body">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Serial Number</th>
-                            <th>Edition</th>
-                            <th>Rental</th>
-                            <th>Status</th>
-                            <th>Created on</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var copy in Model.BookCopies)
-                        {
+                
+                    <table class="@(Model.BookCopies.Any() ? string.Empty:"d-none")  table table-bordered">
+                        <thead>
                             <tr>
-                                <td>@copy.SerialNumber</td>
-                                <td>@copy.EditionNumber</td>
-                                <td><span class="badge badge-@(copy.IsAvailableForRental?"success":"danger")">@(copy.IsAvailableForRental ? "Available" : "Deleted")</span></td>
-                                <td><span class="js-toggle-status  badge badge-@(copy.IsActive?"success":"danger")">@(copy.IsActive ? "Available" : "Deleted")</span></td>
-                                <td>@copy.CreatedOn</td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-light btn-flex btn-center btn-active-light-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Actions
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item js-render-modal" href="javaScript:;" data-update="true" data-modal-title="Edit Book Copy" data-url="/BookCopies/Update/@copy.Id">Update</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item js-btn-toggle-status" data-id="@copy.Id" href="javaScript:;" data-url="/BookCopies/ToggleStatus/@copy.Id">Toggle Status</a></li>
-                                        </ul>
-                                    </div>
-                                </td>
+                                <th>Serial Number</th>
+                                <th>Edition</th>
+                                <th>Rental</th>
+                                <th>Status</th>
+                                <th>Created on</th>
+                                <th>Actions</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var copy in Model.BookCopies.OrderByDescending(c => c.SerialNumber))
+                            {
+                                <partial name="_BookCopyRow" model="@copy" />
+                            }
+                        </tbody>
+                    </table>
+
+                    <div class="js-alert @(Model.BookCopies.Any() ? "d-none" : string.Empty)  alert alert-info d-flex align-items-center p-5 mb-10">
+                        <i class="ki-duotone ki-shield-tick fs-2hx text-info me-4"><span class="path1"></span><span class="path2"></span></i>                    <div class="d-flex flex-column">
+                            <h4 class="mb-1 text-info">No Copies</h4>
+                            <span>No copies available for this book yet</span>
+                        </div>
+                    </div>
+                
 
             </div>
         </div>
@@ -231,4 +222,22 @@
 }
 @section Scripts{
     <partial name="_ValidationScriptsPartial"/>
+    <script>
+        function OnAddCopyBook(row) {
+
+            // hide model and update table by adding the new row that coming form controller
+            $('#Modal').modal('hide');
+            ShowSuccessMessage();
+            $('table').prepend(row);
+
+            // show alert when no copies and show table when there is copies
+            $('.js-alert').addClass('d-none');
+            $('table').removeClass('d-none');
+
+            // update number of copies in card-header
+            var numOfCopies=parseInt($('.js-copies-number').text());
+            $('.js-copies-number').text(numOfCopies + 1);
+        }
+
+    </script>
 }
