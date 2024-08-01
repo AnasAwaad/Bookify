@@ -58,13 +58,46 @@ public class BookCopiesController : Controller
         return PartialView("_BookCopyRow",bookcopyViewModel);
     }
 
-    //public IActionResult Update(int id)
-    //{
-    //    var model = _context.BookCopies.Find(id);
-    //    if (model == null)
-    //    {
-    //        return BadRequest();
-    //    }
-        
-    //}
+    [AjaxOnly]
+    public IActionResult Update(int id)
+    {
+        var model = _context.BookCopies.Include(b=>b.Book).SingleOrDefault(b=>b.Id==id);
+        if (model == null)
+        {
+            return BadRequest();
+        }
+        var viewModel = new BookCopyFormViewModel()
+        {
+            Id = id,
+            BookId = model.Id,
+            EditionNumber = model.EditionNumber,
+            IsAvailableForRental = model.IsAvailableForRental,
+            IsBookAvailableForRental = model.Book!.IsAvailableForRental
+        };
+        return PartialView("Form", viewModel);
+
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Update(BookCopyFormViewModel model)
+    {
+        if (!ModelState.IsValid) return BadRequest();
+
+        var bookCopy = _context.BookCopies.SingleOrDefault(b => b.Id == model.Id);
+
+        if (bookCopy == null)
+        {
+            return BadRequest();
+        }
+        bookCopy.EditionNumber = model.EditionNumber;
+        bookCopy.LastUpdatedOn=DateTime.Now;
+        bookCopy.IsAvailableForRental=model.IsAvailableForRental;
+
+        _context.SaveChanges();
+
+        var viewModel=_mapper.Map<BookCopyViewModel>(bookCopy);
+
+        return PartialView("_BookCopyRow", viewModel);
+    }
 }

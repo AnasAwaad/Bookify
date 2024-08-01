@@ -24,6 +24,7 @@ function OnSuccessSubmit(row) {
     ShowSuccessMessage();
 }
 
+
 function DisableSubmitButton() {
     $('body :submit').attr('disabled', 'disabled').attr('data-kt-indicator', 'on');
 }

@@ -30,5 +30,6 @@ public class DomainProfile : Profile
 		// BookCopy
 		CreateMap<BookCopy, BookCopyViewModel>()
 			.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Book!.Title));
+
     }
 }
