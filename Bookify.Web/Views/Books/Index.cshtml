@@ -96,6 +96,8 @@
 @section Scripts {
 	<script>
 		$(function () {
+			// On document ready
+			
 
 			$('#dataTableSearch').on('keyup', function () {
 				var searchValue = $(this).val();
@@ -125,18 +127,18 @@
 						"className": "d-flex align-items-center w-200px",
 						"render": function (data, type, row) {
 							return `
-										<div class="symbol symbol-50px overflow-hidden me-3">
-											<a href="/Books/Details/${row.id}">
-												<div class="symbol-label h-75">
-															<img src="${(row.imageThumbnailUrl === null ? '/images/books/no-book.jpg' : row.imageThumbnailUrl)}" alt="${row.title}" class="w-100">
-												</div>
-											</a>
-										</div>
+									<div class="symbol symbol-50px overflow-hidden me-3">
+										<a href="/Books/Details/${row.id}">
+											<div class="symbol-label h-75">
+												<img src="${(row.imageThumbnailUrl === "" ? '/images/image-placeholder.jpg' : row.imageThumbnailUrl)}" alt="${row.title}" class="w-100">
+											</div>
+										</a>
+									</div>
 
-										<div class="d-flex flex-column">
-											<a href="/Books/Details/${row.id}" class="text-primary mb-1">${row.title}</a>
-											<span>${row.authorName}</span>
-										</div>
+									<div class="d-flex flex-column">
+										<a href="/Books/Details/${row.id}" class="text-primary mb-1">${row.title}</a>
+										<span>${row.authorName}</span>
+									</div>
 									`;
 						},
 					},
@@ -186,6 +188,9 @@
 
 				]
 			});
+			// Clear search input on page load
+			$('#dataTableSearch').val('');
+			DataTable.search('').draw();
 		})
 	</script>
 }

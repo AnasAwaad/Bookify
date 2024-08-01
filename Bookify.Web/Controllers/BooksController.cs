@@ -75,7 +75,8 @@ public class BooksController : Controller
 
 
 
-		book.ImageUrl = Uploader.UploadFile(model.ImageFile,"Book",_webHostEnvironment);
+		book.ImageUrl = Uploader.UploadImage(model.ImageFile,"images/books",_webHostEnvironment);
+		book.ImageThumbnailUrl = Uploader.UploadImageThumb(model.ImageFile,"images/books/thumb",_webHostEnvironment);
 		_context.Books.Add(book);
 		_context.SaveChanges();
 		return RedirectToAction("Index");
@@ -112,8 +113,7 @@ public class BooksController : Controller
 		// remove old image and upload new image 
 		if (model.ImageFile is not null)
 		{
-			Uploader.RemoveFile(newBook.ImageUrl, _webHostEnvironment);
-
+			
 			if (!_allowedExtensions.Contains(Path.GetExtension(model.ImageFile.FileName).ToLower()))
 			{
 				ModelState.AddModelError("ImageFile", Errors.AllowedExtensions);
@@ -126,7 +126,11 @@ public class BooksController : Controller
 				return View("Form", PopulateBookVM(model));
 			}
 
-			newBook.ImageUrl = Uploader.UploadFile(model.ImageFile, "Book", _webHostEnvironment);
+			Uploader.RemoveFile(newBook.ImageUrl, _webHostEnvironment);
+			Uploader.RemoveFile(newBook.ImageThumbnailUrl!, _webHostEnvironment);
+
+			newBook.ImageUrl = Uploader.UploadImage(model.ImageFile,"images/books", _webHostEnvironment);
+			newBook.ImageThumbnailUrl = Uploader.UploadImageThumb(model.ImageFile,"images/books/thumb", _webHostEnvironment);
 		}
 
 		_context.Books.Update(newBook);
@@ -165,14 +169,16 @@ public class BooksController : Controller
 	[HttpPost]
 	public IActionResult GetBooks()
 	{
-		IQueryable<Book> books = _context.Books.Include(b => b.Author).Include(b => b.Categories).ThenInclude(b => b.Category);
-
 		var skip = Convert.ToInt32(Request.Form["start"]);
 		var pageSize = Convert.ToInt32(Request.Form["length"]);
 		var orderColumnIndex = Convert.ToInt32(Request.Form["order[0][column]"]);
 		var orderColumnName = Request.Form[$"columns[{orderColumnIndex}][name]"];
 		var orderColumnDirection = Request.Form["order[0][dir]"];
 		var searchValue = Request.Form["search[value]"];
+
+
+		var allbooks = _context.Books.ToList();
+		IQueryable<Book> books = _context.Books.Include(b => b.Author).Include(b => b.Categories).ThenInclude(b => b.Category);
 
 		if (!string.IsNullOrEmpty(searchValue))
 			books = books.Where(b => b.Title.Contains(searchValue!) || b.Author!.Name.Contains(searchValue!));

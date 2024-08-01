@@ -76,7 +76,7 @@
 				<div class="col-md-4">
 					
 					<!--begin::Image input-->
-					<div class="image-input image-input-empty" data-kt-image-input="true" style="background-image: url('@Url.Content(string.IsNullOrEmpty(Model.ImageUrl) ? "~/images/image-placeholder.jpg" : $"{Model.ImageUrl}")');">
+					<div class="image-input image-input-empty" data-kt-image-input="true" style="background-image: url('@Url.Content(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/image-placeholder.jpg" : $"{Model.ImageThumbnailUrl}")');">
 						<!--begin::Image preview wrapper-->
 						<div class="image-input-wrapper w-250px h-300px"></div>
 						<!--end::Image preview wrapper-->
