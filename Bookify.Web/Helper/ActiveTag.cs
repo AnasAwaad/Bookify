@@ -24,7 +24,7 @@ public class ActiveTag : TagHelper
         if (string.IsNullOrEmpty(ActiveWhen))
             return;
 
-        var currentController = ViewContextData?.RouteData.Values["controller"]?.ToString();
+        var currentController = ViewContextData?.RouteData.Values["controller"]?.ToString() ?? string.Empty;
         if (currentController!.Equals(ActiveWhen))
         {
             if (output.Attributes.ContainsName("class"))

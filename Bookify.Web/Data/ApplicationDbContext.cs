@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Bookify.Web.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -29,6 +30,13 @@ namespace Bookify.Web.Data
             builder.Entity<BookCopy>()
                 .Property(e => e.SerialNumber)
                 .HasDefaultValueSql("NEXT VALUE FOR shared.SerialNumber");
+
+            // change name of identity tables
+            //builder.Entity<IdentityUser>().ToTable("Users");
+            //builder.Entity<IdentityRole>().ToTable("Roles");
+            //builder.Entity<IdentityUserRole<string>>().ToTable("UserRoles");
+
+
 
         }
     }

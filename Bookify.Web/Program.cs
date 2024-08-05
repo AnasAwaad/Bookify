@@ -1,4 +1,5 @@
 using Bookify.Web.Mapping;
+using Bookify.Web.Seeds;
 using Microsoft.AspNetCore.Identity;
 using UoN.ExpressiveAnnotations.NetCore.DependencyInjection;
 
@@ -6,7 +7,7 @@ namespace Bookify.Web
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -16,8 +17,11 @@ namespace Bookify.Web
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            builder.Services.AddIdentity<ApplicationUser,IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultUI()
+                .AddDefaultTokenProviders();
+
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddAutoMapper(typeof(DomainProfile));
@@ -42,6 +46,16 @@ namespace Bookify.Web
             app.UseRouting();
 
             app.UseAuthorization();
+
+            var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
+
+            using var scope = scopeFactory.CreateScope();
+
+            var roleManager=scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager=scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            await DefaultRoles.SeedRolesAsync(roleManager);
+            await DefaultUsers.SeedAdminUserAsync(userManager);
 
             app.MapControllerRoute(
                 name: "default",
