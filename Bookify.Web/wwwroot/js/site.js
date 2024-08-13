@@ -82,7 +82,7 @@ function ShowToastrMessage(type, message) {
 $(function () {
 
     // Handle disable submit button 
-    $('form').on('submit', function () {
+    $('form').not('#signOutForm').on('submit', function () {
         if ($(this).valid()) DisableSubmitButton();
     })
 
@@ -294,4 +294,11 @@ $(function () {
         // Clear the validation message when the input changes
         $('#validationImageMessage').text('');
     });
+
+    // Handle signout button
+    $('.js-sign-out').on('click', function () {
+        $('#signOutForm').submit();
+    });
+
+
 })
