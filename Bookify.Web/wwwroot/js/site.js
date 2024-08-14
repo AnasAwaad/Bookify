@@ -47,13 +47,14 @@ function ShowSuccessMessage(message = "Saved Successfully") {
 }
 
 function ShowErrorMessage(message = "Something went wrong!") {
+    console.log(message)
     Swal.fire({
         position: "center",
         icon: "error",
         title: "Oops...",
-        text: message,
+        text: message.responseText ==undefined ? message : message.responseText,
         showConfirmButton: false,
-        timer: 1000
+        timer: 2000
     });
 }
 
@@ -85,7 +86,7 @@ function ApplySelect2() {
     $('.js-select2').select2();
     $('.js-select2').on('select2:select', function (e) {
         var selectItem = $(this);
-        $('form').validate().element("#" + selectItem.attr('id'));// ex: #AuthorId
+        $('form').not('#signOutForm').validate().element("#" + selectItem.attr('id'));// ex: #AuthorId
     });
 }
 
