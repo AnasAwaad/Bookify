@@ -10,4 +10,6 @@ public class ApplicationUser : IdentityUser
 	public bool IsActive { get; set; }
 	public DateTime CreatedOn { get; set; }
 	public DateTime? LastUpdatedOn { get; set; }
+    public string? CreatedById { get; set; }
+    public string? LastUpdatedById { get; set; }    
 }

@@ -35,7 +35,7 @@ public class BookFormViewModel
 	public bool IsAvailableForRental { get; set; }
 
 	public string Description { get; set; } = null!;
-	// why
+
 	public IList<int> SelectedCategories { get; set; } = new List<int>();
 	public IEnumerable<SelectListItem>? AuthorSelectList { get; set; } = new List<SelectListItem>();
 	public IEnumerable<SelectListItem>? CategorySelectList { get; set; }=new List<SelectListItem>();	

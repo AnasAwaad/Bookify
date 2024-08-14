@@ -34,5 +34,6 @@ public class DomainProfile : Profile
 
 		// Users
 		CreateMap<ApplicationUser, UserViewModel>();
+
     }
 }

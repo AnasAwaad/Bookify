@@ -10,4 +10,6 @@ public static class Errors
     public const string AllowedSize = "Image cannot be more than 1 megabyte!";
     public const string NotAllowedDate = "The Date can't be in the future!";
     public const string EditionNumberRange = "{0} must be in range {1} to {2}!";
+    public const string MinMaxLength = "The {0} must be at least {2} and at max {1} characters long.";
+    public const string ConfirmPasswordNotMatch = "The password and confirmation password do not match.";
 }

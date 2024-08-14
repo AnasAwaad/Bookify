@@ -79,6 +79,16 @@ function ShowToastrMessage(type, message) {
 
 }
 
+// select2 event
+// revalidation for this element when select item from selectList
+function ApplySelect2() {
+    $('.js-select2').select2();
+    $('.js-select2').on('select2:select', function (e) {
+        var selectItem = $(this);
+        $('form').validate().element("#" + selectItem.attr('id'));// ex: #AuthorId
+    });
+}
+
 $(function () {
 
     // Handle disable submit button 
@@ -135,6 +145,9 @@ $(function () {
                 modal.find('.modal-body').html(res);
                 //apply validation on form when add form (because validation scripts exsits before and we added form after it and didn't know to apply validations on form)
                 $.validator.unobtrusive.parse(modal);
+
+                ApplySelect2();
+                
             },
             error: function () {
                 ShowErrorMessage();
@@ -282,12 +295,12 @@ $(function () {
         timePicker:false,
     });
 
-    // select2 event
-    // revalidation for this element when select item from selectList
-    $('.js-select2').on('select2:select', function (e) {
-        var selectItem = $(this);
-        $('form').validate().element("#"+selectItem.attr('id'));// ex: #AuthorId
-    });
+    // select2
+    ApplySelect2();
+
+    //$('.js-select2-modal').select2({
+    //    dropdownParent: $('#Modal')
+    //});
 
     // Trigger validation when file input changes
     $('#ImageFile').on('change', function () {

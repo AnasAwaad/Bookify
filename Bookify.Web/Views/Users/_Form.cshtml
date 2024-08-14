@@ -1,0 +1,63 @@
+﻿@model UserFormViewModel
+
+<form method="post"
+      asp-action="@(string.IsNullOrEmpty(Model?.Id)?"Create":"Update")"
+      data-ajax="true"
+      data-ajax-method="post"
+      data-ajax-success="OnSuccessSubmit"
+      data-ajax-failure="ShowErrorMessage"
+      data-ajax-begin="OnBeginModal"
+      data-ajax-complete="OnCompleteModal">
+    @if (!string.IsNullOrEmpty(Model?.Id))
+    {
+        <input type="hidden" asp-for="Id" />
+    }
+    <div class="form-floating mb-7">
+        <input asp-for="FullName" class="form-control" placeholder="FullName">
+        <label asp-for="FullName"></label>
+        <span asp-validation-for="FullName" class="text-danger"></span>
+
+    </div>
+
+    <div class="form-floating mb-7">
+        <input asp-for="UserName" class="form-control" placeholder="UserName">
+        <label asp-for="UserName"></label>
+        <span asp-validation-for="UserName" class="text-danger"></span>
+
+    </div>
+
+    <div class="form-floating mb-7">
+        <input asp-for="Email" class="form-control" placeholder="Email">
+        <label asp-for="Email"></label>
+        <span asp-validation-for="Email" class="text-danger"></span>
+
+    </div>
+
+    <div class="form-floating mb-7">
+        <input asp-for="Password" class="form-control" placeholder="Password">
+        <label asp-for="Password"></label>
+        <span asp-validation-for="Password" class="text-danger"></span>
+
+    </div>
+
+    <div class="form-floating mb-7">
+        <input asp-for="ConfirmPassword" class="form-control" placeholder="ConfirmPassword">
+        <label asp-for="ConfirmPassword"></label>
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+
+    </div>
+
+    <div class=" mb-7">
+        
+        <select asp-for="SelectedRoles" asp-items="@Model?.RolesSelectList" class="form-select js-select2 js-select2-modal" data-control="select2" data-placeholder="Select Roles">
+            <option hidden value="">-- select author --</option>
+        </select>
+        <span asp-validation-for="SelectedRoles" class="text-danger"></span>
+
+    </div>
+    <partial name="_ModalFooter" />
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
