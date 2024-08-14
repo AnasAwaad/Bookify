@@ -1,6 +1,10 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+
 namespace Bookify.Web.Controllers
 {
+    [Authorize(Roles =AppRoles.Archive)]
     public class CategoriesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -36,6 +40,10 @@ namespace Bookify.Web.Controllers
             }
 
             var category = mapper.Map<Category>(model);
+
+            category.CreatedOn = DateTime.Now;
+            category.CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+
             _context.Categories.Add(category);
             _context.SaveChanges();
 
@@ -78,9 +86,9 @@ namespace Bookify.Web.Controllers
             category = mapper.Map(model, category);
 
             category.LastUpdatedOn = DateTime.Now;
+			category.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
-
-            _context.SaveChanges();
+			_context.SaveChanges();
             return PartialView("_CategoryRow", mapper.Map<CategoryViewModel>(category));
         }
 
@@ -115,9 +123,12 @@ namespace Bookify.Web.Controllers
             {
                 return NotFound();
             }
+
             category.LastUpdatedOn = DateTime.Now;
             category.IsActive = !category.IsActive;
-            _context.SaveChanges();
+			category.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+
+			_context.SaveChanges();
             return Json(new { lastUpdatedOn = category.LastUpdatedOn.ToString() });
         }
         #endregion

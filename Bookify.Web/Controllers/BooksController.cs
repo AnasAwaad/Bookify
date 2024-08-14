@@ -1,11 +1,14 @@
 ﻿using Bookify.Web.Core.Consts;
 using Bookify.Web.Helper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Linq.Dynamic.Core;
+using System.Security.Claims;
 
 namespace Bookify.Web.Controllers;
+[Authorize(Roles =AppRoles.Archive)]
 public class BooksController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -82,6 +85,9 @@ public class BooksController : Controller
 
 		book.ImageUrl = Uploader.UploadImage(model.ImageFile,"images/books",_webHostEnvironment);
 		book.ImageThumbnailUrl = Uploader.UploadImageThumb(model.ImageFile,"images/books/thumb",_webHostEnvironment);
+		book.CreatedOn = DateTime.Now;
+		book.CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+
 		_context.Books.Add(book);
 		_context.SaveChanges();
 		return RedirectToAction("Index");
@@ -145,8 +151,11 @@ public class BooksController : Controller
 			model.ImageThumbnailUrl = book.ImageThumbnailUrl;
 		}
 		book = _mapper.Map(model, book);
+
 		book.LastUpdatedOn = DateTime.Now;
+		book.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 		book.Categories = new List<BookCategory>();
+
 		foreach (var category in model.SelectedCategories)
 			book.Categories.Add(new BookCategory { CategoryId = category });
 
@@ -219,6 +228,7 @@ public class BooksController : Controller
 			return NotFound();
 		}
 		book.LastUpdatedOn = DateTime.Now;
+		book.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 		book.IsActive = !book.IsActive;
 		_context.SaveChanges();
 		return Ok();

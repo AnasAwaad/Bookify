@@ -1,4 +1,8 @@
-﻿namespace Bookify.Web.Controllers;
+﻿using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+
+namespace Bookify.Web.Controllers;
+[Authorize(Roles =AppRoles.Archive)]
 public class AuthorsController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -34,6 +38,9 @@ public class AuthorsController : Controller
         }
 
         var author = _mapper.Map<Author>(model);
+        author.CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        author.CreatedOn = DateTime.Now;
+
         _context.Authors.Add(author);
         _context.SaveChanges();
 
@@ -69,14 +76,14 @@ public class AuthorsController : Controller
             return View("_UpsertForm", model);
         }
         var author = _context.Authors.Find(model.Id);
-
+        
         if (author == null)
             return NotFound();
 
         author = _mapper.Map(model, author);
 
         author.LastUpdatedOn = DateTime.Now;
-
+        author.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
         _context.SaveChanges();
         return PartialView("_AuthorRow", _mapper.Map<AuthorViewModel>(author));
@@ -107,8 +114,11 @@ public class AuthorsController : Controller
         {
             return NotFound();
         }
+
         author.LastUpdatedOn = DateTime.Now;
         author.IsActive = !author.IsActive;
+        author.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+
         _context.SaveChanges();
         return Json(new { lastUpdatedOn = author.LastUpdatedOn.ToString() });
     }

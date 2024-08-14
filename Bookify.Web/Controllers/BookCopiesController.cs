@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Bookify.Web.Core.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Bookify.Web.Controllers;
+[Authorize(Roles =AppRoles.Archive)]
 public class BookCopiesController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -23,7 +27,8 @@ public class BookCopiesController : Controller
         }
         model.IsActive=!model.IsActive;
         model.LastUpdatedOn= DateTime.Now;
-        _context.SaveChanges();
+		model.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+		_context.SaveChanges();
         return Ok();
     }
 
@@ -51,9 +56,13 @@ public class BookCopiesController : Controller
         {
             IsAvailableForRental = model.IsAvailableForRental,
             EditionNumber = model.EditionNumber,
+            CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value,
+            CreatedOn = DateTime.Now
         };
+
         book.BookCopies.Add(bookCopy);
         _context.SaveChanges();
+
         var bookcopyViewModel=_mapper.Map<BookCopyViewModel>(bookCopy);
         return PartialView("_BookCopyRow",bookcopyViewModel);
     }
@@ -72,7 +81,7 @@ public class BookCopiesController : Controller
             BookId = model.Id,
             EditionNumber = model.EditionNumber,
             IsAvailableForRental = model.IsAvailableForRental,
-            IsBookAvailableForRental = model.Book!.IsAvailableForRental
+            IsBookAvailableForRental = model.Book!.IsAvailableForRental,
         };
         return PartialView("Form", viewModel);
 
@@ -93,6 +102,7 @@ public class BookCopiesController : Controller
         bookCopy.EditionNumber = model.EditionNumber;
         bookCopy.LastUpdatedOn=DateTime.Now;
         bookCopy.IsAvailableForRental=model.IsAvailableForRental;
+        bookCopy.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
         _context.SaveChanges();
 
