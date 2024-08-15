@@ -1,11 +1,14 @@
 ﻿using Bookify.Web.Core.Consts;
 using Bookify.Web.Helper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Linq.Dynamic.Core;
+using System.Security.Claims;
 
 namespace Bookify.Web.Controllers;
+[Authorize(Roles =AppRoles.Archive)]
 public class BooksController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -28,7 +31,12 @@ public class BooksController : Controller
 
 	public IActionResult Details(int id)
 	{
-		var book = _context.Books.Include(b=>b.Author).Include(b=>b.Categories).ThenInclude(b=>b.Category).SingleOrDefault(b=>b.Id==id);
+		var book = _context.Books
+			.Include(b=>b.BookCopies)
+			.Include(b=>b.Author)
+			.Include(b=>b.Categories)
+			.ThenInclude(b=>b.Category)
+			.SingleOrDefault(b=>b.Id==id);
 		if (book is null)
 			return NotFound();
 
@@ -77,6 +85,9 @@ public class BooksController : Controller
 
 		book.ImageUrl = Uploader.UploadImage(model.ImageFile,"images/books",_webHostEnvironment);
 		book.ImageThumbnailUrl = Uploader.UploadImageThumb(model.ImageFile,"images/books/thumb",_webHostEnvironment);
+		book.CreatedOn = DateTime.Now;
+		book.CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+
 		_context.Books.Add(book);
 		_context.SaveChanges();
 		return RedirectToAction("Index");
@@ -101,20 +112,24 @@ public class BooksController : Controller
 		if(!ModelState.IsValid)
 			return View("Form", PopulateBookVM(model));
 
-		var newBook = _mapper.Map<Book>(model);
 
-		// remove old categories that belongs to book
-		var oldBookCategories=_context.BookCategories.Where(b => b.BookId == model.Id).ToList();
-		_context.BookCategories.RemoveRange(oldBookCategories);
-		// add new categories that selected 
-		foreach (var category in model.SelectedCategories)
-			newBook.Categories.Add(new BookCategory() { CategoryId = category });
+		var book = _context.Books.Include(b => b.Categories).SingleOrDefault(b => b.Id == model.Id);
+		if (book is null)
+			return NotFound();
 
-		// remove old image and upload new image 
+		
+
 		if (model.ImageFile is not null)
 		{
-			
-			if (!_allowedExtensions.Contains(Path.GetExtension(model.ImageFile.FileName).ToLower()))
+			if (!string.IsNullOrEmpty(book.ImageUrl))
+			{
+				Uploader.RemoveFile(book.ImageUrl, _webHostEnvironment);
+				Uploader.RemoveFile(book.ImageThumbnailUrl!, _webHostEnvironment);
+			}
+
+			var extension = Path.GetExtension(model.ImageFile.FileName).ToLower();
+
+			if (!_allowedExtensions.Contains(extension))
 			{
 				ModelState.AddModelError("ImageFile", Errors.AllowedExtensions);
 				return View("Form", PopulateBookVM(model));
@@ -126,14 +141,25 @@ public class BooksController : Controller
 				return View("Form", PopulateBookVM(model));
 			}
 
-			Uploader.RemoveFile(newBook.ImageUrl, _webHostEnvironment);
-			Uploader.RemoveFile(newBook.ImageThumbnailUrl!, _webHostEnvironment);
+			book.ImageUrl = Uploader.UploadImage(model.ImageFile, "images/books", _webHostEnvironment);
+			book.ImageThumbnailUrl = Uploader.UploadImageThumb(model.ImageFile, "images/books/thumb", _webHostEnvironment);
 
-			newBook.ImageUrl = Uploader.UploadImage(model.ImageFile,"images/books", _webHostEnvironment);
-			newBook.ImageThumbnailUrl = Uploader.UploadImageThumb(model.ImageFile,"images/books/thumb", _webHostEnvironment);
 		}
+		else if (!string.IsNullOrEmpty(book.ImageUrl))
+		{
+			model.ImageUrl = book.ImageUrl;
+			model.ImageThumbnailUrl = book.ImageThumbnailUrl;
+		}
+		book = _mapper.Map(model, book);
 
-		_context.Books.Update(newBook);
+		book.LastUpdatedOn = DateTime.Now;
+		book.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+		book.Categories = new List<BookCategory>();
+
+		foreach (var category in model.SelectedCategories)
+			book.Categories.Add(new BookCategory { CategoryId = category });
+
+
 		_context.SaveChanges();
 		return RedirectToAction(nameof(Index));
 	}
@@ -202,6 +228,7 @@ public class BooksController : Controller
 			return NotFound();
 		}
 		book.LastUpdatedOn = DateTime.Now;
+		book.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 		book.IsActive = !book.IsActive;
 		_context.SaveChanges();
 		return Ok();

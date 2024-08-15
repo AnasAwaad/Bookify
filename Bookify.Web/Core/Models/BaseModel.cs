@@ -13,4 +13,10 @@ public class BaseModel
     public bool IsActive { get; set; }
     public DateTime CreatedOn { get; set; }
     public DateTime? LastUpdatedOn { get; set; }
+
+    public string? CreatedById { get; set; }
+    public ApplicationUser? CreatedBy { get; set; }
+
+    public string? LastUpdatedById { get; set; }
+    public ApplicationUser? LastUpdatedBy { get; set; }
 }

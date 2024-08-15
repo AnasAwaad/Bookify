@@ -11,6 +11,7 @@ var exportedCols = [];
 function OnSuccessSubmit(row) {
     var newRow = $(row);
 
+
     // add new row to table
     datatable.row.add(newRow).draw();
     if (updatedRow !== undefined) {
@@ -22,6 +23,7 @@ function OnSuccessSubmit(row) {
     $('#Modal').modal('hide');
     ShowSuccessMessage();
 }
+
 
 function DisableSubmitButton() {
     $('body :submit').attr('disabled', 'disabled').attr('data-kt-indicator', 'on');
@@ -45,13 +47,14 @@ function ShowSuccessMessage(message = "Saved Successfully") {
 }
 
 function ShowErrorMessage(message = "Something went wrong!") {
+    console.log(message)
     Swal.fire({
         position: "center",
         icon: "error",
         title: "Oops...",
-        text: message,
+        text: message.responseText ==undefined ? message : message.responseText,
         showConfirmButton: false,
-        timer: 1000
+        timer: 2000
     });
 }
 
@@ -77,10 +80,20 @@ function ShowToastrMessage(type, message) {
 
 }
 
+// select2 event
+// revalidation for this element when select item from selectList
+function ApplySelect2() {
+    $('.js-select2').select2();
+    $('.js-select2').on('select2:select', function (e) {
+        var selectItem = $(this);
+        $('form').not('#signOutForm').validate().element("#" + selectItem.attr('id'));// ex: #AuthorId
+    });
+}
+
 $(function () {
 
     // Handle disable submit button 
-    $('form').on('submit', function () {
+    $('form').not('#signOutForm').on('submit', function () {
         if ($(this).valid()) DisableSubmitButton();
     })
 
@@ -133,6 +146,9 @@ $(function () {
                 modal.find('.modal-body').html(res);
                 //apply validation on form when add form (because validation scripts exsits before and we added form after it and didn't know to apply validations on form)
                 $.validator.unobtrusive.parse(modal);
+
+                ApplySelect2();
+                
             },
             error: function () {
                 ShowErrorMessage();
@@ -280,16 +296,23 @@ $(function () {
         timePicker:false,
     });
 
-    // select2 event
-    // revalidation for this element when select item from selectList
-    $('.js-select2').on('select2:select', function (e) {
-        var selectItem = $(this);
-        $('form').validate().element("#"+selectItem.attr('id'));// ex: #AuthorId
-    });
+    // select2
+    ApplySelect2();
+
+    //$('.js-select2-modal').select2({
+    //    dropdownParent: $('#Modal')
+    //});
 
     // Trigger validation when file input changes
     $('#ImageFile').on('change', function () {
         // Clear the validation message when the input changes
         $('#validationImageMessage').text('');
     });
+
+    // Handle signout button
+    $('.js-sign-out').on('click', function () {
+        $('#signOutForm').submit();
+    });
+
+
 })

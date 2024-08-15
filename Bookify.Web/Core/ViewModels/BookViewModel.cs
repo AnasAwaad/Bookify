@@ -16,4 +16,5 @@ public class BookViewModel
 	public bool IsActive { get; set; }
 	public DateTime CreatedOn { get; set; }
 	public ICollection<string> Categories { get; set; } = null!;
+	public ICollection<BookCopyViewModel> BookCopies { get; set; } = null!;
 }

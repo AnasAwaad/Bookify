@@ -27,5 +27,17 @@ public class DomainProfile : Profile
 			.ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author!.Name))
 			.ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories.Select(b=>b.Category!.Name).ToList()));
 
+		// BookCopy
+		CreateMap<BookCopy, BookCopyViewModel>()
+			.ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Book!.Title));
+
+
+		// Users
+		CreateMap<ApplicationUser, UserViewModel>();
+		CreateMap<UserFormViewModel,ApplicationUser > ()
+			.ForMember(dest=>dest.NormalizedEmail,opt=>opt.MapFrom(src=>src.Email.ToUpper()))
+			.ForMember(dest=>dest.NormalizedUserName,opt=>opt.MapFrom(src=>src.UserName.ToUpper()))
+			.ReverseMap();
+
     }
 }
