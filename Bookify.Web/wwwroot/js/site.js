@@ -53,8 +53,7 @@ function ShowErrorMessage(message = "Something went wrong!") {
         icon: "error",
         title: "Oops...",
         text: message.responseText ==undefined ? message : message.responseText,
-        showConfirmButton: false,
-        timer: 2000
+        showConfirmButton: true,
     });
 }
 
@@ -126,6 +125,28 @@ $(function () {
                 ShowErrorMessage();
             }
         });
+    });
+
+    $('table').on('click', '.js-btn-unlockUser', function () {
+        var btn = $(this);
+        $.ajax({
+            url: btn.data('url'),
+            method: "POST",
+            data: {
+                "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+            },
+            success: function (res) {
+                var lockedCell = btn.parents('tr').find('.js-unlockUser');
+                lockedCell.html("Active");
+                lockedCell.removeClass("badge-danger");
+                lockedCell.addClass("badge-primary");
+                ShowToastrMessage('success', 'Unlocked successfully');
+
+            },
+            error: function (message) {
+                ShowErrorMessage(message);
+            }
+        })
     });
 
     // Handle bootstrap modal

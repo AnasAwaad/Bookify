@@ -1,4 +1,6 @@
-﻿namespace Bookify.Web.Core.ViewModels;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
+namespace Bookify.Web.Core.ViewModels;
 
 public class UserViewModel
 {
@@ -9,5 +11,7 @@ public class UserViewModel
 	public bool IsActive { get; set; }
 	public DateTime CreatedOn { get; set; }
 	public DateTime? LastUpdatedOn { get; set; }
+	[ValidateNever]
+	public bool IsLockedOut { get; set; }
 
 }

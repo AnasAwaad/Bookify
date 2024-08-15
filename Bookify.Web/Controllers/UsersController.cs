@@ -23,7 +23,13 @@ public class UsersController : Controller
 	public async Task<IActionResult> Index()
 	{
 		var users=await _userManager.Users.ToListAsync();
-		var viewModel=_mapper.Map<IEnumerable<UserViewModel>>(users);
+		List<UserViewModel> viewModel = new List<UserViewModel>();
+		foreach (var user in users)
+		{
+			var item= _mapper.Map<UserViewModel>(user);
+			item.IsLockedOut= await _userManager.IsLockedOutAsync(user);
+			viewModel.Add(item);
+		}
 		return View(viewModel);
 	}
 
@@ -179,9 +185,33 @@ public class UsersController : Controller
         return Json(isAllowed);
     }
 
-    #region Ajax Request Handles
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+	public async Task<IActionResult> UnlockUser(string id)
+	{
+		var user = await _userManager.FindByIdAsync(id);
+		if (user == null)
+			return NotFound();
 
-    [HttpPost]
+		var isLocked=await _userManager.IsLockedOutAsync(user);
+		if (!isLocked)
+		{
+			return BadRequest("User is Unlock already");
+		}
+
+		var setLockoutEndDateTask =await _userManager.SetLockoutEndDateAsync(user, DateTime.Now - TimeSpan.FromMinutes(1));
+
+		if (setLockoutEndDateTask.Succeeded)
+			return Ok();
+		return BadRequest();
+	}
+
+
+
+
+	#region Ajax Request Handles
+
+	[HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ToggleStatus(string id)
     {
