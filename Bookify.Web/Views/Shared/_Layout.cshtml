@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="utf-8" />
@@ -54,35 +57,36 @@
 	</div>
 	<!--end::Page loading-->
 	<!--begin::Root-->
-	<div class="d-flex flex-column flex-root">
-		<!--begin::Page-->
-		<div class="page d-flex flex-row flex-column-fluid">
-			<!--begin::Wrapper-->
-			<div class="wrapper d-flex flex-column flex-row-fluid" id="kt_wrapper">
-
-
-				<partial name="_Header" />
-
-
-				<!--begin::Content wrapper-->
-				<div class="d-flex flex-column-fluid">
-
-					<partial name="_Aside" />
-
-					<!--begin::Container-->
-					<div class="d-flex flex-column flex-column-fluid container-fluid">
-						<!--begin::Post-->
-						<div class="content flex-column-fluid" id="kt_content">
-							@RenderBody()
+	@if (SignInManager.IsSignedIn(User))
+	{
+		<div class="d-flex flex-column flex-root">
+			<!--begin::Page-->
+			<div class="page d-flex flex-row flex-column-fluid">
+				<!--begin::Wrapper-->
+				<div class="wrapper d-flex flex-column flex-row-fluid" id="kt_wrapper">
+					<partial name="_Header" />
+					<!--begin::Content wrapper-->
+					<div class="d-flex flex-column-fluid">
+						<partial name="_Aside" />
+						<!--begin::Container-->
+						<div class="d-flex flex-column flex-column-fluid container-fluid">
+							<!--begin::Post-->
+							<div class="content flex-column-fluid" id="kt_content">
+								@RenderBody()
+							</div>
 						</div>
 					</div>
+					<!--end::Content wrapper-->
 				</div>
-				<!--end::Content wrapper-->
+				<!--end::Wrapper-->
 			</div>
-			<!--end::Wrapper-->
+			<!--end::Page-->
 		</div>
-		<!--end::Page-->
-	</div>
+	}
+	else
+	{
+		@RenderBody()
+	}
 	<!--end::Root-->
 	<partial name="_Modal" />
 

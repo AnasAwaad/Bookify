@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using UoN.ExpressiveAnnotations.NetCore.DependencyInjection;
 using Bookify.Web.Data;
 using Microsoft.EntityFrameworkCore;
+using Bookify.Web.Helper;
 
 namespace Bookify.Web
 {
@@ -37,6 +38,8 @@ namespace Bookify.Web
             });
 
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsPrincipalFactory>();
 
             builder.Services.AddAutoMapper(typeof(DomainProfile));
 			builder.Services.AddExpressiveAnnotations();
