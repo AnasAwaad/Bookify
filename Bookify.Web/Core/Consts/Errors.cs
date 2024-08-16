@@ -20,4 +20,5 @@ public static class Errors
     public const string OnlyNumbersAndLetters = "Only Arabic/English letters or digits are allowed.";
     public const string DenySpecialCharacters = "Special characters are not allowed.";
     public const string RequiredField = "Password is requied";
+    public const string InvalidPhoneNumber = "Invalid phone number";
 }

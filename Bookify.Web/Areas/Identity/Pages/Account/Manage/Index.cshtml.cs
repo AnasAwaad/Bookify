@@ -10,6 +10,7 @@ using Bookify.Web.Core.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using UserManagement.Consts;
 
 namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
 {
@@ -58,7 +59,13 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
             /// </summary>
             [Phone]
             [Display(Name = "Phone number")]
+            [MaxLength(11,ErrorMessage =Errors.MaxLength)]
+            [RegularExpression(RegexPattern.PhoneNumber,ErrorMessage =Errors.InvalidPhoneNumber)]
             public string PhoneNumber { get; set; }
+
+            [Display(Name = "Full Name"), MaxLength(100, ErrorMessage = Errors.MaxLength)]
+            [RegularExpression(RegexPattern.CharactersOnly_Eng, ErrorMessage = Errors.OnlyEnglishLetters)]
+            public string FullName { get; set; } = null!;
         }
 
         private async Task LoadAsync(ApplicationUser user)
@@ -70,7 +77,8 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber,
+                FullName=user.FullName
             };
         }
 
@@ -107,6 +115,17 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
                 if (!setPhoneResult.Succeeded)
                 {
                     StatusMessage = "Unexpected error when trying to set phone number.";
+                    return RedirectToPage();
+                }
+            }
+
+            if (Input.FullName != user.FullName)
+            {
+                user.FullName = Input.FullName;
+                var setFullNameResult = await _userManager.UpdateAsync(user);
+                if (!setFullNameResult.Succeeded)
+                {
+                    StatusMessage = "Unexpected error when trying to set Full name.";
                     return RedirectToPage();
                 }
             }
