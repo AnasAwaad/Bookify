@@ -2,13 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
-using Bookify.Web.Core.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using UserManagement.Consts;
 
@@ -59,8 +52,8 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
             /// </summary>
             [Phone]
             [Display(Name = "Phone number")]
-            [MaxLength(11,ErrorMessage =Errors.MaxLength)]
-            [RegularExpression(RegexPattern.PhoneNumber,ErrorMessage =Errors.InvalidPhoneNumber)]
+            [MaxLength(11, ErrorMessage = Errors.MaxLength)]
+            [RegularExpression(RegexPattern.PhoneNumber, ErrorMessage = Errors.InvalidPhoneNumber)]
             public string PhoneNumber { get; set; }
 
             [Display(Name = "Full Name"), MaxLength(100, ErrorMessage = Errors.MaxLength)]
@@ -78,7 +71,7 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
             Input = new InputModel
             {
                 PhoneNumber = phoneNumber,
-                FullName=user.FullName
+                FullName = user.FullName
             };
         }
 

@@ -124,13 +124,13 @@
 					{ "data": "id", "name": "Id", "className": "d-none" },
 					{
 						"name": "Title",
-						"className": "d-flex align-items-center w-200px",
+						"className": "d-flex align-items-center ",
 						"render": function (data, type, row) {
 							return `
 									<div class="symbol symbol-50px overflow-hidden me-3">
 										<a href="/Books/Details/${row.id}">
 											<div class="symbol-label h-75">
-												<img src="${(row.imageThumbnailUrl === "" ? '/images/image-placeholder.jpg' : row.imageThumbnailUrl)}" alt="${row.title}" class="w-100">
+												<img src="${(row.imageThumbnailUrl === null ? '/images/image-placeholder.jpg' : row.imageThumbnailUrl)}" alt="${row.title}" class="w-100">
 											</div>
 										</a>
 									</div>
@@ -141,6 +141,7 @@
 									</div>
 									`;
 						},
+						"max-width":"200px"
 					},
 					{ "data": "publisher", "name": "Publisher" },
 					{

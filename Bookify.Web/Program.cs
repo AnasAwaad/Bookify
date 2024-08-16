@@ -1,10 +1,8 @@
+using Bookify.Web.Helper;
 using Bookify.Web.Mapping;
 using Bookify.Web.Seeds;
-using Microsoft.AspNetCore.Identity;
+using Bookify.Web.Services;
 using UoN.ExpressiveAnnotations.NetCore.DependencyInjection;
-using Bookify.Web.Data;
-using Microsoft.EntityFrameworkCore;
-using Bookify.Web.Helper;
 
 namespace Bookify.Web
 {
@@ -21,7 +19,7 @@ namespace Bookify.Web
 
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddIdentity<ApplicationUser,IdentityRole>()
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultUI()
                 .AddDefaultTokenProviders();
@@ -40,10 +38,11 @@ namespace Bookify.Web
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsPrincipalFactory>();
+            builder.Services.AddTransient<IImageService, ImageService>();
 
             builder.Services.AddAutoMapper(typeof(DomainProfile));
-			builder.Services.AddExpressiveAnnotations();
-			var app = builder.Build();
+            builder.Services.AddExpressiveAnnotations();
+            var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -68,8 +67,8 @@ namespace Bookify.Web
 
             using var scope = scopeFactory.CreateScope();
 
-            var roleManager=scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var userManager=scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
             await DefaultRoles.SeedRolesAsync(roleManager);
             await DefaultUsers.SeedAdminUserAsync(userManager);

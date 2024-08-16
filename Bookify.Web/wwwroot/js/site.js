@@ -300,7 +300,7 @@ $(function () {
                     editor.save();
                     // Manually trigger form validation
                     var textareaId = editor.getElement().id;
-                    $('form').validate().element("#" + textareaId);
+                    $('form').not('#signOutForm').validate().element("#" + textareaId);
                 });
             }
         });

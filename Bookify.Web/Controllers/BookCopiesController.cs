@@ -1,10 +1,7 @@
-﻿using Bookify.Web.Core.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Authorization;
 
 namespace Bookify.Web.Controllers;
-[Authorize(Roles =AppRoles.Archive)]
+[Authorize(Roles = AppRoles.Archive)]
 public class BookCopiesController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -25,25 +22,25 @@ public class BookCopiesController : Controller
         {
             return BadRequest();
         }
-        model.IsActive=!model.IsActive;
-        model.LastUpdatedOn= DateTime.Now;
-		model.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-		_context.SaveChanges();
+        model.IsActive = !model.IsActive;
+        model.LastUpdatedOn = DateTime.Now;
+        model.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        _context.SaveChanges();
         return Ok();
     }
 
     [AjaxOnly]
     public IActionResult Create(int bookId)
     {
-        var book=_context.Books.Find(bookId);
+        var book = _context.Books.Find(bookId);
         if (book is null) return NotFound();
 
-        BookCopyFormViewModel viewModel =new ()
-        { 
+        BookCopyFormViewModel viewModel = new()
+        {
             BookId = bookId,
-            IsBookAvailableForRental= book.IsAvailableForRental && book.IsAvailableForRental,
+            IsBookAvailableForRental = book.IsAvailableForRental && book.IsAvailableForRental,
         };
-        return PartialView("Form",viewModel);
+        return PartialView("Form", viewModel);
     }
 
     [HttpPost]
@@ -63,14 +60,14 @@ public class BookCopiesController : Controller
         book.BookCopies.Add(bookCopy);
         _context.SaveChanges();
 
-        var bookcopyViewModel=_mapper.Map<BookCopyViewModel>(bookCopy);
-        return PartialView("_BookCopyRow",bookcopyViewModel);
+        var bookcopyViewModel = _mapper.Map<BookCopyViewModel>(bookCopy);
+        return PartialView("_BookCopyRow", bookcopyViewModel);
     }
 
     [AjaxOnly]
     public IActionResult Update(int id)
     {
-        var model = _context.BookCopies.Include(b=>b.Book).SingleOrDefault(b=>b.Id==id);
+        var model = _context.BookCopies.Include(b => b.Book).SingleOrDefault(b => b.Id == id);
         if (model == null)
         {
             return BadRequest();
@@ -100,13 +97,13 @@ public class BookCopiesController : Controller
             return BadRequest();
         }
         bookCopy.EditionNumber = model.EditionNumber;
-        bookCopy.LastUpdatedOn=DateTime.Now;
-        bookCopy.IsAvailableForRental=model.IsAvailableForRental;
+        bookCopy.LastUpdatedOn = DateTime.Now;
+        bookCopy.IsAvailableForRental = model.IsAvailableForRental;
         bookCopy.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
         _context.SaveChanges();
 
-        var viewModel=_mapper.Map<BookCopyViewModel>(bookCopy);
+        var viewModel = _mapper.Map<BookCopyViewModel>(bookCopy);
 
         return PartialView("_BookCopyRow", viewModel);
     }
