@@ -7,3 +7,5 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
 global using System.ComponentModel.DataAnnotations;
 global using Bookify.Web.Core.Consts;
+global using Microsoft.AspNetCore.Identity;
+global using System.Security.Claims;
