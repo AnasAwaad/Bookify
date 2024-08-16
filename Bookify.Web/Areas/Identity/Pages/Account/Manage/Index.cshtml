@@ -6,12 +6,12 @@
     ViewData["Title"] = "Profile";
     Layout = "/Views/Shared/_Layout.cshtml";
 
-    var userImage = $"{webHostEnvironment.WebRootPath}/images/users/{User.FindFirst(ClaimTypes.NameIdentifier)!.Value}.jpg";
+    var userImage = $"{webHostEnvironment.WebRootPath}/images/users/{User.FindFirst(ClaimTypes.NameIdentifier)!.Value}.png";
 
     if(!System.IO.File.Exists(userImage))
         userImage = "/assets/images/avatar.png";
     else
-        userImage = $"/images/users/{User.FindFirst(ClaimTypes.NameIdentifier)!.Value}.jpg";
+        userImage = $"/images/users/{User.FindFirst(ClaimTypes.NameIdentifier)!.Value}.png";
 }
 
 
@@ -98,7 +98,7 @@
                     <partial name="_StatusMessage" for="StatusMessage" />
                 </div>
                 <!--begin::Form-->
-                <form method="post" class="form fv-plugins-bootstrap5 fv-plugins-framework" novalidate="novalidate">
+                <form method="post" class="form fv-plugins-bootstrap5 fv-plugins-framework" novalidate="novalidate" enctype="multipart/form-data">
                     <!--begin::Card body-->
                     <div class="card-body border-top p-9">
                         <!--begin::Input group-->
@@ -117,14 +117,15 @@
                                     <label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="change" data-bs-toggle="tooltip" aria-label="Change avatar" data-bs-original-title="Change avatar" data-kt-initialized="1">
                                         <i class="bi bi-pencil"></i>
                                         <!--begin::Inputs-->
-                                        <input type="file" name="avatar" accept=".png, .jpg, .jpeg">
+                                        <input type="file" asp-for="Input.Avatar" accept=".png, .jpg, .jpeg">
                                         <input type="hidden" name="avatar_remove">
+                                        <input type="hidden" asp-for="Input.IsDeletedAvatar"/>
                                         <!--end::Inputs-->
                                     </label>
                                     <!--end::Label-->
                                  
                                     <!--begin::Remove-->
-                                    <span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="remove" data-bs-toggle="tooltip" aria-label="Remove avatar" data-bs-original-title="Remove avatar" data-kt-initialized="1">
+                                    <span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow js-remove-avatar" data-kt-image-input-action="remove" data-bs-toggle="tooltip" aria-label="Remove avatar" data-bs-original-title="Remove avatar" data-kt-initialized="1">
                                         <i class="bi bi-x"></i>
                                     </span>
                                     <!--end::Remove-->
@@ -132,6 +133,7 @@
                                 <!--end::Image input-->
                                 <!--begin::Hint-->
                                 <div class="form-text">Allowed file types:  png, jpg, jpeg.</div>
+                                <span class="text-danger" asp-validation-for="Input.Avatar"></span>
                                 <!--end::Hint-->
                             </div>
                             <!--end::Col-->
@@ -382,4 +384,11 @@
  *@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            $('.js-remove-avatar').on('click',function(){
+                $('#Input_IsDeletedAvatar').val(true);
+            })
+        });
+    </script>
 }

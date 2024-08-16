@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using Bookify.Web.Services;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Diagnostics.CodeAnalysis;
 using UserManagement.Consts;
 
 namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
@@ -11,13 +13,16 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IImageService _imageService;
 
         public IndexModel(
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            IImageService imageService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _imageService = imageService;
         }
 
         /// <summary>
@@ -59,6 +64,9 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
             [Display(Name = "Full Name"), MaxLength(100, ErrorMessage = Errors.MaxLength)]
             [RegularExpression(RegexPattern.CharactersOnly_Eng, ErrorMessage = Errors.OnlyEnglishLetters)]
             public string FullName { get; set; } = null!;
+
+            public IFormFile Avatar { get; set; }
+            public bool IsDeletedAvatar { get; set; }
         }
 
         private async Task LoadAsync(ApplicationUser user)
@@ -99,6 +107,22 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
             {
                 await LoadAsync(user);
                 return Page();
+            }
+
+            if(Input.Avatar is not null)
+            {
+                _imageService.DeleteImage($"/images/users/{user.Id}.png");
+                (bool isUploaded,string errorMessage)=_imageService.UploadImage(Input.Avatar, $"{user.Id}.png", "images\\users", false);
+                if (!isUploaded)
+                {
+                    ModelState.AddModelError("Input.Avatar", errorMessage);
+                    await LoadAsync(user);
+                    return Page();
+                }
+            }else if (Input.IsDeletedAvatar)
+            {
+                _imageService.DeleteImage($"/images/users/{user.Id}.png");
+
             }
 
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);

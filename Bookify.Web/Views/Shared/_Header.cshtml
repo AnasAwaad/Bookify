@@ -2,12 +2,12 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject IWebHostEnvironment webHostEnvironment;
 @{
-	var userImage = $"{webHostEnvironment.WebRootPath}/images/users/{User.FindFirst(ClaimTypes.NameIdentifier)!.Value}.jpg";
+	var userImage = $"{webHostEnvironment.WebRootPath}/images/users/{User.FindFirst(ClaimTypes.NameIdentifier)!.Value}.png";
 
 	if (!System.IO.File.Exists(userImage))
 		userImage = "/assets/images/avatar.png";
 	else
-		userImage = $"/images/users/{User.FindFirst(ClaimTypes.NameIdentifier)!.Value}.jpg";
+		userImage = $"/images/users/{User.FindFirst(ClaimTypes.NameIdentifier)!.Value}.png";
 }
 <!--begin::Header-->
 <div id="kt_header" class="header">
