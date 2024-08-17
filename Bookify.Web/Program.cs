@@ -2,7 +2,9 @@ using Bookify.Web.Helper;
 using Bookify.Web.Mapping;
 using Bookify.Web.Seeds;
 using Bookify.Web.Services;
+using Bookify.Web.Settings;
 using Humanizer;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Channels;
@@ -43,8 +45,11 @@ namespace Bookify.Web
 
 			builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsPrincipalFactory>();
 			builder.Services.AddTransient<IImageService, ImageService>();
+			builder.Services.AddTransient<IEmailSender, EmailSender>();
+
 			builder.Services.AddAutoMapper(typeof(DomainProfile));
 			builder.Services.AddExpressiveAnnotations();
+			builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
 
 			//SecurityStampValidatorOptions: This class contains options for the security stamp validator.
 			//The security stamp validator is responsible for checking the security stamp value of the user to

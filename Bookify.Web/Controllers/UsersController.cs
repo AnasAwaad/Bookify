@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Bookify.Web.Controllers;
@@ -7,17 +8,22 @@ public class UsersController : Controller
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly IEmailSender _emailSender;
     private readonly IMapper _mapper;
 
-    public UsersController(UserManager<ApplicationUser> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager)
+    public UsersController(UserManager<ApplicationUser> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager, IEmailSender emailSender)
     {
         _userManager = userManager;
         _mapper = mapper;
         _roleManager = roleManager;
+        _emailSender = emailSender;
     }
 
     public async Task<IActionResult> Index()
     {
+
+        await _emailSender.SendEmailAsync("ahmed.awaad1000@gmail.com","test email","this is a test email");
+
         var users = await _userManager.Users.ToListAsync();
         List<UserViewModel> viewModel = new List<UserViewModel>();
         foreach (var user in users)
