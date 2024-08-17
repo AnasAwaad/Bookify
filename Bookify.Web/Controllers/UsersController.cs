@@ -112,7 +112,10 @@ public class UsersController : Controller
                 await _userManager.AddToRolesAsync(user, model.SelectedRoles);
 
             }
-            return PartialView("_UserRow", _mapper.Map<UserViewModel>(user));
+
+			await _userManager.UpdateSecurityStampAsync(user);
+
+			return PartialView("_UserRow", _mapper.Map<UserViewModel>(user));
         }
         return BadRequest(string.Join(",", result.Errors.Select(e => e.Description)));
     }
@@ -220,6 +223,10 @@ public class UsersController : Controller
         user.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
         await _userManager.UpdateAsync(user);
+
+        if (!user.IsActive)
+            await _userManager.UpdateSecurityStampAsync(user);
+
         return Json(new { lastUpdatedOn = user.LastUpdatedOn.ToString() });
     }
     #endregion
