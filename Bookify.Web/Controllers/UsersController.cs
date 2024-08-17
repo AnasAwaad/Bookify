@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text.Encodings.Web;
+using System.Text;
 
 namespace Bookify.Web.Controllers;
 [Authorize(Roles = AppRoles.Admin)]
@@ -9,20 +12,24 @@ public class UsersController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IEmailSender _emailSender;
+    private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IMapper _mapper;
 
-    public UsersController(UserManager<ApplicationUser> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager, IEmailSender emailSender)
+    public UsersController(UserManager<ApplicationUser> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager, IEmailSender emailSender, IWebHostEnvironment webHostEnvironment)
     {
         _userManager = userManager;
         _mapper = mapper;
         _roleManager = roleManager;
         _emailSender = emailSender;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     public async Task<IActionResult> Index()
     {
 
-        await _emailSender.SendEmailAsync("ahmed.awaad1000@gmail.com","test email","this is a test email");
+        
+
+
 
         var users = await _userManager.Users.ToListAsync();
         List<UserViewModel> viewModel = new List<UserViewModel>();
@@ -60,14 +67,44 @@ public class UsersController : Controller
             UserName = model.UserName,
             Email = model.Email,
             CreatedOn = DateTime.Now,
-            CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value
-
+            CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value,
+            IsActive=true
+            
         };
 
-        var result = await _userManager.CreateAsync(user, model.Password);
+        var result = await _userManager.CreateAsync(user, model.Password!);
         if (result.Succeeded)
         {
             var res = await _userManager.AddToRolesAsync(user, model.SelectedRoles);
+
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+            var callbackUrl = Url.Page(
+                "/Account/ConfirmEmail",
+                pageHandler: null,
+                values: new { area = "Identity", userId = user.Id, code = code},
+                protocol: Request.Scheme);
+
+
+            var templatePath = $"{_webHostEnvironment.WebRootPath}/templates/email.html";
+
+            StreamReader streamReader = new StreamReader(templatePath);
+            var body = streamReader.ReadToEnd();
+            streamReader.Close();
+
+            body = body.Replace("[imageUrl]", "https://res.cloudinary.com/dygrlijla/image/upload/v1723914644/93ae73da-0ad6-4e76-ad40-3ab67cf4c6f1.png")
+                .Replace("[imageLogo]", "https://res.cloudinary.com/dygrlijla/image/upload/v1723914720/logo_nh8slr.png")
+                .Replace("[header]", $"Hey {user.FullName}, thanks for joining up!")
+                .Replace("[body]", "Please confirm your email")
+                .Replace("[url]", $"{HtmlEncoder.Default.Encode(callbackUrl!)}")
+                .Replace("[linkTitle]", "Active Account!");
+
+            await _emailSender.SendEmailAsync(user.Email, "Confirm your email",body);
+
+
+
+
             return PartialView("_UserRow", _mapper.Map<UserViewModel>(user));
         }
         return BadRequest(string.Join(",", result.Errors.Select(e => e.Description)));
