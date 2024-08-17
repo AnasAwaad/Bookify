@@ -1,8 +1,14 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using System.Security.Claims;
-@inject SignInManager<ApplicationUser> SignInManager
+﻿@inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@inject IWebHostEnvironment webHostEnvironment;
+@{
+	var userImage = $"{webHostEnvironment.WebRootPath}/images/users/{User.FindFirst(ClaimTypes.NameIdentifier)!.Value}.png";
 
+	if (!System.IO.File.Exists(userImage))
+		userImage = "/assets/images/avatar.png";
+	else
+		userImage = $"/images/users/{User.FindFirst(ClaimTypes.NameIdentifier)!.Value}.png";
+}
 <!--begin::Header-->
 <div id="kt_header" class="header">
 	<!--begin::Container-->
@@ -215,7 +221,7 @@
 					<!--end::Name-->
 					<!--begin::Symbol-->
 					<div class="symbol symbol-30px symbol-md-40px">
-						<img src="~/assets/images/avatar.png" alt="image" />
+						<img src="@userImage" alt="image" />
 					</div>
 					<!--end::Symbol-->
 				</div>
@@ -229,7 +235,7 @@
 							<!--begin::Avatar-->
 							<div class="symbol symbol-50px me-5">
 								<img alt="Logo"
-									 src="~/assets/images/avatar.png" />
+									 src="@userImage" />
 							</div>
 							<!--end::Avatar-->
 							<!--begin::Username-->

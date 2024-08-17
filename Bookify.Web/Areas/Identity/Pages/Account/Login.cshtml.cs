@@ -2,19 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Bookify.Web.Core.Models;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
 
 namespace Bookify.Web.Areas.Identity.Pages.Account
 {
@@ -24,18 +13,18 @@ namespace Bookify.Web.Areas.Identity.Pages.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<LoginModel> _logger;
 
-		public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger, UserManager<ApplicationUser> userManager)
-		{
-			_signInManager = signInManager;
-			_logger = logger;
-			_userManager = userManager;
-		}
+        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger, UserManager<ApplicationUser> userManager)
+        {
+            _signInManager = signInManager;
+            _logger = logger;
+            _userManager = userManager;
+        }
 
-		/// <summary>
-		///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-		///     directly from your code. This API may change or be removed in future releases.
-		/// </summary>
-		[BindProperty]
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        [BindProperty]
         public InputModel Input { get; set; }
 
         /// <summary>
@@ -113,13 +102,13 @@ namespace Bookify.Web.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                var user = _userManager.Users.SingleOrDefault(u => (u.Email ==Input.UserName  || u.UserName == Input.UserName) && u.IsActive);
+                var user = _userManager.Users.SingleOrDefault(u => (u.Email == Input.UserName || u.UserName == Input.UserName) && u.IsActive);
 
-                if(user is null)
+                if (user is null)
                 {
-					ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-					return Page();
-				}
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    return Page();
+                }
 
                 var result = await _signInManager.PasswordSignInAsync(user, Input.Password, Input.RememberMe, lockoutOnFailure: true);
                 if (result.Succeeded)

@@ -111,8 +111,7 @@ $(function () {
             },
             success: function (res) {
                 var isActiveCell = btn.parents('tr').find('.js-toggle-status');
-                var newStatus = isActiveCell.html() === "Available" ? "Deleted" : "Available";
-
+                var newStatus = isActiveCell.html().trim() == "Available" ? "Not Available" : "Available";
 
                 isActiveCell.html(newStatus);
                 isActiveCell.toggleClass("badge-success badge-danger");
@@ -300,7 +299,7 @@ $(function () {
                     editor.save();
                     // Manually trigger form validation
                     var textareaId = editor.getElement().id;
-                    $('form').validate().element("#" + textareaId);
+                    $('form').not('#signOutForm').validate().element("#" + textareaId);
                 });
             }
         });

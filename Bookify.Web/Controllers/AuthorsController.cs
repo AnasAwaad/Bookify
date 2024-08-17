@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
 namespace Bookify.Web.Controllers;
-[Authorize(Roles =AppRoles.Archive)]
+[Authorize(Roles = AppRoles.Archive)]
 public class AuthorsController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -76,7 +75,7 @@ public class AuthorsController : Controller
             return View("_UpsertForm", model);
         }
         var author = _context.Authors.Find(model.Id);
-        
+
         if (author == null)
             return NotFound();
 

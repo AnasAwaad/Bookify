@@ -3,9 +3,8 @@ using System.Diagnostics;
 
 namespace Bookify.Web.Controllers
 {
-	[Authorize(Roles = "Archive")]
-
-	public class HomeController : Controller
+    [Authorize]
+    public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
 
