@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using Bookify.Web.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
@@ -15,15 +16,18 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
+        private readonly IEmailBodyBuilder _emailBodyBuilder;
 
         public EmailModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IEmailBodyBuilder emailBodyBuilder)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
+            _emailBodyBuilder = emailBodyBuilder;
         }
 
         /// <summary>
@@ -64,6 +68,7 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
             /// </summary>
             [Required]
             [EmailAddress]
+            [Remote("AllowEmail", "Users", HttpMethod = "POST", ErrorMessage = Errors.Dublicated)]
             [Display(Name = "New email")]
             public string NewEmail { get; set; }
         }
@@ -118,11 +123,22 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
                     pageHandler: null,
                     values: new { area = "Identity", userId = userId, email = Input.NewEmail, code = code },
                     protocol: Request.Scheme);
+
+
+                var body = _emailBodyBuilder.GetEmailBody(
+                   imageUrl: "https://res.cloudinary.com/dygrlijla/image/upload/v1723914644/93ae73da-0ad6-4e76-ad40-3ab67cf4c6f1.png",
+                   imageLogo: "https://res.cloudinary.com/dygrlijla/image/upload/v1723914720/logo_nh8slr.png",
+                   header: $"Hey {user.FullName}",
+                   body: "Confirm your email",
+                   url: $"{HtmlEncoder.Default.Encode(callbackUrl!)}",
+                   linkTitle: "clicking here");
+
+
                 await _emailSender.SendEmailAsync(
                     Input.NewEmail,
                     "Confirm your email",
-                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
+                    body);
+                
                 StatusMessage = "Confirmation link to change email sent. Please check your email.";
                 return RedirectToPage();
             }
@@ -131,36 +147,5 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
             return RedirectToPage();
         }
 
-        public async Task<IActionResult> OnPostSendVerificationEmailAsync()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                await LoadAsync(user);
-                return Page();
-            }
-
-            var userId = await _userManager.GetUserIdAsync(user);
-            var email = await _userManager.GetEmailAsync(user);
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            var callbackUrl = Url.Page(
-                "/Account/ConfirmEmail",
-                pageHandler: null,
-                values: new { area = "Identity", userId = userId, code = code },
-                protocol: Request.Scheme);
-            await _emailSender.SendEmailAsync(
-                email,
-                "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-            StatusMessage = "Verification email sent. Please check your email.";
-            return RedirectToPage();
-        }
     }
 }
