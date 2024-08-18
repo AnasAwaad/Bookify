@@ -46,6 +46,7 @@ namespace Bookify.Web
 			builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsPrincipalFactory>();
 			builder.Services.AddTransient<IImageService, ImageService>();
 			builder.Services.AddTransient<IEmailSender, EmailSender>();
+			builder.Services.AddTransient<IEmailBodyBuilder, EmailBodyBuilder>();
 
 			builder.Services.AddAutoMapper(typeof(DomainProfile));
 			builder.Services.AddExpressiveAnnotations();

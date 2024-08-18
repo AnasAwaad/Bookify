@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using Bookify.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -18,13 +19,13 @@ namespace Bookify.Web.Areas.Identity.Pages.Account
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
-        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IEmailBodyBuilder _emailBodyBuilder;
 
-		public ResendEmailConfirmationModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender, IWebHostEnvironment webHostEnvironment)
+		public ResendEmailConfirmationModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender, IEmailBodyBuilder emailBodyBuilder)
 		{
 			_userManager = userManager;
 			_emailSender = emailSender;
-			_webHostEnvironment = webHostEnvironment;
+			_emailBodyBuilder = emailBodyBuilder;
 		}
 
 		/// <summary>
@@ -80,18 +81,13 @@ namespace Bookify.Web.Areas.Identity.Pages.Account
                 values: new { userId = userId, code = code },
                 protocol: Request.Scheme);
 
-			var templatePath = $"{_webHostEnvironment.WebRootPath}/templates/email.html";
-
-			StreamReader streamReader = new StreamReader(templatePath);
-			var body = streamReader.ReadToEnd();
-			streamReader.Close();
-
-			body = body.Replace("[imageUrl]", "https://res.cloudinary.com/dygrlijla/image/upload/v1723914644/93ae73da-0ad6-4e76-ad40-3ab67cf4c6f1.png")
-				.Replace("[imageLogo]", "https://res.cloudinary.com/dygrlijla/image/upload/v1723914720/logo_nh8slr.png")
-				.Replace("[header]", $"Hey {user.FullName}, thanks for joining up!")
-				.Replace("[body]", "Please confirm your email")
-				.Replace("[url]", $"{HtmlEncoder.Default.Encode(callbackUrl!)}")
-				.Replace("[linkTitle]", "Active Account!");
+			var body = _emailBodyBuilder.GetEmailBody(
+				imageUrl: "https://res.cloudinary.com/dygrlijla/image/upload/v1723914644/93ae73da-0ad6-4e76-ad40-3ab67cf4c6f1.png",
+				imageLogo: "https://res.cloudinary.com/dygrlijla/image/upload/v1723914720/logo_nh8slr.png",
+				header: $"Hey {user.FullName}, thanks for joining up!",
+				body: "Please confirm your email",
+				url: $"{HtmlEncoder.Default.Encode(callbackUrl!)}",
+				linkTitle: "Active Account!");
 
 			await _emailSender.SendEmailAsync(
                 Input.Email,
