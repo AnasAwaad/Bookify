@@ -39,5 +39,8 @@ public class DomainProfile : Profile
             .ForMember(dest => dest.NormalizedUserName, opt => opt.MapFrom(src => src.UserName.ToUpper()))
             .ReverseMap();
 
+        // Subscripers
+        CreateMap<SubscriperFormViewModel, Subscriper>();
+
     }
 }

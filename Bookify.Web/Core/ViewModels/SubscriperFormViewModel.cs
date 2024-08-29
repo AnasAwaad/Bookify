@@ -13,16 +13,19 @@ public class SubscriperFormViewModel
 	public DateTime DateOfBirth { get; set; }
 
 	[MaxLength(20, ErrorMessage = Errors.MaxLength)]
+	[Remote("IsAllowedNationalId","Subscripers","Id", HttpMethod = "Post", ErrorMessage =Errors.Dublicated)]
 	[RegularExpression(RegexPattern.NationalId,ErrorMessage =Errors.NotAllowedNationalId)]
 	public string NationalId { get; set; } = null!;
 
 	[MaxLength(11,ErrorMessage=Errors.MaxLength)]
 	[RegularExpression(RegexPattern.PhoneNumber)]
+	[Remote("IsAllowedMobileNumber", "Subscripers", "Id", HttpMethod = "Post", ErrorMessage = Errors.Dublicated)]
 	public string MobileNumber { get; set; } = null!;
 	public bool HasWhatsApp { get; set; }
 
 	[MaxLength(150,ErrorMessage=Errors.MaxLength)]
 	[EmailAddress]
+	[Remote("IsAllowedEmail","Subscripers","Id",HttpMethod ="Post",ErrorMessage =Errors.Dublicated)]
 	public string Email { get; set; } = null!;
 	public IFormFile Image { get; set; } = null!;
 	public int AreaId { get; set; }
@@ -31,7 +34,7 @@ public class SubscriperFormViewModel
 	public City? City { get; set; }
 
 	[MaxLength(500, ErrorMessage = Errors.MaxLength)]
-	public string Address { get; set; }
+	public string Address { get; set; } = null!;
 	public bool IsBlackListed { get; set; }
 
     public IEnumerable<SelectListItem> Cities { get; set; }=new List<SelectListItem>();
