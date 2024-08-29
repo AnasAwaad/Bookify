@@ -1,7 +1,9 @@
-﻿using Bookify.Web.Services;
+﻿using Bookify.Web.Core.Models;
+using Bookify.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using SixLabors.ImageSharp;
 namespace Bookify.Web.Controllers;
 [Authorize(Roles = AppRoles.Reception)]
 public class SubscripersController : Controller
@@ -33,7 +35,7 @@ public class SubscripersController : Controller
 				Text = c.Name
 			})
 		};
-		return View(viewModel);
+		return View("Form",viewModel);
 	}
 
 	[HttpPost]
@@ -64,6 +66,56 @@ public class SubscripersController : Controller
 		return RedirectToAction(nameof(Index));
 	}
 
+	[HttpGet]
+	public IActionResult Update(int id)
+	{
+		var subscriper = _context.Subscripers.Find(id);
+		if (subscriper is null)
+			return NotFound();
+		var viewModel = PopulateViewModel(_mapper.Map<SubscriperFormViewModel>(subscriper));
+		return View("Form", viewModel);
+	}
+
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+	public IActionResult Update(SubscriperFormViewModel viewModel)
+	{
+		if (!ModelState.IsValid)
+			return View("Form", PopulateViewModel(viewModel));
+
+		var model = _context.Subscripers.Find(viewModel.Id);
+
+		if (model is null) return NotFound();
+
+
+		if (viewModel.Image is not null)
+		{
+			var imageName = $"{Guid.NewGuid()}{Path.GetExtension(viewModel.Image.FileName)}";
+			if(!string.IsNullOrEmpty(model.ImageUrl))
+				_imageService.DeleteImage(model.ImageUrl, model.ImageThumbnailUrl);
+
+			(bool isUploaded, string? errorMessage) = _imageService.UploadImage(viewModel.Image, imageName, "images\\subscripers", true);
+			if (!isUploaded)
+			{
+				ModelState.AddModelError("Image", errorMessage!);
+				return View("Form", PopulateViewModel(viewModel));
+			}
+			viewModel.ImageUrl = "/images/subscripers/" + imageName;
+			viewModel.ImageThumbnailUrl = "/images/subscripers/thumb/" + imageName;
+		}
+		else
+		{
+			viewModel.ImageUrl = model.ImageUrl;
+			viewModel.ImageThumbnailUrl = model.ImageThumbnailUrl;
+		}
+
+		model = _mapper.Map(viewModel, model);
+		model.LastUpdatedOn = DateTime.Now;
+		model.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+
+		_context.SaveChanges();
+		return RedirectToAction(nameof(Index));
+	}
 
 
 	[HttpPost]

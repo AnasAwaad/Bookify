@@ -40,7 +40,7 @@ public class DomainProfile : Profile
             .ReverseMap();
 
         // Subscripers
-        CreateMap<SubscriperFormViewModel, Subscriper>();
+        CreateMap<SubscriperFormViewModel, Subscriper>().ReverseMap();
 
         // City & Area
         CreateMap<City, SelectListItem>()
