@@ -50,13 +50,14 @@ namespace Bookify.Web
 
 			builder.Services.AddAutoMapper(typeof(DomainProfile));
 			builder.Services.AddExpressiveAnnotations();
+			
 			builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
 
 			//SecurityStampValidatorOptions: This class contains options for the security stamp validator.
 			//The security stamp validator is responsible for checking the security stamp value of the user to
 			//determine if it has changed and thus whether the user needs to be re-authenticated.
 			//options.ValidationInterval : TimeSpan.Zero: The ValidationInterval property specifies how often the security stamp should be validated.
-			//By setting this to TimeSpan.Zero, you’re instructing the validator to check the security stamp on every request.
+			//By setting this to TimeSpan.Zero, youï¿½re instructing the validator to check the security stamp on every request.
 
 			builder.Services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.Zero);
 
@@ -78,6 +79,7 @@ namespace Bookify.Web
 			app.UseStaticFiles();
 			app.UseRouting();
 			app.UseAuthorization();
+			
 			var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
 			using var scope = scopeFactory.CreateScope();
 

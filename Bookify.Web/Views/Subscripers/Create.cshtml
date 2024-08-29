@@ -1,0 +1,200 @@
+﻿@model SubscriperFormViewModel
+<div class="card mb-5 mb-xl-10">
+	<!--begin::Content-->
+	<div id="kt_account_settings_profile_details" class="collapse show">
+		<!--begin::Form-->
+		<form class="form fv-plugins-bootstrap5 fv-plugins-framework"enctype="multipart/form-data">
+			<!--begin::Card body-->
+			<div class="card-body border-top p-9">
+				<!--begin::Input group-->
+				<div class="row mb-6">
+					<!--begin::Label-->
+					<label class="col-lg-4 col-form-label fw-semibold fs-6 required" asp-for="Image"></label>
+					<!--end::Label-->
+					<!--begin::Col-->
+					<div class="col-lg-8">
+						<!--begin::Image input-->
+						<div class="image-input image-input-outline" data-kt-image-input="true" style="background-image: url('/assets/images/avatar.png')">
+							<!--begin::Preview existing avatar-->
+							<div class="image-input-wrapper w-125px h-125px" style="background-image: url(/assets/images/avatar.png)"></div>
+							<!--end::Preview existing avatar-->
+							<!--begin::Label-->
+							<label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="change" data-bs-toggle="tooltip" aria-label="Change avatar" data-bs-original-title="Change avatar" data-kt-initialized="1">
+								<i class="bi bi-pencil-fill fs-7"></i>
+								<!--begin::Inputs-->
+								<input type="file" asp-for="Image" accept=".png, .jpg, .jpeg">
+								<input type="hidden" name="avatar_remove">
+								<!--end::Inputs-->
+							</label>
+							<!--end::Label-->
+							<!--begin::Cancel-->
+							<span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="cancel" data-bs-toggle="tooltip" aria-label="Cancel avatar" data-bs-original-title="Cancel avatar" data-kt-initialized="1">
+								<i class="bi bi-x fs-2"></i>
+							</span>
+							<!--end::Cancel-->
+							<!--begin::Remove-->
+							<span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="remove" data-bs-toggle="tooltip" aria-label="Remove avatar" data-bs-original-title="Remove avatar" data-kt-initialized="1">
+								<i class="bi bi-x fs-2"></i>
+							</span>
+							<!--end::Remove-->
+						</div>
+						<!--end::Image input-->
+						<!--begin::Hint-->
+						<div class="form-text">Allowed file types:  png, jpg, jpeg.</div>
+						<span asp-validation-for="Image" class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></span>
+
+						<!--end::Hint-->
+					</div>
+					<!--end::Col-->
+
+				</div>
+				<!--end::Input group-->
+				<!--begin::Input group-->
+				<div class="row mb-6">
+					<!--begin::Label-->
+					<label class="col-lg-4 col-form-label required fw-semibold fs-6">Full Name</label>
+					<!--end::Label-->
+					<!--begin::Col-->
+					<div class="col-lg-8">
+						<!--begin::Row-->
+						<div class="row">
+							<!--begin::Col-->
+							<div class="col-lg-6 fv-row fv-plugins-icon-container">
+								<input type="text" asp-for="FirstName" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0" placeholder="First name">
+								<span asp-validation-for="FirstName" class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></span>
+							</div>
+							<!--end::Col-->
+							<!--begin::Col-->
+							<div class="col-lg-6 fv-row fv-plugins-icon-container">
+								<input type="text" asp-for="LastName" class="form-control form-control-lg form-control-solid" placeholder="Last name">
+								<span asp-validation-for="LastName" class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></span>
+							</div>
+							<!--end::Col-->
+						</div>
+						<!--end::Row-->
+					</div>
+					<!--end::Col-->
+				</div>
+				<!--end::Input group-->
+				<!--begin::Input group-->
+				<div class="row mb-6">
+					<!--begin::Label-->
+					<label class="col-lg-4 col-form-label required fw-semibold fs-6">Date of birth</label>
+					<!--end::Label-->
+					<!--begin::Col-->
+					<div class="col-lg-8">
+						<input type="text" asp-for="DateOfBirth" class="form-control form-control-solid js-datepicker" placeholder="Date Of Birth">
+						<span asp-validation-for="DateOfBirth" class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></span>
+					</div>
+					<!--end::Col-->
+				</div>
+				<!--end::Input group-->
+				<!--begin::Input group-->
+				<div class="row mb-6">
+					<!--begin::Label-->
+					<label class="col-lg-4 col-form-label fw-semibold fs-6 required" asp-for="NationalId"></label>
+					<!--end::Label-->
+					<!--begin::Col-->
+					<div class="col-lg-8 fv-row fv-plugins-icon-container">
+						<input asp-for="NationalId" class="form-control form-control-lg form-control-solid" placeholder="National Id">
+						<span asp-validation-for="NationalId" class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></span>
+					</div>
+					<!--end::Col-->
+				</div>
+				<!--end::Input group-->
+				<!--begin::Input group-->
+				<div class="row mb-6">
+					<!--begin::Label-->
+					<label class="col-lg-4 col-form-label required fw-semibold fs-6">Contacts</label>
+					<!--end::Label-->
+					<!--begin::Col-->
+					<div class="col-lg-8">
+						<!--begin::Row-->
+						<div class="row">
+							<!--begin::Col-->
+							<div class="col-lg-4 fv-row fv-plugins-icon-container">
+								<input asp-for="Email" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0" placeholder="Email">
+								<span asp-validation-for="Email" class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></span>
+							</div>
+							<!--end::Col-->
+							<!--begin::Col-->
+							<div class="col-lg-4 fv-row fv-plugins-icon-container">
+								<input type="text" asp-for="MobileNumber" class="form-control form-control-lg form-control-solid" placeholder="Mobile Number">
+								<span asp-validation-for="MobileNumber" class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></span>
+							</div>
+							<!--end::Col-->
+							<!--begin::Col-->
+							<div class="col-lg-4 d-flex align-items-center">
+								<div class="form-check form-check-solid form-switch form-check-custom fv-row">
+									<input class="form-check-input w-45px h-30px" type="checkbox" asp-for="HasWhatsApp">
+									<label class="form-check-label" asp-for="HasWhatsApp"></label>
+								</div>
+							</div>
+							<!--end::Col-->
+						</div>
+						<!--end::Row-->
+					</div>
+					<!--end::Col-->
+				</div>
+				<!--end::Input group-->
+				<!--begin::Input group-->
+				<div class="row mb-6">
+					<!--begin::Label-->
+					<label class="col-lg-4 col-form-label required fw-semibold fs-6">Governorate/Area</label>
+					<!--end::Label-->
+					<!--begin::Col-->
+					<div class="col-lg-8">
+						<!--begin::Row-->
+						<div class="row">
+
+							<div class="col-lg-6 fv-row fv-plugins-icon-container">
+								<select asp-for="CityId" asp-items="Model.Cities" class="form-select form-select-solid js-select2 js-selected-city" data-control="select2" data-placeholder="Select a city">
+									<option hidden value="">Select a city</option>
+								</select>
+								<span asp-validation-for="CityId" class="text-danger"></span>
+
+							</div>
+							<div class="col-lg-6 fv-row fv-plugins-icon-container">
+								<select asp-for="AreaId" class="form-select form-select-solid js-select2 js-areas" data-control="select2" data-placeholder="Select an area">
+									<option hidden value="">Select an area</option>
+								</select>
+								<span asp-validation-for="AreaId" class="text-danger"></span>
+							</div>
+						</div>
+						<!--end::Col-->
+
+					</div>
+				</div>
+				<!--end::Row-->
+				<!--begin::Input group-->
+				<div class="row mb-6">
+					<!--begin::Label-->
+					<label class="col-lg-4 col-form-label fw-semibold fs-6 required" asp-for="Address"></label>
+					<!--end::Label-->
+					<!--begin::Col-->
+					<div class="col-lg-8 fv-row fv-plugins-icon-container">
+						<textarea asp-for="Address" class="form-control form-control-lg form-control-solid" placeholder="Address">
+						</textarea>
+						<span asp-validation-for="Address" class="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"></span>
+					</div>
+
+					<!--end::Col-->
+				</div>
+				<!--end::Input group-->
+				<!--begin::Actions-->
+				<div class="card-footer d-flex justify-content-end py-6 px-9">
+					<button type="reset" class="btn btn-light btn-active-light-primary me-2">Discard</button>
+					<button type="submit" class="btn btn-primary" id="kt_account_profile_details_submit">Save Changes</button>
+				</div>
+				<!--end::Actions-->
+			</div>
+			<!--end::Col-->
+
+		</form>
+	</div>
+</div>
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+	<script src="~/js/subscripers.js"></script>
+}
+

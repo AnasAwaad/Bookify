@@ -33,12 +33,6 @@ namespace Bookify.Web.Data
                 .Property(e => e.SerialNumber)
                 .HasDefaultValueSql("NEXT VALUE FOR shared.SerialNumber");
 
-            // change name of identity tables
-            //builder.Entity<IdentityUser>().ToTable("Users");
-            //builder.Entity<IdentityRole>().ToTable("Roles");
-            //builder.Entity<IdentityUserRole<string>>().ToTable("UserRoles");
-
-
             // change behavior of foreign key to restrict behavior
             var cascadeFKs = builder.Model.GetEntityTypes()
                 .SelectMany(t => t.GetForeignKeys())
