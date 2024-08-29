@@ -18,7 +18,7 @@ public class SubscriperFormViewModel
 	public string NationalId { get; set; } = null!;
 
 	[MaxLength(11,ErrorMessage=Errors.MaxLength)]
-	[RegularExpression(RegexPattern.PhoneNumber)]
+	[RegularExpression(RegexPattern.PhoneNumber,ErrorMessage =Errors.Dublicated)]
 	[Remote("IsAllowedMobileNumber", "Subscripers", "Id", HttpMethod = "Post", ErrorMessage = Errors.Dublicated)]
 	public string MobileNumber { get; set; } = null!;
 	public bool HasWhatsApp { get; set; }
@@ -38,4 +38,5 @@ public class SubscriperFormViewModel
 	public bool IsBlackListed { get; set; }
 
     public IEnumerable<SelectListItem> Cities { get; set; }=new List<SelectListItem>();
+    public IEnumerable<SelectListItem>? Areas { get; set; }=new List<SelectListItem>();
 }

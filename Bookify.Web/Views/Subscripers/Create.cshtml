@@ -155,7 +155,7 @@
 
 							</div>
 							<div class="col-lg-6 fv-row fv-plugins-icon-container">
-								<select asp-for="AreaId" class="form-select form-select-solid js-select2 js-areas" data-control="select2" data-placeholder="Select an area">
+								<select asp-for="AreaId" asp-items="Model.Areas" class="form-select form-select-solid js-select2 js-areas" data-control="select2" data-placeholder="Select an area">
 									<option hidden value="">Select an area</option>
 								</select>
 								<span asp-validation-for="AreaId" class="text-danger"></span>
