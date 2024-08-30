@@ -10,10 +10,13 @@ namespace Bookify.Web.Data
         }
 
         public DbSet<Author> Authors { get; set; }
+        public DbSet<Area> Areas { get; set; }
         public DbSet<Book> Books { get; set; }
         public DbSet<BookCategory> BookCategories { get; set; }
         public DbSet<BookCopy> BookCopies { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<City> Cities { get; set; }
+        public DbSet<Subscriper> Subscripers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -30,12 +33,15 @@ namespace Bookify.Web.Data
                 .Property(e => e.SerialNumber)
                 .HasDefaultValueSql("NEXT VALUE FOR shared.SerialNumber");
 
-            // change name of identity tables
-            //builder.Entity<IdentityUser>().ToTable("Users");
-            //builder.Entity<IdentityRole>().ToTable("Roles");
-            //builder.Entity<IdentityUserRole<string>>().ToTable("UserRoles");
+            // change behavior of foreign key to restrict behavior
+            var cascadeFKs = builder.Model.GetEntityTypes()
+                .SelectMany(t => t.GetForeignKeys())
+                .Where(fk => fk.DeleteBehavior == DeleteBehavior.Cascade && !fk.IsOwnership);
 
-
+            foreach (var item in cascadeFKs)
+            {
+                item.DeleteBehavior = DeleteBehavior.Restrict;
+            }
 
         }
     }

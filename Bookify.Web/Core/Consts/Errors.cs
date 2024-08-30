@@ -14,11 +14,12 @@ public static class Errors
     public const string ConfirmPasswordNotMatch = "The password and confirmation password do not match.";
     public const string WeakPassword = "Your password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (e.g., @, $, !). Please update your password to meet these requirements.";
     public const string AllowUsername = "Username must start with a letter and be 3 to 20 characters long. Only letters, numbers, underscores, hyphens, @, and # are allowed.";
+    public const string NotAllowedNationalId = "Invalid National ID, Ensure the ID starts with 2 or 3 and is exactly 14 digits long.";
     public const string PasswordConfirmed = "The password and confirmation password do not match.";
     public const string OnlyEnglishLetters = "Only English letters are allowed.";
     public const string OnlyArabicLetters = "Only Arabic letters are allowed.";
     public const string OnlyNumbersAndLetters = "Only Arabic/English letters or digits are allowed.";
     public const string DenySpecialCharacters = "Special characters are not allowed.";
-    public const string RequiredField = "Password is requied";
+    public const string RequiredField = "{0} is requied";
     public const string InvalidPhoneNumber = "Invalid phone number";
 }

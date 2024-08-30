@@ -39,5 +39,23 @@ public class DomainProfile : Profile
             .ForMember(dest => dest.NormalizedUserName, opt => opt.MapFrom(src => src.UserName.ToUpper()))
             .ReverseMap();
 
+        // Subscripers
+        CreateMap<SubscriperFormViewModel, Subscriper>().ReverseMap();
+        CreateMap<Subscriper, SubscriperSearchResultViewModel>()
+            .ForMember(dest=>dest.FullName,opt=>opt.MapFrom(src=>$"{src.FirstName} {src.LastName}"));
+        CreateMap<Subscriper, SubscriberViewModel>()
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+            .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.Area!.Name))
+            .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.City!.Name));
+
+        // City & Area
+        CreateMap<City, SelectListItem>()
+            .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
+        
+        CreateMap<Area, SelectListItem>()
+            .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
+
     }
 }

@@ -312,8 +312,9 @@ $(function () {
         showDropdowns: true,
         minYear: 1901,
         maxDate:new Date(),
-        autoApply: true,
-        timePicker:false,
+        autoApply: false,
+        timePicker: false,
+
     });
 
     // select2
