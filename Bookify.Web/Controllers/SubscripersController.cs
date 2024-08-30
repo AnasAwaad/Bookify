@@ -66,6 +66,15 @@ public class SubscripersController : Controller
 		return RedirectToAction(nameof(Index));
 	}
 
+	public IActionResult Details(int id)
+	{
+		var subscriper = _context.Subscripers.Include(s => s.Area).Include(s => s.City).FirstOrDefault(s => s.Id == id);
+		if (subscriper is null)
+			return NotFound();
+		var viewModel=_mapper.Map<SubscriberViewModel>(subscriper);
+		return View(viewModel);
+	}
+
 	[HttpGet]
 	public IActionResult Update(int id)
 	{
@@ -114,7 +123,7 @@ public class SubscripersController : Controller
 		model.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
 		_context.SaveChanges();
-		return RedirectToAction(nameof(Index));
+		return RedirectToAction(nameof(Details), new {id=model.Id});
 	}
 
 
@@ -122,7 +131,7 @@ public class SubscripersController : Controller
 	[ValidateAntiForgeryToken]
 	public IActionResult SearchForSubscriper(SubscriperSearchFormViewModel model)
 	{
-		if(!ModelState.IsValid)return View(nameof(Index), model);
+		if(!ModelState.IsValid)return BadRequest();
 		var subscriper = _context.Subscripers.SingleOrDefault(s => s.MobileNumber == model.Value || s.Email == model.Value || s.NationalId == model.Value);
 
 		var viewModel = _mapper.Map<SubscriperSearchResultViewModel>(subscriper);

@@ -43,6 +43,10 @@ public class DomainProfile : Profile
         CreateMap<SubscriperFormViewModel, Subscriper>().ReverseMap();
         CreateMap<Subscriper, SubscriperSearchResultViewModel>()
             .ForMember(dest=>dest.FullName,opt=>opt.MapFrom(src=>$"{src.FirstName} {src.LastName}"));
+        CreateMap<Subscriper, SubscriberViewModel>()
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+            .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.Area!.Name))
+            .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.City!.Name));
 
         // City & Area
         CreateMap<City, SelectListItem>()
