@@ -4,11 +4,11 @@
 	<!--begin::Content-->
 	<div id="kt_account_settings_profile_details" class="collapse show">
 		<!--begin::Form-->
-		<form class="form fv-plugins-bootstrap5 fv-plugins-framework" asp-action="@(Model?.Id> 0 ? "Update":"Create")" enctype="multipart/form-data">
+		<form class="form fv-plugins-bootstrap5 fv-plugins-framework" asp-action="@(!string.IsNullOrEmpty(Model?.Key) ? "Update":"Create")" enctype="multipart/form-data">
 			<!--begin::Card body-->
-			@if(Model?.Id > 0)
+			@if (!string.IsNullOrEmpty(Model?.Key))
 			{
-				<input type="hidden" asp-for="Id"/>
+				<input type="hidden" asp-for="Key"/>
 			}
 			<div class="card-body border-top p-9">
 				<!--begin::Input group-->
@@ -21,7 +21,7 @@
 						<!--begin::Image input-->
 						<div class="image-input image-input-outline" data-kt-image-input="true" style="background-image: url('/assets/images/avatar.png')">
 							<!--begin::Preview existing avatar-->
-							<div class="image-input-wrapper w-125px h-125px" style="background-image: url(@(Model?.Id> 0 ?Model.ImageUrl:"/assets/images/avatar.png"))"></div>
+							<div class="image-input-wrapper w-125px h-125px" style="background-image: url(@(!string.IsNullOrEmpty(Model?.Key) ? Model.ImageUrl:"/assets/images/avatar.png"))"></div>
 							<!--end::Preview existing avatar-->
 							<!--begin::Label-->
 							<label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="change" data-bs-toggle="tooltip" aria-label="Change avatar" data-bs-original-title="Change avatar" data-kt-initialized="1">

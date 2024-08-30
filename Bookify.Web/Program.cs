@@ -4,6 +4,7 @@ using Bookify.Web.Seeds;
 using Bookify.Web.Services;
 using Bookify.Web.Settings;
 using Humanizer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;
@@ -40,6 +41,7 @@ namespace Bookify.Web
 				options.Password.RequiredLength = 6;
 				options.Password.RequiredUniqueChars = 1;
 			});
+			builder.Services.AddDataProtection().SetApplicationName(nameof(Bookify));
 
 			builder.Services.AddControllersWithViews();
 

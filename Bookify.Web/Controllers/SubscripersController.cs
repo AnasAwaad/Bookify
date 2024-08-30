@@ -1,6 +1,7 @@
 ﻿using Bookify.Web.Core.Models;
 using Bookify.Web.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SixLabors.ImageSharp;
@@ -11,12 +12,14 @@ public class SubscripersController : Controller
 	private readonly ApplicationDbContext _context;
 	private readonly IMapper _mapper;
 	private readonly IImageService _imageService;
+	private readonly IDataProtector _dataProtector;
 
-	public SubscripersController(ApplicationDbContext context, IMapper mapper, IImageService imageService)
+	public SubscripersController(ApplicationDbContext context, IMapper mapper, IImageService imageService, IDataProtectionProvider dataProtector)
 	{
 		_context = context;
 		_mapper = mapper;
 		_imageService = imageService;
+		_dataProtector = dataProtector.CreateProtector("MySecureKey");
 	}
 
 	public IActionResult Index()
@@ -27,15 +30,7 @@ public class SubscripersController : Controller
 	[HttpGet]
 	public IActionResult Create()
 	{
-		SubscriperFormViewModel viewModel = new()
-		{
-			Cities = _context.Cities.Select(c => new SelectListItem()
-			{
-				Value = c.Id.ToString(),
-				Text = c.Name
-			})
-		};
-		return View("Form",viewModel);
+		return View("Form", PopulateViewModel());
 	}
 
 	[HttpPost]
@@ -63,25 +58,37 @@ public class SubscripersController : Controller
 
 		_context.Subscripers.Add(model);
 		_context.SaveChanges();
-		return RedirectToAction(nameof(Index));
+
+		var subscriperId = _dataProtector.Protect(model.Id.ToString());
+
+		return RedirectToAction(nameof(Details), new { Id = subscriperId });
 	}
 
-	public IActionResult Details(int id)
+	public IActionResult Details(string Id)
 	{
-		var subscriper = _context.Subscripers.Include(s => s.Area).Include(s => s.City).FirstOrDefault(s => s.Id == id);
+		var subscriperId = int.Parse(_dataProtector.Unprotect(Id));
+
+		var subscriper = _context.Subscripers.Include(s => s.Area).Include(s => s.City).FirstOrDefault(s => s.Id == subscriperId);
+
 		if (subscriper is null)
 			return NotFound();
-		var viewModel=_mapper.Map<SubscriberViewModel>(subscriper);
+		var viewModel = _mapper.Map<SubscriberViewModel>(subscriper);
+		viewModel.Key = Id;
 		return View(viewModel);
 	}
 
 	[HttpGet]
-	public IActionResult Update(int id)
+	public IActionResult Update(string id)
 	{
-		var subscriper = _context.Subscripers.Find(id);
+		var subscriperId = int.Parse(_dataProtector.Unprotect(id));
+
+		var subscriper = _context.Subscripers.Find(subscriperId);
 		if (subscriper is null)
 			return NotFound();
 		var viewModel = PopulateViewModel(_mapper.Map<SubscriperFormViewModel>(subscriper));
+
+		viewModel.Key = id;
+
 		return View("Form", viewModel);
 	}
 
@@ -92,7 +99,9 @@ public class SubscripersController : Controller
 		if (!ModelState.IsValid)
 			return View("Form", PopulateViewModel(viewModel));
 
-		var model = _context.Subscripers.Find(viewModel.Id);
+		var subscriperId = int.Parse(_dataProtector.Unprotect(viewModel.Key!));
+
+		var model = _context.Subscripers.Find(subscriperId);
 
 		if (model is null) return NotFound();
 
@@ -100,7 +109,7 @@ public class SubscripersController : Controller
 		if (viewModel.Image is not null)
 		{
 			var imageName = $"{Guid.NewGuid()}{Path.GetExtension(viewModel.Image.FileName)}";
-			if(!string.IsNullOrEmpty(model.ImageUrl))
+			if (!string.IsNullOrEmpty(model.ImageUrl))
 				_imageService.DeleteImage(model.ImageUrl, model.ImageThumbnailUrl);
 
 			(bool isUploaded, string? errorMessage) = _imageService.UploadImage(viewModel.Image, imageName, "images\\subscripers", true);
@@ -123,7 +132,9 @@ public class SubscripersController : Controller
 		model.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
 		_context.SaveChanges();
-		return RedirectToAction(nameof(Details), new {id=model.Id});
+
+
+		return RedirectToAction(nameof(Details), new { Id = viewModel.Key });
 	}
 
 
@@ -131,10 +142,14 @@ public class SubscripersController : Controller
 	[ValidateAntiForgeryToken]
 	public IActionResult SearchForSubscriper(SubscriperSearchFormViewModel model)
 	{
-		if(!ModelState.IsValid)return BadRequest();
+		if (!ModelState.IsValid) return BadRequest();
 		var subscriper = _context.Subscripers.SingleOrDefault(s => s.MobileNumber == model.Value || s.Email == model.Value || s.NationalId == model.Value);
 
 		var viewModel = _mapper.Map<SubscriperSearchResultViewModel>(subscriper);
+
+		if (subscriper is not null)
+			viewModel.Key = _dataProtector.Protect(subscriper.Id.ToString());
+
 		return PartialView("_SubscriperSearchResult", viewModel);
 	}
 
@@ -142,25 +157,45 @@ public class SubscripersController : Controller
 	[HttpPost]
 	public IActionResult IsAllowedEmail(SubscriperFormViewModel model)
 	{
+		var subscriperId = 0;
+
+		if (!string.IsNullOrEmpty(model.Key))
+			subscriperId = int.Parse(_dataProtector.Unprotect(model.Key));
+
 		var subscriper = _context.Subscripers.Where(s => s.Email == model.Email).FirstOrDefault();
-		var isAllowed = subscriper is null || subscriper.Id == model.Id;
-		return Ok(isAllowed);
+		var isAllowed = subscriper is null || subscriper.Id.Equals(subscriperId);
+
+		return Json(isAllowed);
 	}
 
 	[HttpPost]
 	public IActionResult IsAllowedMobileNumber(SubscriperFormViewModel model)
 	{
+		var subscriperId = 0;
+
+		if (!string.IsNullOrEmpty(model.Key))
+			subscriperId = int.Parse(_dataProtector.Unprotect(model.Key));
+
 		var subscriper = _context.Subscripers.Where(s => s.MobileNumber == model.MobileNumber).FirstOrDefault();
-		var isAllowed = subscriper is null || subscriper.Id == model.Id;
-		return Ok(isAllowed);
+		var isAllowed = subscriper is null || subscriper.Id.Equals(subscriperId);
+
+		return Json(isAllowed);
 	}
 
 	[HttpPost]
 	public IActionResult IsAllowedNationalId(SubscriperFormViewModel model)
 	{
+
+		var subscriperId = 0;
+
+		if (!string.IsNullOrEmpty(model.Key))
+			subscriperId = int.Parse(_dataProtector.Unprotect(model.Key));
+
 		var subscriper = _context.Subscripers.Where(s => s.NationalId == model.NationalId).FirstOrDefault();
-		var isAllowed = subscriper is null || subscriper.Id == model.Id;
-		return Ok(isAllowed);
+		var isAllowed = subscriper is null || subscriper.Id.Equals(subscriperId);
+
+		return Json(isAllowed);
+
 	}
 	[AjaxOnly]
 	public IActionResult GetAreasBasedOnCity(int cityId)
