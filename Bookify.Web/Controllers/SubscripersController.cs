@@ -119,6 +119,18 @@ public class SubscripersController : Controller
 
 
 	[HttpPost]
+	[ValidateAntiForgeryToken]
+	public IActionResult SearchForSubscriper(SubscriperSearchFormViewModel model)
+	{
+		if(!ModelState.IsValid)return View(nameof(Index), model);
+		var subscriper = _context.Subscripers.SingleOrDefault(s => s.MobileNumber == model.Value || s.Email == model.Value || s.NationalId == model.Value);
+
+		var viewModel = _mapper.Map<SubscriperSearchResultViewModel>(subscriper);
+		return PartialView("_SubscriperSearchResult", viewModel);
+	}
+
+
+	[HttpPost]
 	public IActionResult IsAllowedEmail(SubscriperFormViewModel model)
 	{
 		var subscriper = _context.Subscripers.Where(s => s.Email == model.Email).FirstOrDefault();
