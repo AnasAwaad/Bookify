@@ -195,7 +195,46 @@
 					<!--end::Card header-->
 					<!--begin::Card body-->
 					<div class="card-body pt-0 pb-5">
-						<p>Renewal History will be shown here</p>
+						<div class="table-responsive">
+							<table class="table align-middle gs-0 gy-4">
+								<thead>
+									<tr class="fw-bold text-muted bg-light">
+										<th class="min-w-125px ps-2">Start Date</th>
+										<th class="min-w-125px">End Date</th>
+										<th class="min-w-125px">Status</th>
+										<th class="min-w-125px">Created On</th>
+									</tr>
+								</thead>
+								<tbody>
+									@foreach (var subscription in Model.Subscriptions)
+									{
+										<tr>
+											<td>
+												<div class="d-flex align-items-center ps-2">
+													@subscription.StartDate.ToString("dd MMM, yyyy")
+												</div>
+											</td>
+											<td>
+												<div class="d-flex align-items-center">
+													@subscription.EndDate.ToString("dd MMM, yyyy")
+												</div>
+											</td>
+											<td>
+												<span class="badge badge-@(subscription.Status == "Active"? "success":subscription.Status=="Expired"?"danger":"warning" )">
+													@subscription.Status
+												</span>
+											</td>
+											<td>
+												<div class="d-flex align-items-center">
+													@subscription.CreatedOn.ToString("dd MMM, yyyy")
+												</div>
+											</td>
+										</tr>
+									}
+
+								</tbody>
+							</table>
+						</div>
 					</div>
 					<!--end::Card body-->
 				</div>
@@ -217,7 +256,7 @@
 					<!--end::Card header-->
 					<!--begin::Card body-->
 					<div class="card-body pt-0 pb-5">
-						Rentals will be shown here
+						
 					</div>
 					<!--end::Card body-->
 				</div>

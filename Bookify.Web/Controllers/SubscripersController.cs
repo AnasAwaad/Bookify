@@ -56,6 +56,16 @@ public class SubscripersController : Controller
 		model.CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 		model.CreatedOn = DateTime.Now;
 
+		var subscription = new Subscription
+		{
+			CreatedById = model.CreatedById,
+			CreatedOn = model.CreatedOn,
+			StartDate = DateTime.Today,
+			EndDate = DateTime.Today.AddYears(1),
+		};
+
+		model.Subscriptions.Add(subscription);
+
 		_context.Subscripers.Add(model);
 		_context.SaveChanges();
 
@@ -68,12 +78,13 @@ public class SubscripersController : Controller
 	{
 		var subscriperId = int.Parse(_dataProtector.Unprotect(Id));
 
-		var subscriper = _context.Subscripers.Include(s => s.Area).Include(s => s.City).FirstOrDefault(s => s.Id == subscriperId);
+		var subscriper = _context.Subscripers.Include(s => s.Area).Include(s => s.City).Include(s=>s.Subscriptions).FirstOrDefault(s => s.Id == subscriperId);
 
 		if (subscriper is null)
 			return NotFound();
 		var viewModel = _mapper.Map<SubscriberViewModel>(subscriper);
 		viewModel.Key = Id;
+
 		return View(viewModel);
 	}
 
