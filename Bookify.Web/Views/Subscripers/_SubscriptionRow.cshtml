@@ -1,0 +1,23 @@
+﻿@model SubscriptionViewModel
+<tr>
+	<td>
+		<div class="d-flex align-items-center ps-2">
+			@Model.StartDate.ToString("dd MMM, yyyy")
+		</div>
+	</td>
+	<td>
+		<div class="d-flex align-items-center">
+			@Model.EndDate.ToString("dd MMM, yyyy")
+		</div>
+	</td>
+	<td>
+		<span class="badge badge-@(Model.Status == "Active"? "success":Model.Status=="Expired"?"danger":"warning" )">
+			@Model.Status
+		</span>
+	</td>
+	<td>
+		<div class="d-flex align-items-center">
+			@Model.CreatedOn.ToString("dd MMM, yyyy")
+		</div>
+	</td>
+</tr>

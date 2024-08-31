@@ -215,6 +215,32 @@ public class SubscripersController : Controller
 		return Json(new { areas });
 	}
 
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+	public IActionResult renewSubscription(string subscriperKey)
+	{
+		var subscriberId=int.Parse(_dataProtector.Unprotect(subscriperKey));
+		var subscriber = _context.Subscripers.Include(s=>s.Subscriptions).SingleOrDefault(s => s.Id == subscriberId);
+
+		if (subscriber is null)
+			return NotFound();
+		if (subscriber.IsBlackListed)
+			return BadRequest();
+
+		var lastSubscription = subscriber.Subscriptions.Last();
+		var startDate = lastSubscription.EndDate > DateTime.Today ? lastSubscription.EndDate.AddDays(1):DateTime.Today ;
+		var newSubscription = new Subscription()
+		{
+			CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value,
+			CreatedOn = DateTime.Now,
+			StartDate = startDate,
+			EndDate = startDate.AddYears(1)
+		};
+		subscriber.Subscriptions.Add(newSubscription);
+		_context.SaveChanges();
+		return PartialView("_SubscriptionRow",_mapper.Map<SubscriptionViewModel>(newSubscription	));
+	}
+
 	private SubscriperFormViewModel PopulateViewModel(SubscriperFormViewModel? model = null)
 	{
 		var viewModel = model is null ? new SubscriperFormViewModel() : model;

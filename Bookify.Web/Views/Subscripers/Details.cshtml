@@ -187,8 +187,9 @@
 					<!--begin::Card header-->
 					<div class="card-header border-0">
 						<!--begin::Card title-->
-						<div class="card-title">
+						<div class="card-title d-flex justify-content-between w-100">
 							<h2>Renewal History</h2>
+							<a href="javascript:;" class="btn btn-primary js-renew-subscription" data-key="@Model.Key">Renew</a>
 						</div>
 						<!--end::Card title-->
 					</div>
@@ -196,7 +197,7 @@
 					<!--begin::Card body-->
 					<div class="card-body pt-0 pb-5">
 						<div class="table-responsive">
-							<table class="table align-middle gs-0 gy-4">
+							<table class="table align-middle gs-0 gy-4" id="subscriptionsTable">
 								<thead>
 									<tr class="fw-bold text-muted bg-light">
 										<th class="min-w-125px ps-2">Start Date</th>
@@ -208,28 +209,7 @@
 								<tbody>
 									@foreach (var subscription in Model.Subscriptions)
 									{
-										<tr>
-											<td>
-												<div class="d-flex align-items-center ps-2">
-													@subscription.StartDate.ToString("dd MMM, yyyy")
-												</div>
-											</td>
-											<td>
-												<div class="d-flex align-items-center">
-													@subscription.EndDate.ToString("dd MMM, yyyy")
-												</div>
-											</td>
-											<td>
-												<span class="badge badge-@(subscription.Status == "Active"? "success":subscription.Status=="Expired"?"danger":"warning" )">
-													@subscription.Status
-												</span>
-											</td>
-											<td>
-												<div class="d-flex align-items-center">
-													@subscription.CreatedOn.ToString("dd MMM, yyyy")
-												</div>
-											</td>
-										</tr>
+										<partial name="_SubscriptionRow" model="subscription"/>
 									}
 
 								</tbody>
@@ -268,7 +248,9 @@
 	</div>
 	<!--end::Content-->
 </div>
-
+@section Scripts{
+	<script src="~/js/renew_subscription.js"></script>
+}
 @section Plugins
 {
 	<script src="~/assets/plugins/fslightbox/fslightbox.bundle.js"></script>
