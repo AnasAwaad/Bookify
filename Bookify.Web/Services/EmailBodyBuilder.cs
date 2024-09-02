@@ -13,20 +13,19 @@ public class EmailBodyBuilder : IEmailBodyBuilder
 	}
 
 
-	public string GetEmailBody(string imageUrl, string imageLogo, string header, string body, string url, string linkTitle)
+	public string GetEmailBody(string templateName,Dictionary<string , string> placeholders)
 	{
-		var templatePath = $"{_webHostEnvironment.WebRootPath}/templates/email.html";
+		var templatePath = $"{_webHostEnvironment.WebRootPath}/templates/{templateName}.html";
 
 		StreamReader streamReader = new StreamReader(templatePath);
 		var template = streamReader.ReadToEnd();
 		streamReader.Close();
 
-		return template.Replace("[imageUrl]", imageUrl)
-			.Replace("[imageLogo]", imageLogo)
-			.Replace("[header]", header)
-			.Replace("[body]", body)
-			.Replace("[url]", url)
-			.Replace("[linkTitle]", linkTitle);
+        foreach (var placeholder in placeholders)
+        {
+			template = template.Replace($"[{placeholder.Key}]", placeholder.Value);
+        }
 
-	}
+		return template;
+    }
 }

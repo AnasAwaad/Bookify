@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Channels;
 using UoN.ExpressiveAnnotations.NetCore.DependencyInjection;
+using WhatsAppCloudApi.Extensions;
 
 namespace Bookify.Web
 {
@@ -62,7 +63,7 @@ namespace Bookify.Web
 			//By setting this to TimeSpan.Zero, you�re instructing the validator to check the security stamp on every request.
 
 			builder.Services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.Zero);
-
+			builder.Services.AddWhatsAppApiClient(builder.Configuration);
 
 			var app = builder.Build();
 
