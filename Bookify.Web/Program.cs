@@ -4,11 +4,13 @@ using Bookify.Web.Seeds;
 using Bookify.Web.Services;
 using Bookify.Web.Settings;
 using Humanizer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Channels;
 using UoN.ExpressiveAnnotations.NetCore.DependencyInjection;
+using WhatsAppCloudApi.Extensions;
 
 namespace Bookify.Web
 {
@@ -40,6 +42,7 @@ namespace Bookify.Web
 				options.Password.RequiredLength = 6;
 				options.Password.RequiredUniqueChars = 1;
 			});
+			builder.Services.AddDataProtection().SetApplicationName(nameof(Bookify));
 
 			builder.Services.AddControllersWithViews();
 
@@ -60,7 +63,7 @@ namespace Bookify.Web
 			//By setting this to TimeSpan.Zero, you�re instructing the validator to check the security stamp on every request.
 
 			builder.Services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.Zero);
-
+			builder.Services.AddWhatsAppApiClient(builder.Configuration);
 
 			var app = builder.Build();
 

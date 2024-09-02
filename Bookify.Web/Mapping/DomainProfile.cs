@@ -48,6 +48,7 @@ public class DomainProfile : Profile
             .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.Area!.Name))
             .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.City!.Name));
 
+        CreateMap<Subscription, SubscriptionViewModel>();
         // City & Area
         CreateMap<City, SelectListItem>()
             .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))

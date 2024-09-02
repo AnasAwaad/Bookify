@@ -2,5 +2,5 @@
 
 public interface IEmailBodyBuilder
 {
-	public string GetEmailBody(string imageUrl, string imageLogo, string header, string body, string url, string linkTitle);
+	public string GetEmailBody(string templateName, Dictionary<string, string> placeholders);
 }

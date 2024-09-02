@@ -17,6 +17,7 @@ namespace Bookify.Web.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<Subscriper> Subscripers { get; set; }
+        public DbSet<Subscription> Subscriptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

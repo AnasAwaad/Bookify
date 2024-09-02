@@ -2,12 +2,15 @@
 
 @{
 	ViewData["Title"] = "Subscriber Details";
+	var lastSubscription = Model.Subscriptions.Last();
+	var subscriptionStatus = Model.IsBlackListed ? "banned" : lastSubscription.EndDate > DateTime.Today ? "Active" : "InActive";
+	var subscriptionStatusClass = Model.IsBlackListed ? "danger" : lastSubscription.EndDate > DateTime.Today ? "success" : "warning";
 }
 
 <div class="alert bg-light-primary border border-primary border-3 border-dashed d-flex justify-content-between w-100 p-5 mb-10">
 	<div class="d-flex align-items-center">
 		<div class="symbol symbol-40px me-4">
-			<div class="symbol-label fs-2 fw-semibold text-success">
+			<div class="symbol-label fs-2 fw-semibold text-success" >
 				<!--begin::Svg Icon | path: icons/duotune/general/gen002.svg-->
 				<span class="svg-icon svg-icon-2 svg-icon-primary">
 					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -25,7 +28,7 @@
 		<!--end::Content-->
 	</div>
 	<div>
-		<a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@Model.Id">
+		<a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@Model.Key">
 			<i class="bi bi-plus-square-dotted"></i>
 			Update
 		</a>
@@ -60,7 +63,7 @@
 				<div class="d-flex flex-stack fs-4 py-3">
 					<div class="fw-bold">Details</div>
 					<!--begin::Badge-->
-					<div class="badge badge-light-success d-inline">Active subscriber</div>
+					<div class="badge badge-light-@subscriptionStatusClass d-inline" id="subscriberStatusBadge">@subscriptionStatus member</div>
 					<!--begin::Badge-->
 				</div>
 				<!--end::Details toggle-->
@@ -163,7 +166,7 @@
 					</div>
 					<div class="col">
 						<!--begin::Reward Tier-->
-						<div class="card bg-success hoverable h-md-100">
+						<div class="card bg-@subscriptionStatusClass hoverable h-md-100" id="subscriperStatus">
 							<!--begin::Body-->
 							<div class="card-body">
 								<!--begin::Svg Icon | path: icons/duotune/general/gen020.svg-->
@@ -174,7 +177,7 @@
 									</svg>
 								</span>
 								<!--end::Svg Icon-->
-								<div class="text-white fw-bold fs-2 mt-5">Active Subscriber</div>
+								<div class="text-white fw-bold fs-2 mt-5 js-subscriper-status-text">@subscriptionStatus Subscriber</div>
 								<div class="fw-semibold text-white">Subscrber since: @Model.CreatedOn.ToString("dd MMM, yyyy")</div>
 							</div>
 							<!--end::Body-->
@@ -187,15 +190,37 @@
 					<!--begin::Card header-->
 					<div class="card-header border-0">
 						<!--begin::Card title-->
-						<div class="card-title">
+						<div class="card-title d-flex justify-content-between w-100">
 							<h2>Renewal History</h2>
+							@if (!Model.IsBlackListed)
+							{
+								<a href="javascript:;" class="btn btn-primary js-renew-subscription" data-key="@Model.Key">Renew</a>
+							}
 						</div>
 						<!--end::Card title-->
 					</div>
 					<!--end::Card header-->
 					<!--begin::Card body-->
 					<div class="card-body pt-0 pb-5">
-						<p>Renewal History will be shown here</p>
+						<div class="table-responsive">
+							<table class="table align-middle gs-0 gy-4" id="subscriptionsTable">
+								<thead>
+									<tr class="fw-bold text-muted bg-light">
+										<th class="min-w-125px ps-2">Start Date</th>
+										<th class="min-w-125px">End Date</th>
+										<th class="min-w-125px">Status</th>
+										<th class="min-w-125px">Created On</th>
+									</tr>
+								</thead>
+								<tbody>
+									@foreach (var subscription in Model.Subscriptions)
+									{
+										<partial name="_SubscriptionRow" model="subscription"/>
+									}
+
+								</tbody>
+							</table>
+						</div>
 					</div>
 					<!--end::Card body-->
 				</div>
@@ -217,7 +242,7 @@
 					<!--end::Card header-->
 					<!--begin::Card body-->
 					<div class="card-body pt-0 pb-5">
-						Rentals will be shown here
+						
 					</div>
 					<!--end::Card body-->
 				</div>
@@ -229,7 +254,9 @@
 	</div>
 	<!--end::Content-->
 </div>
-
+@section Scripts{
+	<script src="~/js/renew_subscription.js"></script>
+}
 @section Plugins
 {
 	<script src="~/assets/plugins/fslightbox/fslightbox.bundle.js"></script>
