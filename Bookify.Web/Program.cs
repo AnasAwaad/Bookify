@@ -3,7 +3,10 @@ using Bookify.Web.Mapping;
 using Bookify.Web.Seeds;
 using Bookify.Web.Services;
 using Bookify.Web.Settings;
+using Hangfire;
+using Hangfire.Dashboard;
 using Humanizer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Newtonsoft.Json.Linq;
@@ -65,6 +68,22 @@ namespace Bookify.Web
 			builder.Services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.Zero);
 			builder.Services.AddWhatsAppApiClient(builder.Configuration);
 
+			builder.Services.AddHangfire(x =>
+			{
+				x.UseSimpleAssemblyNameTypeSerializer()
+					.UseRecommendedSerializerSettings()
+					.UseSqlServerStorage(connectionString);
+			});
+
+			builder.Services.AddHangfireServer();
+
+			builder.Services.Configure<AuthorizationOptions>(options => 
+				options.AddPolicy("AdminsOnly", policy =>
+				{
+					policy.RequireAuthenticatedUser();
+					policy.RequireRole(AppRoles.Admin);
+				}));
+
 			var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
@@ -82,7 +101,17 @@ namespace Bookify.Web
 			app.UseStaticFiles();
 			app.UseRouting();
 			app.UseAuthorization();
-			
+
+			app.UseHangfireDashboard("/hangfire",new DashboardOptions
+			{
+				DashboardTitle="Bookify Background",
+				IsReadOnlyFunc=(DashboardContext context)=>true,
+				Authorization=new IDashboardAuthorizationFilter[]
+				{
+					new HangfireAuthorizationFilter("AdminsOnly")
+				}
+			});
+
 			var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
 			using var scope = scopeFactory.CreateScope();
 

@@ -1,5 +1,6 @@
 ﻿using Bookify.Web.Core.Models;
 using Bookify.Web.Services;
+using Hangfire;
 using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -92,8 +93,8 @@ public class SubscripersController : Controller
 
 
 		var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Notification, placeholders);
-		await _emailSender.SendEmailAsync(model.Email,"Welcome to bookify",body);
 
+		BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(model.Email, "Welcome to bookify", body));
 
 		// send welcome message to whatsapp user
 		if (model.HasWhatsApp)
@@ -114,7 +115,9 @@ public class SubscripersController : Controller
 			};
 
 			var mobileNumber = _webHostEnvironment.IsDevelopment() ? "201067873327" : $"2{model.MobileNumber}";
-			await _whatsAppClient.SendMessage(mobileNumber, WhatsAppLanguageCode.English_US, WhatsAppTemplates.HelloWorld);
+
+			BackgroundJob.Enqueue(() => _whatsAppClient.SendMessage(mobileNumber, WhatsAppLanguageCode.English, WhatsAppTemplates.WelcomeMessage, component));
+
 
 		}
 		var subscriperId = _dataProtector.Protect(model.Id.ToString());
@@ -286,6 +289,28 @@ public class SubscripersController : Controller
 		};
 		subscriber.Subscriptions.Add(newSubscription);
 		_context.SaveChanges();
+
+		if (subscriber.HasWhatsApp)
+		{
+			var component = new List<WhatsAppComponent>()
+			{
+				new WhatsAppComponent
+				{
+					Type="body",
+					Parameters=new List<object>
+					{
+						new WhatsAppTextParameter
+						{
+							Text=subscriber.FirstName
+						}
+					}
+				}
+			};
+
+			var mobileNumber = _webHostEnvironment.IsDevelopment() ? "201067873327" : $"2{subscriber.MobileNumber}";
+
+			BackgroundJob.Enqueue(() => _whatsAppClient.SendMessage(mobileNumber, WhatsAppLanguageCode.English, WhatsAppTemplates.WelcomeMessage, component));
+		}
 		return PartialView("_SubscriptionRow",_mapper.Map<SubscriptionViewModel>(newSubscription	));
 	}
 
