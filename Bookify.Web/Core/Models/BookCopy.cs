@@ -9,4 +9,5 @@ public class BookCopy : BaseModel
     public int EditionNumber { get; set; }//رقم الطابعة
     public int SerialNumber { get; set; }
 
+    public ICollection<RentalCopy> RentalCopies { get; set; } = new List<RentalCopy>();
 }

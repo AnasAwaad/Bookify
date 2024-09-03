@@ -16,6 +16,8 @@ namespace Bookify.Web.Data
         public DbSet<BookCopy> BookCopies { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<City> Cities { get; set; }
+        public DbSet<Rental> Rentals { get; set; }
+        public DbSet<RentalCopy> RentalCopies { get; set; }
         public DbSet<Subscriper> Subscripers { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
 
@@ -24,6 +26,8 @@ namespace Bookify.Web.Data
             base.OnModelCreating(builder);
             builder.Entity<BookCategory>()
                    .HasKey(b => new { b.CategoryId, b.BookId });
+            builder.Entity<RentalCopy>()
+                   .HasKey(b => new { b.RentalId, b.BookCopyId });
 
             // add sequence to shared schema in db
             builder.HasSequence<int>("SerialNumber", "Shared")
@@ -43,6 +47,8 @@ namespace Bookify.Web.Data
             {
                 item.DeleteBehavior = DeleteBehavior.Restrict;
             }
+
+
 
         }
     }

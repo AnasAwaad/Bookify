@@ -26,7 +26,7 @@ public class HangfireTasks
 	{
 		var subscripers = _context.Subscripers
 			.Include(s => s.Subscriptions)
-			.Where(s => s.Subscriptions.OrderBy(s => s.EndDate).Last().EndDate == DateTime.Today.AddDays(7))
+			.Where(s => !s.IsBlackListed && s.Subscriptions.OrderBy(s => s.EndDate).Last().EndDate == DateTime.Today.AddDays(7))
 			.ToList();
 
 		foreach (var subscriper in subscripers)
