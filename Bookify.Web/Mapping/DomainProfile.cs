@@ -58,5 +58,9 @@ public class DomainProfile : Profile
             .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
 
+        // Rentals
+        CreateMap<Rental,RentalViewModel>();
+        CreateMap<RentalCopy,RentalCopyViewModel>();
+
     }
 }

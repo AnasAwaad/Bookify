@@ -18,5 +18,6 @@ public class SubscriberViewModel
 	public bool IsBlackListed { get; set; }
 	public DateTime CreatedOn { get; set; }
 	public IEnumerable<SubscriptionViewModel> Subscriptions { get; set; } = new List<SubscriptionViewModel>();
+	public IEnumerable<RentalCopyViewModel> RentalCopies { get; set; } = new List<RentalCopyViewModel>();
 
 }
