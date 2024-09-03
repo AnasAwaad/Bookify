@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SixLabors.ImageSharp;
+using System.ComponentModel;
 using System.Text.Encodings.Web;
 using WhatsAppCloudApi;
 using WhatsAppCloudApi.Services;
@@ -312,6 +313,63 @@ public class SubscripersController : Controller
 			BackgroundJob.Enqueue(() => _whatsAppClient.SendMessage(mobileNumber, WhatsAppLanguageCode.English, WhatsAppTemplates.WelcomeMessage, component));
 		}
 		return PartialView("_SubscriptionRow",_mapper.Map<SubscriptionViewModel>(newSubscription	));
+	}
+
+	public IActionResult SendExpirationAlers()
+	{
+		RecurringJob.AddOrUpdate(() => PrepareExpirationAlert(),"0 14 * * *");
+		return Ok();
+	}
+	public async Task<IActionResult> PrepareExpirationAlert()
+	{
+		var subscripers = _context.Subscripers
+			.Include(s => s.Subscriptions)
+			.Where(s => s.Subscriptions.OrderBy(s=>s.EndDate).Last().EndDate == DateTime.Today.AddDays(7))
+			.ToList();
+
+		foreach (var subscriper in subscripers)
+		{
+			if (subscriper.HasWhatsApp)
+			{
+				var component = new List<WhatsAppComponent>()
+				{
+					new WhatsAppComponent
+					{
+						Type="body",
+						Parameters=new List<object>
+						{
+							new WhatsAppTextParameter
+							{
+								Text=subscriper.FirstName
+							},
+							new WhatsAppTextParameter
+							{
+								Text=subscriper.Subscriptions.OrderBy(s=>s.EndDate).Last().EndDate.ToString("d MMM, YYYY")
+							}
+						}
+					}
+				};
+
+				var mobileNumber = _webHostEnvironment.IsDevelopment() ? "201067873327" : $"2{subscriper.MobileNumber}";
+
+				var res=await _whatsAppClient.SendMessage(mobileNumber, WhatsAppLanguageCode.English_US, WhatsAppTemplates.HelloWorld);
+			}
+
+			// send welcome message to email user
+			var placeholders = new Dictionary<string, string>()
+			{
+				{"imageUrl","https://res.cloudinary.com/dygrlijla/image/upload/v1723914644/93ae73da-0ad6-4e76-ad40-3ab67cf4c6f1.png" },
+				{"imageLogo","https://res.cloudinary.com/dygrlijla/image/upload/v1723914720/logo_nh8slr.png" },
+				{"header", $"Hey {subscriper.FirstName}" },
+				{"body",$"your subscription will be expired by {subscriper.Subscriptions.OrderBy(s=>s.EndDate).Last().EndDate.ToString("d MMM,yyyy")}" },
+			};
+
+
+			var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Notification, placeholders);
+
+			await _emailSender.SendEmailAsync(subscriper.Email, "Expired subscription", body);
+		}
+		return Ok();
 	}
 
 	private SubscriperFormViewModel PopulateViewModel(SubscriperFormViewModel? model = null)
