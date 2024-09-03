@@ -3,6 +3,7 @@ using Bookify.Web.Mapping;
 using Bookify.Web.Seeds;
 using Bookify.Web.Services;
 using Bookify.Web.Settings;
+using Bookify.Web.Tasks;
 using Hangfire;
 using Hangfire.Dashboard;
 using Humanizer;
@@ -14,6 +15,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading.Channels;
 using UoN.ExpressiveAnnotations.NetCore.DependencyInjection;
 using WhatsAppCloudApi.Extensions;
+using WhatsAppCloudApi.Services;
 
 namespace Bookify.Web
 {
@@ -102,15 +104,7 @@ namespace Bookify.Web
 			app.UseRouting();
 			app.UseAuthorization();
 
-			app.UseHangfireDashboard("/hangfire",new DashboardOptions
-			{
-				DashboardTitle="Bookify Background",
-				IsReadOnlyFunc=(DashboardContext context)=>true,
-				Authorization=new IDashboardAuthorizationFilter[]
-				{
-					new HangfireAuthorizationFilter("AdminsOnly")
-				}
-			});
+			
 
 			var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
 			using var scope = scopeFactory.CreateScope();
@@ -120,6 +114,28 @@ namespace Bookify.Web
 
 			await DefaultRoles.SeedRolesAsync(roleManager);
 			await DefaultUsers.SeedAdminUserAsync(userManager);
+
+			// hangfire
+			app.UseHangfireDashboard("/hangfire", new DashboardOptions
+			{
+				DashboardTitle = "Bookify Background",
+				//IsReadOnlyFunc = (DashboardContext context) => true,
+				Authorization = new IDashboardAuthorizationFilter[]
+				{
+					new HangfireAuthorizationFilter("AdminsOnly")
+				}
+			});
+
+			var applicationDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+			var whatsAppClient = scope.ServiceProvider.GetRequiredService<IWhatsAppClient>();
+			var webHostEnvironment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+			var emailBodyBuilder = scope.ServiceProvider.GetRequiredService<IEmailBodyBuilder>();
+			var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
+
+			var hangfireTasks = new HangfireTasks(applicationDbContext,whatsAppClient,webHostEnvironment,emailBodyBuilder,emailSender);
+			
+			RecurringJob.AddOrUpdate(() => hangfireTasks.PrepareExpirationAlert(), "0 14 * * *");
+
 
 			app.MapControllerRoute(
 				name: "default",
