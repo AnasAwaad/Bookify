@@ -49,7 +49,7 @@ public class SubscripersController : Controller
 
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Create(SubscriperFormViewModel viewModel)
+	public IActionResult Create(SubscriperFormViewModel viewModel)
 	{
 		if (!ModelState.IsValid)
 			return View(PopulateViewModel());
@@ -130,7 +130,7 @@ public class SubscripersController : Controller
 	{
 		var subscriperId = int.Parse(_dataProtector.Unprotect(Id));
 
-		var subscriper = _context.Subscripers.Include(s => s.Area).Include(s => s.City).Include(s=>s.Subscriptions).FirstOrDefault(s => s.Id == subscriperId);
+		var subscriper = _context.Subscripers.Include(s => s.Area).Include(s => s.City).Include(s=>s.Subscriptions).Include(s=>s.Rentals).ThenInclude(r=>r.RentalCopies).FirstOrDefault(s => s.Id == subscriperId);
 
 		if (subscriper is null)
 			return NotFound();

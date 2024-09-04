@@ -234,15 +234,19 @@
 					<!--begin::Card header-->
 					<div class="card-header border-0">
 						<!--begin::Card title-->
-						<div class="card-title">
+						<div class="card-title d-flex justify-content-between w-100">
 							<h2>Rentals</h2>
+							@if (!Model.IsBlackListed && lastSubscription.EndDate >= DateTime.Today.AddDays((int)RentalsConfigurations.RentalDuration))
+							{
+								<a asp-controller="Rentals" asp-action="Index" class="btn btn-primary" data-key="@Model.Key">Add Rentals</a>
+							}
 						</div>
 						<!--end::Card title-->
 					</div>
 					<!--end::Card header-->
 					<!--begin::Card body-->
 					<div class="card-body pt-0 pb-5">
-						
+						<partial name="_Rentals" model="Model.Rentals"/>
 					</div>
 					<!--end::Card body-->
 				</div>
