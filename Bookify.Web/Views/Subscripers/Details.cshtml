@@ -238,7 +238,7 @@
 							<h2>Rentals</h2>
 							@if (!Model.IsBlackListed && lastSubscription.EndDate >= DateTime.Today.AddDays((int)RentalsConfigurations.RentalDuration))
 							{
-								<a asp-controller="Rentals" asp-action="Index" class="btn btn-primary" data-key="@Model.Key">Add Rentals</a>
+								<a asp-controller="Rentals" asp-action="Create" class="btn btn-primary" data-key="@Model.Key">Add Rentals</a>
 							}
 						</div>
 						<!--end::Card title-->

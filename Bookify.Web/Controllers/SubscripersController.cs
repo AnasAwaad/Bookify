@@ -203,7 +203,7 @@ public class SubscripersController : Controller
 
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public IActionResult SearchForSubscriper(SubscriperSearchFormViewModel model)
+	public IActionResult SearchForSubscriper(SearchFormViewModel model)
 	{
 		if (!ModelState.IsValid) return BadRequest();
 		var subscriper = _context.Subscripers.SingleOrDefault(s => s.MobileNumber == model.Value || s.Email == model.Value || s.NationalId == model.Value);
