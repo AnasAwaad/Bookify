@@ -22,4 +22,8 @@ public static class Errors
     public const string DenySpecialCharacters = "Special characters are not allowed.";
     public const string RequiredField = "{0} is requied";
     public const string InvalidPhoneNumber = "Invalid phone number";
+    public const string MaxAllowedCopies = "this subscriber reach to max allowed copies for rental";
+    public const string BlackListedSubscriber = "This subscriber is black listed";
+	public const string InActiveSubscriber = "This subscriber is inactive";
+	public const string CopyInRental = "This copy is already in rental with another person.";
 }

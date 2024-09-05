@@ -10,6 +10,7 @@
             success: function (res) {
                 $('#subscriptionsTable').find('tbody').append(res);
                 $('#subscriperStatus').removeClass('bg-warning').addClass('bg-success');
+                $('#AddRentalBtn').removeClass('d-none');
                 $('#subscriperStatus').find('.js-subscriper-status-text').text('Active Subscriber');
                 $('#subscriberStatusBadge').removeClass('badge-light-warning').addClass('badge-light-success').text('Active member');
 

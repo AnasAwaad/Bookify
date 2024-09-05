@@ -10,7 +10,7 @@
 <div class="alert bg-light-primary border border-primary border-3 border-dashed d-flex justify-content-between w-100 p-5 mb-10">
 	<div class="d-flex align-items-center">
 		<div class="symbol symbol-40px me-4">
-			<div class="symbol-label fs-2 fw-semibold text-success" >
+			<div class="symbol-label fs-2 fw-semibold text-success">
 				<!--begin::Svg Icon | path: icons/duotune/general/gen002.svg-->
 				<span class="svg-icon svg-icon-2 svg-icon-primary">
 					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -215,7 +215,7 @@
 								<tbody>
 									@foreach (var subscription in Model.Subscriptions)
 									{
-										<partial name="_SubscriptionRow" model="subscription"/>
+										<partial name="_SubscriptionRow" model="subscription" />
 									}
 
 								</tbody>
@@ -236,9 +236,9 @@
 						<!--begin::Card title-->
 						<div class="card-title d-flex justify-content-between w-100">
 							<h2>Rentals</h2>
-							@if (!Model.IsBlackListed && lastSubscription.EndDate >= DateTime.Today.AddDays((int)RentalsConfigurations.RentalDuration))
+							@if (!Model.IsBlackListed)
 							{
-								<a asp-controller="Rentals" asp-action="Create" class="btn btn-primary" data-key="@Model.Key">Add Rentals</a>
+								<a id="AddRentalBtn" asp-controller="Rentals" asp-action="Create" asp-route-subscriperKey="@Model.Key" class="btn btn-primary @((lastSubscription.EndDate >= DateTime.Today.AddDays((int)RentalsConfigurations.RentalDuration)) ? string.Empty : "d-none")" data-key="@Model.Key" >Add Rentals</a>
 							}
 						</div>
 						<!--end::Card title-->
@@ -246,7 +246,7 @@
 					<!--end::Card header-->
 					<!--begin::Card body-->
 					<div class="card-body pt-0 pb-5">
-						<partial name="_Rentals" model="Model.Rentals"/>
+						<partial name="_Rentals" model="Model.Rentals" />
 					</div>
 					<!--end::Card body-->
 				</div>
@@ -258,7 +258,7 @@
 	</div>
 	<!--end::Content-->
 </div>
-@section Scripts{
+@section Scripts {
 	<script src="~/js/renew_subscription.js"></script>
 }
 @section Plugins
