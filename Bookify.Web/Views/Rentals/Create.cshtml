@@ -19,8 +19,10 @@
         <!--end::Header-->
         <!--begin::Body-->
         <div class="card-body pt-5">
-            <form id="RentalForm">
+            <form id="CopiesForm" asp-action="Create">
 
+                @* Book copies will be rendered here *@
+                
                 <button type="submit" class="btn btn-primary">
                     <span class="indicator-label">
                         Save
@@ -38,5 +40,8 @@
 
 @section Scripts{
 	<partial name="_ValidationScriptsPartial" />
+    <script>
+        var maxAllowedCopies = @((int)RentalsConfigurations.MaxAllowedCopies);
+    </script>
 	<script src="~/js/rental-copy.js"></script>
 }

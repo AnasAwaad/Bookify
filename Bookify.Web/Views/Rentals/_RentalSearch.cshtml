@@ -1,6 +1,7 @@
 ﻿@model SearchFormViewModel
 
 <form asp-action="GetBookCopy"
+	  id="BookCopyForm"
 	  data-ajax-method="post"
 	  data-ajax="true"
 	  data-ajax-success="OnGetCopySuccess"
@@ -24,7 +25,7 @@
 		<!--end::Input group-->
 		<!--begin:Action-->
 		<div class="d-flex align-items-center">
-			<button type="submit" class="btn btn-primary me-5">Search</button>
+			<button type="submit" class="btn btn-primary me-5 js-search">Search</button>
 		</div>
 		<!--end:Action-->
 	</div>

@@ -14,10 +14,23 @@ public class RentalsController : Controller
 
 	public IActionResult Create()
 	{
-		return View();
+		var viewModel = new RentalFormViewModel
+		{
+		};
+
+        return View(viewModel);
 	}
 
 	[HttpPost]
+	[ValidateAntiForgeryToken]
+    public IActionResult Create(RentalFormViewModel viewModel)
+    {
+        
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
 	[ValidateAntiForgeryToken]
 	public IActionResult GetBookCopy(SearchFormViewModel viewModel)
 	{
@@ -32,6 +45,7 @@ public class RentalsController : Controller
 		if (!copy.IsAvailableForRental || !copy.Book!.IsAvailableForRental)
 			return BadRequest("This book/copy is not available for rental");
 
+		// TODO: Check that copy is not in rental with another person
 
 		var model=_mapper.Map<BookCopyViewModel>(copy);	
 		return PartialView("_RentalCopyDetails",model);
