@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.DataProtection;
+﻿using Bookify.Web.Core.Models;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bookify.Web.Controllers;
@@ -24,20 +25,15 @@ public class RentalsController : Controller
 		if (subscriper is null)
 			return NotFound();
 
-		var availableCopies = subscriper.Rentals.SelectMany(r => r.RentalCopies).Count(rc => !rc.ReturnDate.HasValue );
-		var maxAllowedCopies=(int)RentalsConfigurations.MaxAllowedCopies - availableCopies;
+		var (errorMessage, maxAllowedCopies) = validateSubscriper(subscriper);
 
-		if (maxAllowedCopies.Equals(0))
-			return View("NotAllowedRental", Errors.MaxAllowedCopies);
-		if (subscriper.IsBlackListed)
-			return View("NotAllowedRental", Errors.BlackListedSubscriber);
-
-		if (subscriper.Subscriptions.Last().EndDate < DateTime.Today.AddDays((int)RentalsConfigurations.MaxAllowedCopies))
-			return View("NotAllowedRental", Errors.InActiveSubscriber);
+		if (!string.IsNullOrEmpty(errorMessage))
+			return View("NotAllowedRental", errorMessage);
 
 		var viewModel = new RentalFormViewModel
 		{
-			MaxAllowedCopies = maxAllowedCopies,
+			SubscriperKey=subscriperKey,
+			MaxAllowedCopies = maxAllowedCopies!.Value,
 		};
 
         return View(viewModel);
@@ -47,8 +43,60 @@ public class RentalsController : Controller
 	[ValidateAntiForgeryToken]
     public IActionResult Create(RentalFormViewModel viewModel)
     {
+		var subscriperId = int.Parse(_dataProtector.Unprotect(viewModel.SubscriperKey));
+		var subscriper = _context.Subscripers
+			.Include(s => s.Subscriptions)
+			.Include(s => s.Rentals)
+				.ThenInclude(r => r.RentalCopies)
+			.SingleOrDefault(s => s.Id == subscriperId);
 
-        return View(viewModel);
+		if (subscriper is null)
+			return NotFound();
+
+		var (errorMessage, maxAllowedCopies) = validateSubscriper(subscriper);
+
+		if (!string.IsNullOrEmpty(errorMessage))
+			return View("NotAllowedRental", errorMessage);
+
+		var selectedCopies = _context.BookCopies
+			.Include(c => c.Book)
+			.Include(c=>c.RentalCopies)
+			.Where(c=>viewModel.SelectedCopies.Contains(c.SerialNumber))
+			.ToList();
+
+		var currentSubscriperRentals = _context.Rentals
+			.Include(r => r.RentalCopies)
+			.ThenInclude(c => c.BookCopy)
+			.Where(r => r.SubscriperId == subscriperId)
+			.SelectMany(r => r.RentalCopies)
+			.Where(c => !c.ReturnDate.HasValue)
+			.Select(r => r.BookCopy!.BookId);
+
+		List<RentalCopy> copies = new();
+		foreach (var copy in selectedCopies)
+		{
+			if (!copy.IsAvailableForRental || !copy.Book!.IsAvailableForRental)
+				return View("NotAllowedRental", Errors.NotAvailableForRental);
+
+			if(copy.RentalCopies.Any(r=>!r.ReturnDate.HasValue))
+				return View("NotAllowedRental",Errors.CopyInRental);
+
+			if (currentSubscriperRentals.Any(bookId => bookId == copy.BookId))
+				return View("NotAllowedRental", $"This subscriber already has a copy for '{copy.Book.Title}' Book");
+
+			copies.Add(new RentalCopy{ BookCopyId = copy.Id });
+		}
+
+		Rental rental = new()
+		{
+			RentalCopies = copies,
+			CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+		};
+
+		subscriper.Rentals.Add(rental);
+		_context.SaveChanges();
+
+		return Ok();
     }
 
     [HttpPost]
@@ -61,10 +109,10 @@ public class RentalsController : Controller
 		var copy = _context.BookCopies.Include(c => c.Book).SingleOrDefault(c => c.SerialNumber.ToString().Equals(viewModel.Value) && c.IsActive && c.Book!.IsActive);
 
 		if (copy is null)
-			return BadRequest("Invalid serial number");
+			return BadRequest(Errors.InvalidSerialNumber);
 
 		if (!copy.IsAvailableForRental || !copy.Book!.IsAvailableForRental)
-			return BadRequest("This book/copy is not available for rental");
+			return BadRequest(Errors.NotAvailableForRental);
 
 		// Check that copy is not in rental with another person
 		var copyIsInRental = _context.RentalCopies.Any(c => c.BookCopyId == copy.Id && !c.ReturnDate.HasValue);
@@ -75,5 +123,23 @@ public class RentalsController : Controller
 
 		var model =_mapper.Map<BookCopyViewModel>(copy);	
 		return PartialView("_RentalCopyDetails",model);
+	}
+
+	private (string? errorMessage,int? maxAllowedCopies) validateSubscriper(Subscriper subscriper)
+	{
+		var availableCopies = subscriper.Rentals.SelectMany(r => r.RentalCopies).Count(rc => !rc.ReturnDate.HasValue);
+		var maxAllowedCopies = (int)RentalsConfigurations.MaxAllowedCopies - availableCopies;
+
+		if (maxAllowedCopies.Equals(0))
+			return (errorMessage: Errors.MaxAllowedCopies,null);
+
+		if (subscriper.IsBlackListed)
+			return (errorMessage: Errors.BlackListedSubscriber, null);
+
+
+		if (subscriper.Subscriptions.Last().EndDate < DateTime.Today.AddDays((int)RentalsConfigurations.MaxAllowedCopies))
+			return (errorMessage: Errors.InActiveSubscriber, null);
+
+		return (null, maxAllowedCopies: maxAllowedCopies);
 	}
 }

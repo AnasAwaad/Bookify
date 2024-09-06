@@ -19,8 +19,9 @@
         <!--end::Header-->
         <!--begin::Body-->
         <div class="card-body pt-5">
-            <form id="CopiesForm" asp-action="Create">
+            <form id="CopiesForm" asp-action="Create" method="post">
 
+                <input type="hidden" asp-for="SubscriperKey"/>
                 @* Book copies will be rendered here *@
                 
                 <button type="submit" class="btn btn-primary">

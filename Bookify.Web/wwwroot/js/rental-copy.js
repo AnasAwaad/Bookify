@@ -1,12 +1,12 @@
 
 var selectedCopies = [];
-console.log(maxAllowedCopies)
+
 $(function () {
 	$('.js-search').on('click', function (e) {
 		e.preventDefault();
 		var serialNumber = $("#Value").val();
 
-		if (selectedCopies.find((copy)=>copy.serialNumber==serialNumber)) {
+		if (selectedCopies.find((copy) => copy.serialNumber == serialNumber)) {
 			ShowErrorMessage("You cannot add the same copy");
 			return;
 		}
@@ -16,6 +16,11 @@ $(function () {
 			return;
 		}
 		$('#BookCopyForm').submit();
+	});
+
+	$('body').on('click', '.js-remove-book-copy', function () {
+		$(this).parents('.js-book-copy-container').remove();
+		prepareBookCopies();
 	})
 })
 function OnGetCopySuccess(copy) {
@@ -30,6 +35,11 @@ function OnGetCopySuccess(copy) {
 	$("#Value").val('');
 	$('#CopiesForm').prepend(copy);
 
+	prepareBookCopies();
+	
+}
+
+function prepareBookCopies() {
 	selectedCopies = [];
 	$('.js-copy').each(function (idx, ele) {
 		var input = $(this);
@@ -43,8 +53,5 @@ function OnGetCopySuccess(copy) {
 
 			input.attr('name', `SelectedCopies[${idx}]`);
 		}
-
 	});
-	
-	console.log(selectedCopies)
 }
