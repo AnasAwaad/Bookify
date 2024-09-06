@@ -99,7 +99,24 @@ public class RentalsController : Controller
 		return Ok();
     }
 
-    [HttpPost]
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+	public IActionResult RemoveRental(int id)
+	{
+		var rental = _context.Rentals.Find(id);
+
+		if (rental is null || rental.CreatedOn.Date != DateTime.Today)
+			return NotFound();
+
+		rental.IsActive = false;
+		rental.LastUpdatedOn = DateTime.Today;
+		rental.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+
+		_context.SaveChanges();
+		return Ok();
+	}
+
+	[HttpPost]
 	[ValidateAntiForgeryToken]
 	public IActionResult GetBookCopy(SearchFormViewModel viewModel)
 	{

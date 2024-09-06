@@ -89,7 +89,7 @@
 					<!--begin::Details item-->
 					<div class="fw-bold mt-5">Date of Birth</div>
 					<div class="text-gray-600">
-						<p class="text-gray-600 text-hover-primary">@Model.DateOfBirth</p>
+						<p class="text-gray-600 text-hover-primary">@Model.DateOfBirth.ToString("d MMM, yyyy")</p>
 					</div>
 					<!--begin::Details item-->
 					<!--begin::Details item-->
@@ -259,7 +259,8 @@
 	<!--end::Content-->
 </div>
 @section Scripts {
-	<script src="~/js/renew_subscription.js"></script>
+	<script src="~/lib/bootbox.js/bootbox.min.js"></script>
+	<script src="~/js/subscriper-details.js"></script>
 }
 @section Plugins
 {

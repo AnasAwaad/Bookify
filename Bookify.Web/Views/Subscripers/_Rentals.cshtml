@@ -1,61 +1,61 @@
 ﻿@model IEnumerable<RentalViewModel>
 
-@if (!Model.Any())
-{
-	<div class="alert bg-info d-flex flex-column flex-sm-row w-100 p-5 mb-10">
-		<!--begin::Icon-->
-		<i class="ki-duotone ki-message-text-2 fs-2hx text-light me-4 mb-5 mb-sm-0"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>                    <!--end::Icon-->
-		<!--begin::Content-->
-		<div class="d-flex flex-column text-light pe-0 pe-sm-10">
-			<span>This subscriber has no rentals.</span>
-		</div>
-		<!--end::Content-->
+<div class="alert bg-info d-flex flex-column flex-sm-row w-100 p-5 mb-10 " style="display:@(Model.Any()?"none !important":"unset")" id="RentalsAlert">
+	<!--begin::Icon-->
+	<i class="ki-duotone ki-message-text-2 fs-2hx text-light me-4 mb-5 mb-sm-0"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>                    <!--end::Icon-->
+	<!--begin::Content-->
+	<div class="d-flex flex-column text-light pe-0 pe-sm-10">
+		<span>This subscriber has no rentals.</span>
 	</div>
-}
-else
-{
-	<div class="table-responsive">
-		<table class="table align-middle gs-0 gy-4">
-			<thead>
-				<tr class="fw-bold text-muted bg-light">
-					<th class="min-w-125px ps-2">Start Date</th>
-					<th class="min-w-125px">Number of Copies</th>
-					<th class="min-w-125px">Total Delay (Days)</th>
-					<th class="min-w-125px">Created On</th>
-					<th class="min-w-125px"></th>
-				</tr>
-			</thead>
-			<tbody>
-				@foreach (var rental in Model)
-				{
-					<tr>
-						<td>
-							<div class="d-flex align-items-center ps-2">
-								@rental.StartDate.ToString("dd MMM, yyyy")
-							</div>
-						</td>
-						<td>
-							<div class="d-flex align-items-center">
-								@rental.TotalCopies
-							</div>
-						</td>
-						<td>
-							<div class="d-flex align-items-center">
-								@rental.TotalDelayInDays
-							</div>
-						</td>
-						<td>
-							<div class="d-flex align-items-center">
-								@rental.CreatedOn.ToString("dd MMM, yyyy")
-							</div>
-						</td>
-						<td>
-							<a class="btn btn-primary" asp-controller="Rentals" asp-action="Details" asp-route-id="@rental.Id">Details</a>
-						</td>
-					</tr>
-				}
+	<!--end::Content-->
+</div>
 
-			</tbody>
-		</table>
-	</div>
-}
+<div class="table-responsive" style="display:@(!Model.Any()?"none !important":"unset")" id="RentalsTable">
+	<table class="table align-middle gs-0 gy-4">
+		<thead>
+			<tr class="fw-bold text-muted bg-light">
+				<th class="min-w-125px ps-2">Start Date</th>
+				<th class="min-w-125px">Number of Copies</th>
+				<th class="min-w-125px">Total Delay (Days)</th>
+				<th class="min-w-125px">Created On</th>
+				<th class="min-w-125px"></th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var rental in Model)
+			{
+				<tr>
+					<td>
+						<div class="d-flex align-items-center ps-2">
+							@rental.StartDate.ToString("dd MMM, yyyy")
+						</div>
+					</td>
+					<td>
+						<div class="d-flex align-items-center">
+							@rental.TotalCopies
+						</div>
+					</td>
+					<td>
+						<div class="d-flex align-items-center">
+							@rental.TotalDelayInDays
+						</div>
+					</td>
+					<td>
+						<div class="d-flex align-items-center">
+							@rental.CreatedOn.ToString("dd MMM, yyyy")
+						</div>
+					</td>
+					<td>
+						@if (rental.CreatedOn.Date == DateTime.Today)
+						{
+							<a class="btn btn-danger js-remove-rental" href="javascript:;" data-id="@rental.Id">Remove</a>
+						}
+						<a class="btn btn-primary" asp-controller="Rentals" asp-action="Details" asp-route-id="@rental.Id">Details</a>
+					</td>
+				</tr>
+			}
+
+		</tbody>
+	</table>
+</div>
+
