@@ -17,7 +17,7 @@ public class DashboardController : Controller
 	{
 		var numberOfBooks=_context.Books.Count(b=>b.IsActive);
 		var numberOfSubscripers=_context.Subscripers.Count(b=>b.IsActive);
-		var latestBooks = _context.Books.Include(b=>b.Author).OrderByDescending(b => b.CreatedOn).Take(8).ToList();
+		var latestBooks = _context.Books.Include(b=>b.Author).Where(b=>b.IsActive).OrderByDescending(b => b.PublishingDate).Take(8).ToList();
 
 		var topBooks = _context.RentalCopies
 					.Include(r => r.BookCopy)
@@ -77,5 +77,20 @@ public class DashboardController : Controller
 			}).ToList();
 
 		return Ok(rentals);
+	}
+
+	public IActionResult GetSubscribersPerCities()
+	{
+		var subscribers = _context.Subscripers
+			.Where(s => s.IsActive)
+			.Include(s => s.City)
+			.GroupBy(s => new { s.City!.Name })
+			.Select(s => new
+			{
+				text = s.Key.Name,
+				value = s.Count()
+			}).ToList();
+
+		return Ok(subscribers);
 	}
 }
