@@ -47,7 +47,6 @@ function ShowSuccessMessage(message = "Saved Successfully") {
 }
 
 function ShowErrorMessage(message = "Something went wrong!") {
-    console.log(message)
     Swal.fire({
         position: "center",
         icon: "error",

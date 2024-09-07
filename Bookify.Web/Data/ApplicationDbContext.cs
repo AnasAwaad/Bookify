@@ -16,6 +16,8 @@ namespace Bookify.Web.Data
         public DbSet<BookCopy> BookCopies { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<City> Cities { get; set; }
+        public DbSet<Rental> Rentals { get; set; }
+        public DbSet<RentalCopy> RentalCopies { get; set; }
         public DbSet<Subscriper> Subscripers { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
 
@@ -24,6 +26,8 @@ namespace Bookify.Web.Data
             base.OnModelCreating(builder);
             builder.Entity<BookCategory>()
                    .HasKey(b => new { b.CategoryId, b.BookId });
+            builder.Entity<RentalCopy>()
+                   .HasKey(b => new { b.RentalId, b.BookCopyId });
 
             // add sequence to shared schema in db
             builder.HasSequence<int>("SerialNumber", "Shared")
@@ -34,6 +38,9 @@ namespace Bookify.Web.Data
                 .Property(e => e.SerialNumber)
                 .HasDefaultValueSql("NEXT VALUE FOR shared.SerialNumber");
 
+            builder.Entity<Rental>().HasQueryFilter(r => r.IsActive);
+            builder.Entity<RentalCopy>().HasQueryFilter(r => r.Rental!.IsActive);
+
             // change behavior of foreign key to restrict behavior
             var cascadeFKs = builder.Model.GetEntityTypes()
                 .SelectMany(t => t.GetForeignKeys())
@@ -43,6 +50,8 @@ namespace Bookify.Web.Data
             {
                 item.DeleteBehavior = DeleteBehavior.Restrict;
             }
+
+
 
         }
     }

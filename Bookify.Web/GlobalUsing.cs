@@ -4,6 +4,7 @@ global using Bookify.Web.Core.Models;
 global using Bookify.Web.Core.ViewModels;
 global using Bookify.Web.Data;
 global using Bookify.Web.Filters;
+global using Bookify.Web.Core.Enums;
 global using Microsoft.AspNetCore.Identity;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;

@@ -29,7 +29,8 @@ public class DomainProfile : Profile
 
         // BookCopy
         CreateMap<BookCopy, BookCopyViewModel>()
-            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Book!.Title));
+            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Book!.Title))
+            .ForMember(dest => dest.ImageThumbnailUrl, opt => opt.MapFrom(src => src.Book!.ImageThumbnailUrl));
 
 
         // Users
@@ -57,6 +58,10 @@ public class DomainProfile : Profile
         CreateMap<Area, SelectListItem>()
             .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
+
+        // Rentals
+        CreateMap<Rental,RentalViewModel>();
+        CreateMap<RentalCopy,RentalCopyViewModel>();
 
     }
 }

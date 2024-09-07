@@ -10,7 +10,7 @@
 <div class="alert bg-light-primary border border-primary border-3 border-dashed d-flex justify-content-between w-100 p-5 mb-10">
 	<div class="d-flex align-items-center">
 		<div class="symbol symbol-40px me-4">
-			<div class="symbol-label fs-2 fw-semibold text-success" >
+			<div class="symbol-label fs-2 fw-semibold text-success">
 				<!--begin::Svg Icon | path: icons/duotune/general/gen002.svg-->
 				<span class="svg-icon svg-icon-2 svg-icon-primary">
 					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -89,7 +89,7 @@
 					<!--begin::Details item-->
 					<div class="fw-bold mt-5">Date of Birth</div>
 					<div class="text-gray-600">
-						<p class="text-gray-600 text-hover-primary">@Model.DateOfBirth</p>
+						<p class="text-gray-600 text-hover-primary">@Model.DateOfBirth.ToString("d MMM, yyyy")</p>
 					</div>
 					<!--begin::Details item-->
 					<!--begin::Details item-->
@@ -136,7 +136,7 @@
 							<div class="card-header border-0">
 								<!--begin::Card title-->
 								<div class="card-title">
-									<h2 class="fw-bold">Reward Points</h2>
+									<h2 class="fw-bold">Number of rentals</h2>
 								</div>
 								<!--end::Card title-->
 							</div>
@@ -152,12 +152,11 @@
 											</svg>
 										</span>
 										<!--end::Svg Icon-->
-										<div class="ms-2">
-											4,571
-											<span class="text-muted fs-4 fw-semibold">Points earned</span>
+										<div class="ms-2" id="totalCopies">
+											@Model.Rentals.Sum(r=>r.TotalCopies)
 										</div>
 									</div>
-									<div class="fs-7 fw-normal text-muted">Earn reward points with every purchase.</div>
+									<div class="fs-7 fw-normal text-muted">Total number of copies</div>
 								</div>
 							</div>
 							<!--end::Card body-->
@@ -215,7 +214,7 @@
 								<tbody>
 									@foreach (var subscription in Model.Subscriptions)
 									{
-										<partial name="_SubscriptionRow" model="subscription"/>
+										<partial name="_SubscriptionRow" model="subscription" />
 									}
 
 								</tbody>
@@ -234,15 +233,19 @@
 					<!--begin::Card header-->
 					<div class="card-header border-0">
 						<!--begin::Card title-->
-						<div class="card-title">
+						<div class="card-title d-flex justify-content-between w-100">
 							<h2>Rentals</h2>
+							@if (!Model.IsBlackListed)
+							{
+								<a id="AddRentalBtn" asp-controller="Rentals" asp-action="Create" asp-route-subscriperKey="@Model.Key" class="btn btn-primary @((lastSubscription.EndDate >= DateTime.Today.AddDays((int)RentalsConfigurations.RentalDuration)) ? string.Empty : "d-none")" data-key="@Model.Key" >Add Rentals</a>
+							}
 						</div>
 						<!--end::Card title-->
 					</div>
 					<!--end::Card header-->
 					<!--begin::Card body-->
 					<div class="card-body pt-0 pb-5">
-						
+						<partial name="_Rentals" model="Model.Rentals" />
 					</div>
 					<!--end::Card body-->
 				</div>
@@ -254,8 +257,9 @@
 	</div>
 	<!--end::Content-->
 </div>
-@section Scripts{
-	<script src="~/js/renew_subscription.js"></script>
+@section Scripts {
+	<script src="~/lib/bootbox.js/bootbox.min.js"></script>
+	<script src="~/js/subscriper-details.js"></script>
 }
 @section Plugins
 {
