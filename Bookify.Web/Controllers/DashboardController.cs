@@ -17,7 +17,7 @@ public class DashboardController : Controller
 	{
 		var numberOfBooks=_context.Books.Count(b=>b.IsActive);
 		var numberOfSubscripers=_context.Subscripers.Count(b=>b.IsActive);
-		var latestBooks = _context.Books.Include(b=>b.Author).OrderByDescending(b => b.CreatedOn).Take(8).ToList();
+		var latestBooks = _context.Books.Include(b=>b.Author).Where(b=>b.IsActive).OrderByDescending(b => b.PublishingDate).Take(8).ToList();
 
 		var topBooks = _context.RentalCopies
 					.Include(r => r.BookCopy)
@@ -59,5 +59,38 @@ public class DashboardController : Controller
 			TopBooks=topBooks
 		};
 		return View(viewModel);
+	}
+
+	[AjaxOnly]
+	public IActionResult GetNumberOfRentalsPerDay(DateTime? startDate,DateTime? endDate)
+	{
+		startDate ??= DateTime.Today.AddDays(-29);
+		endDate ??= DateTime.Today;
+
+		var rentals = _context.RentalCopies
+			.Where(r=>r.RentalDate >= startDate && r.RentalDate <= endDate)
+			.GroupBy(r => new{ r.RentalDate })
+			.Select(r => new
+			{
+				text=r.Key.RentalDate.ToString("d MMM"),
+				value=r.Count().ToString()
+			}).ToList();
+
+		return Ok(rentals);
+	}
+
+	public IActionResult GetSubscribersPerCities()
+	{
+		var subscribers = _context.Subscripers
+			.Where(s => s.IsActive)
+			.Include(s => s.City)
+			.GroupBy(s => new { s.City!.Name })
+			.Select(s => new
+			{
+				text = s.Key.Name,
+				value = s.Count()
+			}).ToList();
+
+		return Ok(subscribers);
 	}
 }
