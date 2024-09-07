@@ -60,4 +60,22 @@ public class DashboardController : Controller
 		};
 		return View(viewModel);
 	}
+
+	[AjaxOnly]
+	public IActionResult GetNumberOfRentalsPerDay(DateTime? startDate,DateTime? endDate)
+	{
+		startDate ??= DateTime.Today.AddDays(-29);
+		endDate ??= DateTime.Today;
+
+		var rentals = _context.RentalCopies
+			.Where(r=>r.RentalDate >= startDate && r.RentalDate <= endDate)
+			.GroupBy(r => new{ r.RentalDate })
+			.Select(r => new
+			{
+				text=r.Key.RentalDate.ToString("d MMM"),
+				value=r.Count().ToString()
+			}).ToList();
+
+		return Ok(rentals);
+	}
 }
