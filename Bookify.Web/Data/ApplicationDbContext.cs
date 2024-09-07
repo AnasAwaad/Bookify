@@ -38,6 +38,9 @@ namespace Bookify.Web.Data
                 .Property(e => e.SerialNumber)
                 .HasDefaultValueSql("NEXT VALUE FOR shared.SerialNumber");
 
+            builder.Entity<Rental>().HasQueryFilter(r => r.IsActive);
+            builder.Entity<RentalCopy>().HasQueryFilter(r => r.Rental!.IsActive);
+
             // change behavior of foreign key to restrict behavior
             var cascadeFKs = builder.Model.GetEntityTypes()
                 .SelectMany(t => t.GetForeignKeys())

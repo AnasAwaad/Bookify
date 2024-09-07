@@ -136,7 +136,7 @@
 							<div class="card-header border-0">
 								<!--begin::Card title-->
 								<div class="card-title">
-									<h2 class="fw-bold">Reward Points</h2>
+									<h2 class="fw-bold">Number of rentals</h2>
 								</div>
 								<!--end::Card title-->
 							</div>
@@ -152,12 +152,11 @@
 											</svg>
 										</span>
 										<!--end::Svg Icon-->
-										<div class="ms-2">
-											4,571
-											<span class="text-muted fs-4 fw-semibold">Points earned</span>
+										<div class="ms-2" id="totalCopies">
+											@Model.Rentals.Sum(r=>r.TotalCopies)
 										</div>
 									</div>
-									<div class="fs-7 fw-normal text-muted">Earn reward points with every purchase.</div>
+									<div class="fs-7 fw-normal text-muted">Total number of copies</div>
 								</div>
 							</div>
 							<!--end::Card body-->

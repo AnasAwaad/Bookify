@@ -43,7 +43,9 @@
                     data: {
                         "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
                     },
-                    success: function (res) {
+                    success: function (rentalCopies) {
+                        var totalCopies = $('#totalCopies');
+                        totalCopies.text(+totalCopies.text() - rentalCopies)
                         btn.parents('tr').remove();
                         if ($('#RentalsTable tbody tr').length == 0) {
                             $('#RentalsTable').fadeOut();

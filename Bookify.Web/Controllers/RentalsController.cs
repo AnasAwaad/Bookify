@@ -103,7 +103,7 @@ public class RentalsController : Controller
 	[ValidateAntiForgeryToken]
 	public IActionResult RemoveRental(int id)
 	{
-		var rental = _context.Rentals.Find(id);
+		var rental = _context.Rentals.Include(r => r.RentalCopies).SingleOrDefault(r => r.Id == id);
 
 		if (rental is null || rental.CreatedOn.Date != DateTime.Today)
 			return NotFound();
@@ -113,7 +113,7 @@ public class RentalsController : Controller
 		rental.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
 		_context.SaveChanges();
-		return Ok();
+		return Ok(rental.RentalCopies.Count());
 	}
 
 	[HttpPost]

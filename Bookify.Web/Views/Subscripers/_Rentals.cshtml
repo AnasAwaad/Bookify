@@ -10,8 +10,8 @@
 	<!--end::Content-->
 </div>
 
-<div class="table-responsive" style="display:@(!Model.Any()?"none !important":"unset")" id="RentalsTable">
-	<table class="table align-middle gs-0 gy-4">
+<div class="table-responsive"  >
+	<table class="table align-middle gs-0 gy-4" style="display:@(!Model.Any()?"none !important":"")" id="RentalsTable">
 		<thead>
 			<tr class="fw-bold text-muted bg-light">
 				<th class="min-w-125px ps-2">Start Date</th>
@@ -46,11 +46,13 @@
 						</div>
 					</td>
 					<td>
-						@if (rental.CreatedOn.Date == DateTime.Today)
-						{
-							<a class="btn btn-danger js-remove-rental" href="javascript:;" data-id="@rental.Id">Remove</a>
-						}
-						<a class="btn btn-primary" asp-controller="Rentals" asp-action="Details" asp-route-id="@rental.Id">Details</a>
+						<div class="d-flex align-items-center justify-content-arround gap-2">
+							@if (rental.CreatedOn.Date == DateTime.Today)
+							{
+								<a class="btn btn-danger js-remove-rental" href="javascript:;" data-id="@rental.Id">Remove</a>
+							}
+							<a class="btn btn-primary" asp-controller="Rentals" asp-action="Details" asp-route-id="@rental.Id">Details</a>
+						</div>
 					</td>
 				</tr>
 			}
