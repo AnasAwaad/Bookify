@@ -68,3 +68,15 @@ body {
     background-color: rgba(19, 0, 97, .3);
     border-radius: 1.75rem;
 }
+
+.twitter-typeahead {
+    width:100%;
+}
+
+.tt-suggestion{
+    padding:5px;
+}
+
+.tt-suggestion:not(:last-child) {
+    border-bottom: 1px dashed #dcdcdc;
+}
