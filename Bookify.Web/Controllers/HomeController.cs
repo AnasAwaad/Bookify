@@ -3,26 +3,33 @@ using System.Diagnostics;
 
 namespace Bookify.Web.Controllers
 {
-    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+		private readonly ApplicationDbContext _context;
+		private readonly IMapper _mapper;
 
-        public HomeController(ILogger<HomeController> logger)
+
+		public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IMapper mapper)
+		{
+			_logger = logger;
+			_context = context;
+			_mapper = mapper;
+		}
+
+		public IActionResult Index()
         {
-            _logger = logger;
+			var latestBooks = _context.Books
+                .Include(b => b.Author)
+                .Where(b => b.IsActive)
+                .OrderByDescending(b => b.PublishingDate)
+                .Take(10)
+                .ToList();
+
+			return View(_mapper.Map<IEnumerable<BookViewModel>>(latestBooks));
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
+        
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
