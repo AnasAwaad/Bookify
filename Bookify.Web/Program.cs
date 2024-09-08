@@ -6,6 +6,7 @@ using Bookify.Web.Settings;
 using Bookify.Web.Tasks;
 using Hangfire;
 using Hangfire.Dashboard;
+using HashidsNet;
 using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -58,7 +59,9 @@ namespace Bookify.Web
 
 			builder.Services.AddAutoMapper(typeof(DomainProfile));
 			builder.Services.AddExpressiveAnnotations();
-			
+
+			builder.Services.AddSingleton<IHashids>(_ => new Hashids(minHashLength:11));
+
 			builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
 
 			//SecurityStampValidatorOptions: This class contains options for the security stamp validator.

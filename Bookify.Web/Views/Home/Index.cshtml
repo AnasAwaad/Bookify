@@ -111,7 +111,7 @@
 							<div class="d-flex align-items-center flex-row-fluid flex-wrap">
 								<!--begin:Author-->
 								<div class="flex-grow-1 me-2">
-									<h4 class="text-white text-hover-primary fs-6 fw-bold">@book.Title</h4>
+									<a asp-controller="Search" asp-action="Details" asp-route-bookKey="@book.Key" class="text-white text-hover-primary fs-6 fw-bold">@book.Title</a>
 
 									<span class="text-muted fw-semibold d-block fs-7">@book.AuthorName</span>
 								</div>
