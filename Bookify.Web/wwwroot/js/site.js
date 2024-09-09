@@ -91,7 +91,7 @@ function ApplySelect2() {
 $(function () {
 
     // Handle disable submit button 
-    $('form').not('#signOutForm').on('submit', function () {
+    $('form').not('#signOutForm').not('.execlude-from-validation').on('submit', function () {
         if ($(this).valid()) DisableSubmitButton();
     })
 

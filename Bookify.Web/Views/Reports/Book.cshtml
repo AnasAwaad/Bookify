@@ -1,0 +1,117 @@
+﻿@model BooksReportViewModel
+@{
+	ViewBag.Title = "Books Report";
+}
+
+<div class="card mb-4">
+	<div class="card-header">
+		<div class="card-title">Books Report</div>
+	</div>
+	<div class="card-body">
+		<form method="get" asp-controller="Reports" id="ReportsForm" class="execlude-from-validation">
+			<input type="hidden" name="pageNumber" id="pageNumber" value="1"/>
+			<div class="form-floating mb-7">
+				<select asp-for="SelectedAuthors" asp-items="@Model.Authors" class="form-select js-select2" data-control="select2" data-placeholder="Select Authors">
+					<option hidden value="">-- select authors --</option>
+				</select>
+				<label asp-for="SelectedAuthors"></label>
+			</div>
+			<div class="form-floating mb-7">
+				<select asp-for="SelectedCategories" asp-items="@Model.Categories" class="form-select js-select2" data-control="select2" data-placeholder="Select Categories">
+					<option hidden value="">-- select category --</option>
+				</select>
+				<label asp-for="SelectedCategories"></label>
+			</div>
+			<button type="submit" class="btn btn-primary">Show Report</button>
+		</form>
+	</div>
+</div>
+
+
+<div class="card card-p-0 card-flush">
+	<div class="card-body">
+		@if (Model.Data is not null)
+		{
+			@if (Model.Data.Any())
+			{
+				<div class="m-3 d-flex justify-content-end">
+					<ul class="pagination pagination-circle pagination-outline">
+						<li class="page-item first @(Model.Data.HasPreviousPage ? string.Empty : "disabled") m-1">
+							<a href="javascript:;" class="page-link px-0" data-page-number="1">
+								<i class="bi bi-chevron-double-left"></i>
+							</a>
+						</li>
+
+						<li class="page-item previous @(Model.Data.HasPreviousPage ? string.Empty : "disabled") m-1">
+							<a href="javascript:;" class="page-link px-0" data-page-number="@(Model.Data.PageNumber - 1)">
+								<i class="bi bi-chevron-left"></i>
+							</a>
+						</li>
+
+
+						@for (int i = 1; i <= Model.Data.TotalPages; i++)
+						{
+							<li class="page-item m-1 @(Model.Data.PageNumber == i ? "active":string.Empty)">
+								<a href="javascript:;" class="page-link" data-page-number="@i" >@i</a>
+							</li>
+						}
+
+
+						<li class="page-item next m-1 @(Model.Data.HasNextPage ? string.Empty : "disabled")">
+							<a href="javascript:;" class="page-link px-0" data-page-number="@(Model.Data.PageNumber + 1)">
+								<i class="bi bi-chevron-right"></i>
+							</a>
+						</li>
+
+						<li class="page-item last m-1 @(Model.Data.HasNextPage ? string.Empty : "disabled")">
+							<a href="javascript:;" class="page-link px-0" data-page-number="@Model.Data.TotalPages">
+								<i class="bi bi-chevron-double-right"></i>
+							</a>
+						</li>
+					</ul>
+				</div>
+
+				<div class="table-responsive">
+					<table class="table align-middle rounded table-row-dashed fs-6 g-5">
+						<thead>
+							<tr class="fw-semibold fs-6 text-white bg-black border-0">
+								<th>Title</th>
+								<th>Author</th>
+								<th>Categories</th>
+								<th>Publisher</th>
+								<th>Publishing Date</th>
+								<th>Hall</th>
+								<th>Available for rental?</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody class="fw-semibold text-gray-600">
+							@foreach (var book in Model.Data)
+							{
+								<tr>
+									<td>@book.Title</td>
+									<td>@book.Author!.Name</td>
+									<td>@string.Join(", ", book.Categories!.Select(c => c.Category!.Name))</td>
+									<td>@book.Publisher</td>
+									<td>@book.PublishingDate.ToString("d MMM, yyyy")</td>
+									<td>@book.Hall</td>
+									<td>@(book.IsAvailableForRental ? "Yes" : "No")</td>
+									<td>@(book.IsActive ? "Available" : "Not available")</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+			else
+			{
+				<h5 class="py-3 ms-3">No books are available</h5>
+			}
+		}
+		
+		</div>
+	</div>
+</div>
+@section Scripts{
+	<script src="~/js/reports.js"></script>
+}
