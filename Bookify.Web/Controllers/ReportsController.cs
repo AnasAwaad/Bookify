@@ -58,7 +58,7 @@ public class ReportsController : Controller
 		};
 
 		if(pageNumber is not null)
-			viewModel.Data = PaginatedList<Book>.Create(books, pageNumber.Value, 20);
+			viewModel.Data = PaginatedList<Book>.Create(books, pageNumber.Value, (int)ReportsConfiguration.pageSize);
 
 		return View(viewModel);
 	}

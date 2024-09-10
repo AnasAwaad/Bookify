@@ -3,6 +3,14 @@
 	ViewBag.Title = "Books Report";
 	var categories = string.Join(",", Model.SelectedCategories!);
 	var authors = string.Join(",", Model.SelectedAuthors!);
+
+	
+	var paginationVM =Model.Data is null ?null:
+			new PaginationViewModel
+			{
+				PageNumber = Model.Data.PageNumber,
+				TotalPages = Model.Data.TotalPages
+			};
 }
 
 <div class="card mb-4">
@@ -37,40 +45,7 @@
 		{
 			<div class="card-header">
 				<div class="m-3 d-flex align-items-center">
-					<ul class="pagination pagination-circle pagination-outline">
-						<li class="page-item first @(Model.Data.HasPreviousPage ? string.Empty : "disabled") m-1">
-							<a href="javascript:;" class="page-link px-0" data-page-number="1">
-								<i class="bi bi-chevron-double-left"></i>
-							</a>
-						</li>
-
-						<li class="page-item previous @(Model.Data.HasPreviousPage ? string.Empty : "disabled") m-1">
-							<a href="javascript:;" class="page-link px-0" data-page-number="@(Model.Data.PageNumber - 1)">
-								<i class="bi bi-chevron-left"></i>
-							</a>
-						</li>
-
-
-						@for (int i = 1; i <= Model.Data.TotalPages; i++)
-						{
-							<li class="page-item m-1 @(Model.Data.PageNumber == i ? "active":string.Empty)">
-								<a href="javascript:;" class="page-link" data-page-number="@i">@i</a>
-							</li>
-						}
-
-
-						<li class="page-item next m-1 @(Model.Data.HasNextPage ? string.Empty : "disabled")">
-							<a href="javascript:;" class="page-link px-0" data-page-number="@(Model.Data.PageNumber + 1)">
-								<i class="bi bi-chevron-right"></i>
-							</a>
-						</li>
-
-						<li class="page-item last m-1 @(Model.Data.HasNextPage ? string.Empty : "disabled")">
-							<a href="javascript:;" class="page-link px-0" data-page-number="@Model.Data.TotalPages">
-								<i class="bi bi-chevron-double-right"></i>
-							</a>
-						</li>
-					</ul>
+					<partial name="_Pagination" model="@paginationVM"/>
 				</div>
 				<div class="card-toolbar gap-3 m-3" >
 					<a class="btn btn-light-danger" asp-action="ExportBooksToPDF" asp-route-categories="@categories" asp-route-authors="@authors">Export to PDF </a>
