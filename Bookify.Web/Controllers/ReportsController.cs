@@ -1,7 +1,10 @@
-﻿using Bookify.Web.Core.Utilities;
+﻿using Bookify.Web.Core.Models;
+using Bookify.Web.Core.Utilities;
 using ClosedXML.Excel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using OpenHtmlToPdf;
+using ViewToHTML.Services;
 
 namespace Bookify.Web.Controllers;
 
@@ -10,14 +13,16 @@ public class ReportsController : Controller
 {
 	private readonly ApplicationDbContext _context;
 	private readonly IMapper _mapper;
+	private readonly IViewRendererService _viewRendererService;
 
-    public ReportsController(ApplicationDbContext context, IMapper mapper)
-    {
-        _context = context;
-        _mapper = mapper;
-    }
+	public ReportsController(ApplicationDbContext context, IMapper mapper, IViewRendererService viewRendererService)
+	{
+		_context = context;
+		_mapper = mapper;
+		_viewRendererService = viewRendererService;
+	}
 
-    public IActionResult Index()
+	public IActionResult Index()
 	{
 		return View();
 	}
@@ -117,4 +122,27 @@ public class ReportsController : Controller
 
 		return File(stream.ToArray(),"application/octet-stream","Books.xlsx");
 	}
+
+	public async Task<IActionResult> ExportBooksToPDF(string authors, string categories)
+	{
+
+		var selectedAuthors = authors?.Split(',');
+		var selectedCategories = categories?.Split(',');
+
+		var books = _context.Books
+			.Include(b => b.Author)
+			.Include(b => b.Categories)
+			.ThenInclude(c => c.Category)
+			.Where(b => (selectedCategories == null || b.Categories.Any(c => selectedCategories.Contains(c.CategoryId.ToString())))
+				  && (selectedAuthors == null || selectedAuthors.Contains(b.AuthorId.ToString())))
+			.ToList();
+
+		var templatePath = "~/Views/Reports/BooksTemplate.cshtml";
+
+		var html = await _viewRendererService.RenderViewToStringAsync(ControllerContext, templatePath, books);
+		var pdf = Pdf.From(html).Content();
+
+		return File(pdf.ToArray(), "application/octet-stream", "Books.pdf");
+	}
+
 }

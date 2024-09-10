@@ -72,8 +72,8 @@
 						</li>
 					</ul>
 				</div>
-				<div class="card-toolbar gap-3 m-3">
-					<a class="btn btn-light-danger">Export to PDF </a>
+				<div class="card-toolbar gap-3 m-3" >
+					<a class="btn btn-light-danger" asp-action="ExportBooksToPDF" asp-route-categories="@categories" asp-route-authors="@authors">Export to PDF </a>
 					<a class="btn btn-light-success" asp-action="ExportBooksToExcel" asp-route-categories="@categories" asp-route-authors="@authors">Export to Excel</a>
 				</div>
 			</div>
