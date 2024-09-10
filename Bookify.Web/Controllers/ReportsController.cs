@@ -21,14 +21,28 @@ public class ReportsController : Controller
 		return View();
 	}
 
-	public IActionResult Book(int? pageNumber)
+	public IActionResult Book(int? pageNumber,IList<int> selectedCategories,IList<int> selectedAuthors)
 	{
 		var authors = _context.Authors.OrderBy(a=>a.Name).ToList();
 		var categories=_context.Categories.OrderBy(c=>c.Name).ToList();
-        IQueryable<Book> books = _context.Books.Include(b => b.Author).Include(b => b.Categories).ThenInclude(c => c.Category);
+		IQueryable<Book> books = _context.Books
+			.Include(b => b.Author)
+			.Include(b => b.Categories)
+			.ThenInclude(c => c.Category)
+			.Where(b => (!selectedCategories.Any() || b.Categories.Any(c => selectedCategories.Contains(c.CategoryId)))
+				  && (!selectedAuthors.Any() || selectedAuthors.Contains(b.AuthorId)));
 
+		//if (selectedAuthors.Any())
+		//{
+		//	books = books.Where(b => selectedAuthors.Contains(b.AuthorId));
+		//}
 
-        var viewModel = new BooksReportViewModel()
+		//if (selectedCategories.Any())
+		//{
+		//	books = books.Where(b => b.Categories.Any(c=>selectedCategories.Contains(c.CategoryId)));
+		//}
+
+		var viewModel = new BooksReportViewModel()
 		{
 			Authors = _mapper.Map<IEnumerable<SelectListItem>>(authors),
 			Categories = _mapper.Map<IEnumerable<SelectListItem>>(categories),
