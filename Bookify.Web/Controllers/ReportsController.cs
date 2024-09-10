@@ -1,5 +1,6 @@
 ﻿using Bookify.Web.Core.Models;
 using Bookify.Web.Core.Utilities;
+using Bookify.Web.Extenstions;
 using ClosedXML.Excel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -83,12 +84,9 @@ public class ReportsController : Controller
 
 
 		var headerCells = new string[] { "Title", "Author", "Categories", "Publisher", "Publishing Date", "Hall", "Available for rental?", "Status" };
+		// extension method
+		sheet.AddHeader(headerCells);
 
-		for (int i = 0; i < headerCells.Length; i++)
-		{
-			sheet.Cell(1, i + 1).SetValue(headerCells[i]);
-
-		}
 
 		for (int i = 0; i < books.Count; i++)
 		{
@@ -102,20 +100,8 @@ public class ReportsController : Controller
 			sheet.Cell(i + 2, 8).SetValue(books[i].IsActive ? "Available":"Not available");
 		}
 
-		var header = sheet.Range(1,1,1,headerCells.Length);
-
-		header.Style.Fill.BackgroundColor = XLColor.Black;
-		header.Style.Font.FontColor= XLColor.White;
-		header.Style.Font.SetBold();
-		header.Style.Font.FontSize = 14;
-
-
-		sheet.ColumnsUsed().AdjustToContents();
-		sheet.Style.Alignment.Horizontal=XLAlignmentHorizontalValues.Center;
-
-
-		sheet.CellsUsed().Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-		sheet.CellsUsed().Style.Border.OutsideBorderColor = XLColor.Black;
+		// extension method
+		sheet.FormatCells();
 
 		await using var stream = new MemoryStream();
 		wb.SaveAs(stream);
