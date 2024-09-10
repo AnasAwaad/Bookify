@@ -1,6 +1,8 @@
 ﻿@model BooksReportViewModel
 @{
 	ViewBag.Title = "Books Report";
+	var categories = string.Join(",", Model.SelectedCategories!);
+	var authors = string.Join(",", Model.SelectedAuthors!);
 }
 
 <div class="card mb-4">
@@ -9,7 +11,7 @@
 	</div>
 	<div class="card-body">
 		<form method="get" asp-controller="Reports" id="ReportsForm" class="execlude-from-validation">
-			<input type="hidden" name="pageNumber" id="pageNumber" value="1"/>
+			<input type="hidden" name="pageNumber" id="pageNumber" value="1" />
 			<div class="form-floating mb-7">
 				<select asp-for="SelectedAuthors" asp-items="@Model.Authors" class="form-select js-select2" data-control="select2" data-placeholder="Select Authors">
 					<option hidden value="">-- select authors --</option>
@@ -29,12 +31,12 @@
 
 
 <div class="card card-p-0 card-flush">
-	<div class="card-body">
-		@if (Model.Data is not null)
+	@if (Model.Data is not null)
+	{
+		@if (Model.Data.Any())
 		{
-			@if (Model.Data.Any())
-			{
-				<div class="m-3 d-flex justify-content-end">
+			<div class="card-header">
+				<div class="m-3 d-flex align-items-center">
 					<ul class="pagination pagination-circle pagination-outline">
 						<li class="page-item first @(Model.Data.HasPreviousPage ? string.Empty : "disabled") m-1">
 							<a href="javascript:;" class="page-link px-0" data-page-number="1">
@@ -52,7 +54,7 @@
 						@for (int i = 1; i <= Model.Data.TotalPages; i++)
 						{
 							<li class="page-item m-1 @(Model.Data.PageNumber == i ? "active":string.Empty)">
-								<a href="javascript:;" class="page-link" data-page-number="@i" >@i</a>
+								<a href="javascript:;" class="page-link" data-page-number="@i">@i</a>
 							</li>
 						}
 
@@ -70,7 +72,12 @@
 						</li>
 					</ul>
 				</div>
-
+				<div class="card-toolbar gap-3 m-3">
+					<a class="btn btn-light-danger">Export to PDF </a>
+					<a class="btn btn-light-success" asp-action="ExportBooksToExcel" asp-route-categories="@categories" asp-route-authors="@authors">Export to Excel</a>
+				</div>
+			</div>
+			<div class="card-body">
 				<div class="table-responsive">
 					<table class="table align-middle rounded table-row-dashed fs-6 g-5">
 						<thead>
@@ -102,16 +109,17 @@
 						</tbody>
 					</table>
 				</div>
-			}
-			else
-			{
-				<h5 class="py-3 ms-3">No books are available</h5>
-			}
+			</div>
+
 		}
-		
-		</div>
-	</div>
+		else
+		{
+			<h5 class="py-3 ms-3">No books are available</h5>
+		}
+	}
+
 </div>
-@section Scripts{
+</div>
+@section Scripts {
 	<script src="~/js/reports.js"></script>
 }
