@@ -22,6 +22,9 @@ namespace Bookify.Web.Controllers
 
 		public IActionResult Index()
         {
+            if (User.Identity!.IsAuthenticated)
+                return RedirectToAction(nameof(Index),"Dashboard");
+
 			var latestBooks = _context.Books
                 .Include(b => b.Author)
                 .Where(b => b.IsActive)
