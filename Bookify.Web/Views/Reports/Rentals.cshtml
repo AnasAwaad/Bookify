@@ -1,0 +1,88 @@
+﻿@model RentalsReportViewModel
+@{
+	ViewBag.Title = "Rentals Report";
+	var paginationVM = Model.Data is null ? null :
+			new PaginationViewModel
+			{
+				PageNumber = Model.Data.PageNumber,
+				TotalPages = Model.Data.TotalPages
+			};
+}
+
+<div class="card mb-4">
+	<div class="card-header">
+		<div class="card-title">Rentals Report</div>
+	</div>
+	<div class="card-body">
+		<form method="get" asp-controller="Reports" id="ReportsForm" >
+			<input type="hidden" name="pageNumber" id="pageNumber" value="1" />
+			<div class="row">
+				<div class="col-md-3">
+					<div class="mb-5">
+						<label asp-for="Duration"></label>
+						<input type="text" placeholder="Date duration" class="form-control form-control-solid js-date-range" asp-for="Duration" autocomplete="off" />
+						<span asp-validation-for="Duration" class="text-danger"></span>
+					</div>
+				</div>
+			</div>
+			<button type="submit" class="btn btn-primary">Show Report</button>
+		</form>
+	</div>
+</div>
+
+
+<div class="card card-p-0 card-flush">
+	@if (Model?.Data is not null)
+	{
+		<div class="card-header">
+			<div class="m-3 d-flex align-items-center">
+				 <partial name="_Pagination" model="@paginationVM" /> 
+			</div>
+			<div class="card-toolbar gap-3 m-3">
+				<a class="btn btn-light-danger" asp-action="ExportRentalsToPDF" asp-route-duration="@Model.Duration">Export to PDF </a>
+				<a class="btn btn-light-success" asp-action="ExportRentalsToExcel" asp-route-duration="@Model.Duration" >Export to Excel</a>
+			</div>
+		</div>
+		<div class="card-body">
+			<div class="table-responsive">
+				<table class="table align-middle rounded table-row-dashed fs-6 g-5">
+					<thead>
+						<tr class="fw-semibold fs-6 text-white bg-black border-0">
+							<th>Subscriber ID</th>
+							<th>Subscriber Name</th>
+							<th>Subscriber Phone</th>
+							<th>Book Title</th>
+							<th>Book Author</th>
+							<th>Rental Date</th>
+							<th>End Date</th>
+							<th>Return Date</th>
+							<th>Extended On</th>
+						</tr>
+					</thead>
+					<tbody class="fw-semibold text-gray-600">
+						@foreach (var rental in Model.Data)
+							{
+								<tr>
+									<td>@rental.Rental!.Subscriper!.Id</td>
+									<td>@rental.Rental!.Subscriper!.FirstName</td>
+									<td>@rental.Rental!.Subscriper!.MobileNumber</td>
+									<td>@rental.BookCopy!.Book!.Title</td>
+									<td>@rental.BookCopy!.Book!.Author!.Name</td>
+									<td>@rental.RentalDate.ToString("d MMM, yyyy")</td>
+									<td>@rental.EndDate.ToString("d MMM, yyyy")</td>
+									<td>@rental.ReturnDate?.ToString("d MMM, yyyy")</td>
+									<td>@rental.ExtendedOn?.ToString("d MMM, yyyy")</td>
+								</tr>
+							}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+	}
+
+</div>
+@section Scripts {
+	<partial name="_ValidationScriptsPartial"/>
+	<script src="~/js/reports.js"></script>
+}

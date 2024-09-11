@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Linq.Dynamic.Core;
 
 namespace Bookify.Web.Controllers;
+[Authorize]
 public class DashboardController : Controller
 {
 	private readonly ApplicationDbContext _context;

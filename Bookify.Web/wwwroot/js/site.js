@@ -84,14 +84,14 @@ function ApplySelect2() {
     $('.js-select2').select2();
     $('.js-select2').on('select2:select', function (e) {
         var selectItem = $(this);
-        $('form').not('#signOutForm').validate().element("#" + selectItem.attr('id'));// ex: #AuthorId
+        $('form').not('#signOutForm').not('.execlude-from-validation').validate().element("#" + selectItem.attr('id'));// ex: #AuthorId
     });
 }
 
 $(function () {
 
     // Handle disable submit button 
-    $('form').not('#signOutForm').on('submit', function () {
+    $('form').not('#signOutForm').not('.execlude-from-validation').on('submit', function () {
         if ($(this).valid()) DisableSubmitButton();
     })
 

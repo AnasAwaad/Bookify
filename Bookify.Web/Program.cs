@@ -6,6 +6,7 @@ using Bookify.Web.Settings;
 using Bookify.Web.Tasks;
 using Hangfire;
 using Hangfire.Dashboard;
+using HashidsNet;
 using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -14,6 +15,7 @@ using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Channels;
 using UoN.ExpressiveAnnotations.NetCore.DependencyInjection;
+using ViewToHTML.Extensions;
 using WhatsAppCloudApi.Extensions;
 using WhatsAppCloudApi.Services;
 
@@ -58,7 +60,9 @@ namespace Bookify.Web
 
 			builder.Services.AddAutoMapper(typeof(DomainProfile));
 			builder.Services.AddExpressiveAnnotations();
-			
+
+			builder.Services.AddSingleton<IHashids>(_ => new Hashids(minHashLength:11));
+
 			builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
 
 			//SecurityStampValidatorOptions: This class contains options for the security stamp validator.
@@ -85,6 +89,9 @@ namespace Bookify.Web
 					policy.RequireAuthenticatedUser();
 					policy.RequireRole(AppRoles.Admin);
 				}));
+
+			// register ViewToHTML service
+			builder.Services.AddViewToHTML();
 
 			var app = builder.Build();
 

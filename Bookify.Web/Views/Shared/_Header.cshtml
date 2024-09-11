@@ -29,11 +29,23 @@
 			</div>
 			<!--end::Aside  toggle-->
 			<!--begin::Logo-->
-			<a href="/">
-				<img alt="Logo"
-					 src="~/assets/images/logo.png"
-					 class="h-40px h-lg-50px" />
-			</a>
+			@if (SignInManager.IsSignedIn(User))
+			{
+				<a href="/Dashboard">
+					<img alt="Logo"
+						 src="~/assets/images/logo.png"
+						 class="h-40px h-lg-50px" />
+				</a>
+			}
+			else
+			{
+				<a href="/">
+					<img alt="Logo"
+						 src="~/assets/images/logo.png"
+						 class="h-40px h-lg-50px" />
+				</a>
+			}
+			
 			<!--end::Logo-->
 			
 		</div>

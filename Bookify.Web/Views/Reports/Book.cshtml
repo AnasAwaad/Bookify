@@ -1,0 +1,100 @@
+﻿@model BooksReportViewModel
+@{
+	ViewBag.Title = "Books Report";
+	var categories = string.Join(",", Model.SelectedCategories!);
+	var authors = string.Join(",", Model.SelectedAuthors!);
+
+	
+	var paginationVM =Model.Data is null ?null:
+			new PaginationViewModel
+			{
+				PageNumber = Model.Data.PageNumber,
+				TotalPages = Model.Data.TotalPages
+			};
+}
+
+<div class="card mb-4">
+	<div class="card-header">
+		<div class="card-title">Books Report</div>
+	</div>
+	<div class="card-body">
+		<form method="get" asp-controller="Reports" id="ReportsForm" class="execlude-from-validation">
+			<input type="hidden" name="pageNumber" id="pageNumber" value="1" />
+			<div class="form-floating mb-7">
+				<select asp-for="SelectedAuthors" asp-items="@Model.Authors" class="form-select js-select2" data-control="select2" data-placeholder="Select Authors">
+					<option hidden value="">-- select authors --</option>
+				</select>
+				<label asp-for="SelectedAuthors"></label>
+			</div>
+			<div class="form-floating mb-7">
+				<select asp-for="SelectedCategories" asp-items="@Model.Categories" class="form-select js-select2" data-control="select2" data-placeholder="Select Categories">
+					<option hidden value="">-- select category --</option>
+				</select>
+				<label asp-for="SelectedCategories"></label>
+			</div>
+			<button type="submit" class="btn btn-primary">Show Report</button>
+		</form>
+	</div>
+</div>
+
+
+<div class="card card-p-0 card-flush">
+	@if (Model.Data is not null)
+	{
+		@if (Model.Data.Any())
+		{
+			<div class="card-header">
+				<div class="m-3 d-flex align-items-center">
+					<partial name="_Pagination" model="@paginationVM"/>
+				</div>
+				<div class="card-toolbar gap-3 m-3" >
+					<a class="btn btn-light-danger" asp-action="ExportBooksToPDF" asp-route-categories="@categories" asp-route-authors="@authors">Export to PDF </a>
+					<a class="btn btn-light-success" asp-action="ExportBooksToExcel" asp-route-categories="@categories" asp-route-authors="@authors">Export to Excel</a>
+				</div>
+			</div>
+			<div class="card-body">
+				<div class="table-responsive">
+					<table class="table align-middle rounded table-row-dashed fs-6 g-5">
+						<thead>
+							<tr class="fw-semibold fs-6 text-white bg-black border-0">
+								<th>Title</th>
+								<th>Author</th>
+								<th>Categories</th>
+								<th>Publisher</th>
+								<th>Publishing Date</th>
+								<th>Hall</th>
+								<th>Available for rental?</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody class="fw-semibold text-gray-600">
+							@foreach (var book in Model.Data)
+							{
+								<tr>
+									<td>@book.Title</td>
+									<td>@book.Author!.Name</td>
+									<td>@string.Join(", ", book.Categories!.Select(c => c.Category!.Name))</td>
+									<td>@book.Publisher</td>
+									<td>@book.PublishingDate.ToString("d MMM, yyyy")</td>
+									<td>@book.Hall</td>
+									<td>@(book.IsAvailableForRental ? "Yes" : "No")</td>
+									<td>@(book.IsActive ? "Available" : "Not available")</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		}
+		else
+		{
+			<h5 class="py-3 ms-3">No books are available</h5>
+		}
+	}
+
+</div>
+</div>
+@section Scripts {
+	<script src="~/js/reports.js"></script>
+}
