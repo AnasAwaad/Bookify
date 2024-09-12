@@ -30,7 +30,6 @@ namespace Bookify.Web.Controllers
 
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Create(UpsertCategoryViewModel model)
         {
             if (!ModelState.IsValid)
@@ -70,7 +69,6 @@ namespace Bookify.Web.Controllers
 
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Update(UpsertCategoryViewModel model)
         {
             if (!ModelState.IsValid)
@@ -92,7 +90,6 @@ namespace Bookify.Web.Controllers
         }
 
 
-        [HttpPost]
         public IActionResult IsCategoryAllowed(UpsertCategoryViewModel model)
         {
             var category = _context.Categories.SingleOrDefault(c => c.Name == model.Name);
@@ -114,7 +111,6 @@ namespace Bookify.Web.Controllers
         #region Ajax Request Handles
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult ToggleStatus(int id)
         {
             var category = _context.Categories.Find(id);

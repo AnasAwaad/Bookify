@@ -94,6 +94,8 @@ namespace Bookify.Web
 			// register ViewToHTML service
 			builder.Services.AddViewToHTML();
 
+			builder.Services.AddMvc(options=>options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
+
 			// Add serilog
 			Log.Logger=new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
 			builder.Host.UseSerilog();
@@ -115,7 +117,20 @@ namespace Bookify.Web
 
             app.UseHttpsRedirection();
 			app.UseStaticFiles();
-			app.UseRouting();
+
+			app.UseCookiePolicy(new CookiePolicyOptions
+			{
+				Secure = CookieSecurePolicy.Always,
+			});
+
+            app.Use(async (context, next) =>
+            {
+                context.Response.Headers.Add("X-Frame-Options", "Deny");
+
+                await next();
+            });
+
+            app.UseRouting();
 			app.UseAuthorization();
 
 			

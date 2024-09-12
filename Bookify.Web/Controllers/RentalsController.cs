@@ -40,7 +40,6 @@ public class RentalsController : Controller
 	}
 
 	[HttpPost]
-	[ValidateAntiForgeryToken]
     public IActionResult Create(RentalFormViewModel viewModel)
     {
 		var subscriperId = int.Parse(_dataProtector.Unprotect(viewModel.SubscriperKey));
@@ -100,7 +99,6 @@ public class RentalsController : Controller
     }
 
 	[HttpPost]
-	[ValidateAntiForgeryToken]
 	public IActionResult RemoveRental(int id)
 	{
 		var rental = _context.Rentals.Include(r => r.RentalCopies).SingleOrDefault(r => r.Id == id);
@@ -117,7 +115,6 @@ public class RentalsController : Controller
 	}
 
 	[HttpPost]
-	[ValidateAntiForgeryToken]
 	public IActionResult GetBookCopy(SearchFormViewModel viewModel)
 	{
 		if (!ModelState.IsValid)

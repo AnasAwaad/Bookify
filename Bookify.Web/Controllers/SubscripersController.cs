@@ -41,6 +41,7 @@ public class SubscripersController : Controller
 	{
 		return View();
 	}
+
 	[HttpGet]
 	public IActionResult Create()
 	{
@@ -48,7 +49,6 @@ public class SubscripersController : Controller
 	}
 
 	[HttpPost]
-	[ValidateAntiForgeryToken]
 	public IActionResult Create(SubscriperFormViewModel viewModel)
 	{
 		if (!ModelState.IsValid)
@@ -156,7 +156,6 @@ public class SubscripersController : Controller
 	}
 
 	[HttpPost]
-	[ValidateAntiForgeryToken]
 	public IActionResult Update(SubscriperFormViewModel viewModel)
 	{
 		if (!ModelState.IsValid)
@@ -202,7 +201,6 @@ public class SubscripersController : Controller
 
 
 	[HttpPost]
-	[ValidateAntiForgeryToken]
 	public IActionResult SearchForSubscriper(SearchFormViewModel model)
 	{
 		if (!ModelState.IsValid) return BadRequest();
@@ -217,7 +215,6 @@ public class SubscripersController : Controller
 	}
 
 
-	[HttpPost]
 	public IActionResult IsAllowedEmail(SubscriperFormViewModel model)
 	{
 		var subscriperId = 0;
@@ -231,7 +228,6 @@ public class SubscripersController : Controller
 		return Json(isAllowed);
 	}
 
-	[HttpPost]
 	public IActionResult IsAllowedMobileNumber(SubscriperFormViewModel model)
 	{
 		var subscriperId = 0;
@@ -245,7 +241,6 @@ public class SubscripersController : Controller
 		return Json(isAllowed);
 	}
 
-	[HttpPost]
 	public IActionResult IsAllowedNationalId(SubscriperFormViewModel model)
 	{
 
@@ -268,7 +263,6 @@ public class SubscripersController : Controller
 	}
 
 	[HttpPost]
-	[ValidateAntiForgeryToken]
 	public IActionResult renewSubscription(string subscriperKey)
 	{
 		var subscriberId=int.Parse(_dataProtector.Unprotect(subscriperKey));

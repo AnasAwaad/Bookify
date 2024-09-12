@@ -174,7 +174,6 @@ public class BooksController : Controller
         return bookVM;
     }
 
-    [HttpPost]
     public IActionResult IsBookAllowed(BookFormViewModel model)
     {
 
@@ -188,6 +187,7 @@ public class BooksController : Controller
     #region Ajax Request Handles
 
     [HttpPost]
+    [IgnoreAntiforgeryToken]
     public IActionResult GetBooks()
     {
         var skip = Convert.ToInt32(Request.Form["start"]);
@@ -214,7 +214,7 @@ public class BooksController : Controller
     }
 
 
-    [ValidateAntiForgeryToken]
+    [HttpPost]
     public IActionResult ToggleStatus(int id)
     {
         var book = _context.Books.Find(id);

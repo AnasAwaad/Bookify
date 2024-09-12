@@ -28,7 +28,6 @@ public class AuthorsController : Controller
 
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public IActionResult Create(UpsertAuthorViewModel model)
     {
         if (!ModelState.IsValid)
@@ -67,7 +66,6 @@ public class AuthorsController : Controller
 
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public IActionResult Update(UpsertAuthorViewModel model)
     {
         if (!ModelState.IsValid)
@@ -88,7 +86,7 @@ public class AuthorsController : Controller
         return PartialView("_AuthorRow", _mapper.Map<AuthorViewModel>(author));
     }
 
-    [HttpPost]
+    
     public IActionResult IsAuthorAllowed(UpsertAuthorViewModel model)
     {
         var author = _context.Authors.SingleOrDefault(c => c.Name == model.Name);
@@ -105,7 +103,6 @@ public class AuthorsController : Controller
     #region Ajax Request Handles
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public IActionResult ToggleStatus(int id)
     {
         var author = _context.Authors.Find(id);
