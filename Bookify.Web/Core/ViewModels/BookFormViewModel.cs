@@ -14,7 +14,7 @@ public class BookFormViewModel
     public string Title { get; set; } = null!;
 
     [Display(Name = "Author")]
-    [Remote("IsBookAllowed", "Books", AdditionalFields = "Id,Title",  ErrorMessage = Errors.BookTitleDublicated)]
+    [Remote("IsBookAllowed", "Books", AdditionalFields = "Id,Title", ErrorMessage = Errors.BookTitleDublicated)]
     public int AuthorId { get; set; }
 
     [MaxLength(50, ErrorMessage = Errors.MaxLength)]

@@ -4,12 +4,12 @@
 public class PaginatedList<T> : List<T>
 {
 
-	public int PageNumber { get; private set; }
-	public int TotalPages { get; private set; }
-	public bool HasPreviousPage => PageNumber > 1; //get only
-	public bool HasNextPage => PageNumber < TotalPages; // get only
+    public int PageNumber { get; private set; }
+    public int TotalPages { get; private set; }
+    public bool HasPreviousPage => PageNumber > 1; //get only
+    public bool HasNextPage => PageNumber < TotalPages; // get only
 
-	public PaginatedList(List<T> items, int count, int pageNumber, int pageSize)
+    public PaginatedList(List<T> items, int count, int pageNumber, int pageSize)
     {
         PageNumber = pageNumber;
         TotalPages = (int)Math.Ceiling(count / (double)pageSize);

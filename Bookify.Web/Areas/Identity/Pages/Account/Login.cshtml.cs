@@ -127,9 +127,9 @@ namespace Bookify.Web.Areas.Identity.Pages.Account
                 }
                 if (result.IsNotAllowed)
                 {
-					return RedirectToPage("./ResendEmailConfirmation", new {email=user.Email});
-				}
-				else
+                    return RedirectToPage("./ResendEmailConfirmation", new { email = user.Email });
+                }
+                else
                 {
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();

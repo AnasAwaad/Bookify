@@ -1,8 +1,8 @@
 ﻿namespace Bookify.Web.Core.Models;
 
-[Index(nameof(NationalId),IsUnique =true)]
-[Index(nameof(MobileNumber),IsUnique =true)]
-[Index(nameof(Email),IsUnique =true)]
+[Index(nameof(NationalId), IsUnique = true)]
+[Index(nameof(MobileNumber), IsUnique = true)]
+[Index(nameof(Email), IsUnique = true)]
 public class Subscriper : BaseModel
 {
     public int Id { get; set; }
@@ -17,7 +17,7 @@ public class Subscriper : BaseModel
     public string NationalId { get; set; } = null!;
 
     [StringLength(15)]
-    public string MobileNumber { get; set; }=null!;
+    public string MobileNumber { get; set; } = null!;
     public bool HasWhatsApp { get; set; }
 
     [StringLength(150)]
@@ -34,7 +34,7 @@ public class Subscriper : BaseModel
 
     [MaxLength(500)]
     public string? Address { get; set; }
-    public bool IsBlackListed{ get; set; }
+    public bool IsBlackListed { get; set; }
 
     public ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
     public ICollection<Rental> Rentals { get; set; } = new List<Rental>();

@@ -2,6 +2,6 @@
 
 public enum ReportsConfiguration
 {
-	pageSize=10,
-	MaxPaginationNumber=10
+    pageSize = 10,
+    MaxPaginationNumber = 10
 }

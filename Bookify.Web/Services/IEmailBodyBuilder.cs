@@ -2,5 +2,5 @@
 
 public interface IEmailBodyBuilder
 {
-	public string GetEmailBody(string templateName, Dictionary<string, string> placeholders);
+    public string GetEmailBody(string templateName, Dictionary<string, string> placeholders);
 }

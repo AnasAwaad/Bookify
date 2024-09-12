@@ -1,8 +1,8 @@
 ﻿namespace Bookify.Web.Core.Models;
 
 
-[Index(nameof(Name),nameof(CityId),IsUnique =true)]
-public class Area :BaseModel
+[Index(nameof(Name), nameof(CityId), IsUnique = true)]
+public class Area : BaseModel
 {
     public int Id { get; set; }
     [StringLength(100)]

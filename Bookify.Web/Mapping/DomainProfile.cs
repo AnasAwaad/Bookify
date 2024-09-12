@@ -43,7 +43,7 @@ public class DomainProfile : Profile
         // Subscripers
         CreateMap<SubscriperFormViewModel, Subscriper>().ReverseMap();
         CreateMap<Subscriper, SubscriperSearchResultViewModel>()
-            .ForMember(dest=>dest.FullName,opt=>opt.MapFrom(src=>$"{src.FirstName} {src.LastName}"));
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
         CreateMap<Subscriper, SubscriberViewModel>()
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
             .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.Area!.Name))
@@ -54,14 +54,14 @@ public class DomainProfile : Profile
         CreateMap<City, SelectListItem>()
             .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
-        
+
         CreateMap<Area, SelectListItem>()
             .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
 
         // Rentals
-        CreateMap<Rental,RentalViewModel>();
-        CreateMap<RentalCopy,RentalCopyViewModel>();
+        CreateMap<Rental, RentalViewModel>();
+        CreateMap<RentalCopy, RentalCopyViewModel>();
 
     }
 }

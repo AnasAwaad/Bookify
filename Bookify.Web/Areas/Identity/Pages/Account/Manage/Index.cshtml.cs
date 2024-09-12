@@ -4,7 +4,6 @@
 
 using Bookify.Web.Services;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Diagnostics.CodeAnalysis;
 using UserManagement.Consts;
 
 namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
@@ -109,17 +108,18 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            if(Input.Avatar is not null)
+            if (Input.Avatar is not null)
             {
                 _imageService.DeleteImage($"/images/users/{user.Id}.png");
-                (bool isUploaded,string errorMessage)=_imageService.UploadImage(Input.Avatar, $"{user.Id}.png", "images\\users", false);
+                (bool isUploaded, string errorMessage) = _imageService.UploadImage(Input.Avatar, $"{user.Id}.png", "images\\users", false);
                 if (!isUploaded)
                 {
                     ModelState.AddModelError("Input.Avatar", errorMessage);
                     await LoadAsync(user);
                     return Page();
                 }
-            }else if (Input.IsDeletedAvatar)
+            }
+            else if (Input.IsDeletedAvatar)
             {
                 _imageService.DeleteImage($"/images/users/{user.Id}.png");
 

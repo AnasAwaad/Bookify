@@ -36,7 +36,7 @@ public class AuthorsController : Controller
         }
 
         var author = _mapper.Map<Author>(model);
-        author.CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        author.CreatedById = User.GetUserId();
         author.CreatedOn = DateTime.Now;
 
         _context.Authors.Add(author);
@@ -80,13 +80,13 @@ public class AuthorsController : Controller
         author = _mapper.Map(model, author);
 
         author.LastUpdatedOn = DateTime.Now;
-        author.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        author.LastUpdatedById = User.GetUserId();
 
         _context.SaveChanges();
         return PartialView("_AuthorRow", _mapper.Map<AuthorViewModel>(author));
     }
 
-    
+
     public IActionResult IsAuthorAllowed(UpsertAuthorViewModel model)
     {
         var author = _context.Authors.SingleOrDefault(c => c.Name == model.Name);
@@ -113,7 +113,7 @@ public class AuthorsController : Controller
 
         author.LastUpdatedOn = DateTime.Now;
         author.IsActive = !author.IsActive;
-        author.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        author.LastUpdatedById = User.GetUserId();
 
         _context.SaveChanges();
         return Json(new { lastUpdatedOn = author.LastUpdatedOn.ToString() });

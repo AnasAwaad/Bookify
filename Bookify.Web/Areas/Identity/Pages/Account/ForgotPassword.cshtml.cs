@@ -78,11 +78,11 @@ namespace Bookify.Web.Areas.Identity.Pages.Account
                     {"linkTitle","clicking here" },
                 };
 
-                var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Email,placeholders);
+                var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Email, placeholders);
 
                 await _emailSender.SendEmailAsync(
                     Input.Email,
-                    "Reset Password",body);
+                    "Reset Password", body);
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }

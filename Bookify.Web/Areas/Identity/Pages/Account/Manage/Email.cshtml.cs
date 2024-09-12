@@ -128,25 +128,25 @@ namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
 
 
 
-			    var placeholders = new Dictionary<string, string>()
-			    {
-				    {"imageUrl","https://res.cloudinary.com/dygrlijla/image/upload/v1723914644/93ae73da-0ad6-4e76-ad40-3ab67cf4c6f1.png" },
-				    {"imageLogo","https://res.cloudinary.com/dygrlijla/image/upload/v1723914720/logo_nh8slr.png" },
-				    {"header", $"Hey {user.FullName}" },
-				    {"body","Please confirm your email" },
-				    {"url",$"{HtmlEncoder.Default.Encode(callbackUrl!)}" },
-				    {"linkTitle", "clicking here" },
-			    };
-                
-                
-				var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Email, placeholders);
+                var placeholders = new Dictionary<string, string>()
+                {
+                    {"imageUrl","https://res.cloudinary.com/dygrlijla/image/upload/v1723914644/93ae73da-0ad6-4e76-ad40-3ab67cf4c6f1.png" },
+                    {"imageLogo","https://res.cloudinary.com/dygrlijla/image/upload/v1723914720/logo_nh8slr.png" },
+                    {"header", $"Hey {user.FullName}" },
+                    {"body","Please confirm your email" },
+                    {"url",$"{HtmlEncoder.Default.Encode(callbackUrl!)}" },
+                    {"linkTitle", "clicking here" },
+                };
 
 
-				await _emailSender.SendEmailAsync(
+                var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Email, placeholders);
+
+
+                await _emailSender.SendEmailAsync(
                     Input.NewEmail,
                     "Confirm your email",
                     body);
-                
+
                 StatusMessage = "Confirmation link to change email sent. Please check your email.";
                 return RedirectToPage();
             }

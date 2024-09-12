@@ -85,7 +85,7 @@ public class BooksController : Controller
 
 
         book.CreatedOn = DateTime.Now;
-        book.CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        book.CreatedById = User.GetUserId(); ;
 
         _context.Books.Add(book);
         _context.SaveChanges();
@@ -149,7 +149,7 @@ public class BooksController : Controller
         book = _mapper.Map(model, book);
 
         book.LastUpdatedOn = DateTime.Now;
-        book.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        book.LastUpdatedById = User.GetUserId(); ;
         book.Categories = new List<BookCategory>();
 
         foreach (var category in model.SelectedCategories)
@@ -223,7 +223,7 @@ public class BooksController : Controller
             return NotFound();
         }
         book.LastUpdatedOn = DateTime.Now;
-        book.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        book.LastUpdatedById = User.GetUserId(); ;
         book.IsActive = !book.IsActive;
         _context.SaveChanges();
         return Ok();

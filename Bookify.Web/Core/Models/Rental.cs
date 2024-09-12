@@ -1,6 +1,6 @@
 ﻿namespace Bookify.Web.Core.Models;
 
-public class Rental:BaseModel
+public class Rental : BaseModel
 {
     public int Id { get; set; }
     public int SubscriperId { get; set; }

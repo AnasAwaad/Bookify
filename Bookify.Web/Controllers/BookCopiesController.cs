@@ -23,7 +23,7 @@ public class BookCopiesController : Controller
         }
         model.IsActive = !model.IsActive;
         model.LastUpdatedOn = DateTime.Now;
-        model.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        model.LastUpdatedById = User.GetUserId();
         _context.SaveChanges();
         return Ok();
     }
@@ -51,7 +51,7 @@ public class BookCopiesController : Controller
         {
             IsAvailableForRental = model.IsAvailableForRental,
             EditionNumber = model.EditionNumber,
-            CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value,
+            CreatedById = User.GetUserId(),
             CreatedOn = DateTime.Now
         };
 
@@ -96,7 +96,7 @@ public class BookCopiesController : Controller
         bookCopy.EditionNumber = model.EditionNumber;
         bookCopy.LastUpdatedOn = DateTime.Now;
         bookCopy.IsAvailableForRental = model.IsAvailableForRental;
-        bookCopy.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+        bookCopy.LastUpdatedById = User.GetUserId();
 
         _context.SaveChanges();
 
