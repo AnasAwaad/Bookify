@@ -29,11 +29,6 @@ public class UsersController : Controller
 
     public async Task<IActionResult> Index()
     {
-
-
-
-
-
         var users = await _userManager.Users.ToListAsync();
         List<UserViewModel> viewModel = new List<UserViewModel>();
         foreach (var user in users)
@@ -59,7 +54,6 @@ public class UsersController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(UserFormViewModel model)
     {
         if (!ModelState.IsValid) return BadRequest();
@@ -131,7 +125,6 @@ public class UsersController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Update(UserFormViewModel model)
     {
         if (!ModelState.IsValid) return BadRequest();
@@ -179,7 +172,6 @@ public class UsersController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> ResetPassword(UserResetPasswordViewModel model)
     {
         if (!ModelState.IsValid) return BadRequest();
@@ -211,7 +203,7 @@ public class UsersController : Controller
 
         return BadRequest(string.Join(",", res.Errors.Select(e => e.Description)));
     }
-    [HttpPost]
+
     public async Task<IActionResult> AllowUserName(UserFormViewModel model)
     {
         var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == model.UserName);
@@ -220,7 +212,6 @@ public class UsersController : Controller
         return Json(isAllowed);
     }
 
-    [HttpPost]
     public async Task<IActionResult> AllowEmail(UserFormViewModel model)
     {
         var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
@@ -230,7 +221,6 @@ public class UsersController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UnlockUser(string id)
     {
         var user = await _userManager.FindByIdAsync(id);
@@ -256,7 +246,6 @@ public class UsersController : Controller
     #region Ajax Request Handles
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> ToggleStatus(string id)
     {
         var user = await _userManager.FindByIdAsync(id);

@@ -25,27 +25,6 @@ namespace Bookify.Web
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseMigrationsEndPoint();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
-            app.UseStatusCodePagesWithReExecute("/Home/Error", "?statusCode={0}");
-
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-
-            app.UseCookiePolicy(new CookiePolicyOptions
-            {
-                Secure = CookieSecurePolicy.Always,
-            });
-
             app.Use(async (context, next) =>
             {
                 context.Response.Headers.Add("X-Frame-Options", "Deny");
@@ -53,6 +32,28 @@ namespace Bookify.Web
                 await next();
             });
 
+
+            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseMigrationsEndPoint();
+            }
+            else
+            {
+                app.UseStatusCodePagesWithReExecute("/Home/Error", "?statusCode={0}");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
+
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+            //app.UseCookiePolicy(new CookiePolicyOptions
+            //{
+            //    Secure = CookieSecurePolicy.Always,
+            //});
+
+            
             app.UseRouting();
             app.UseAuthorization();
 
