@@ -1,5 +1,7 @@
 ﻿using Bookify.Application.Common.Interfaces;
+using Bookify.Infrastructure.Persistence.Configurations;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System.Reflection;
 
 namespace Bookify.Infrastructure.Persistence
 {
@@ -24,23 +26,11 @@ namespace Bookify.Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(builder);
-            builder.Entity<BookCategory>()
-                   .HasKey(b => new { b.CategoryId, b.BookId });
-            builder.Entity<RentalCopy>()
-                   .HasKey(b => new { b.RentalId, b.BookCopyId });
-
             // add sequence to shared schema in db
             builder.HasSequence<int>("SerialNumber", "Shared")
                    .StartsAt(1000001);
 
-            // apply sequence to BookCopy Model
-            builder.Entity<BookCopy>()
-                .Property(e => e.SerialNumber)
-                .HasDefaultValueSql("NEXT VALUE FOR shared.SerialNumber");
-
-            builder.Entity<Rental>().HasQueryFilter(r => r.IsActive);
-            builder.Entity<RentalCopy>().HasQueryFilter(r => r.Rental!.IsActive);
+            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
             // change behavior of foreign key to restrict behavior
             var cascadeFKs = builder.Model.GetEntityTypes()
@@ -52,8 +42,7 @@ namespace Bookify.Infrastructure.Persistence
                 item.DeleteBehavior = DeleteBehavior.Restrict;
             }
 
-
-
+            base.OnModelCreating(builder);
         }
     }
 }
