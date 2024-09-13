@@ -4,10 +4,10 @@ namespace Bookify.Web.Controllers;
 [Authorize(Roles = AppRoles.Archive)]
 public class BookCopiesController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    public BookCopiesController(ApplicationDbContext context, IMapper mapper)
+    public BookCopiesController(IApplicationDbContext context, IMapper mapper)
     {
         _context = context;
         _mapper = mapper;

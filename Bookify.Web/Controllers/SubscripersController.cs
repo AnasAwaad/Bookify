@@ -10,7 +10,7 @@ namespace Bookify.Web.Controllers;
 [Authorize(Roles = AppRoles.Reception)]
 public class SubscripersController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IImageService _imageService;
     private readonly IDataProtector _dataProtector;
@@ -19,7 +19,7 @@ public class SubscripersController : Controller
     private readonly IEmailBodyBuilder _emailBodyBuilder;
     private readonly IEmailSender _emailSender;
 
-    public SubscripersController(ApplicationDbContext context, IMapper mapper, IImageService imageService, IDataProtectionProvider dataProtector, IWhatsAppClient whatsAppClient, IWebHostEnvironment webHostEnvironment, IEmailBodyBuilder emailBodyBuilder, IEmailSender emailSender)
+    public SubscripersController(IApplicationDbContext context, IMapper mapper, IImageService imageService, IDataProtectionProvider dataProtector, IWhatsAppClient whatsAppClient, IWebHostEnvironment webHostEnvironment, IEmailBodyBuilder emailBodyBuilder, IEmailSender emailSender)
     {
         _context = context;
         _mapper = mapper;

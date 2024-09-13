@@ -4,10 +4,10 @@ namespace Bookify.Web.Controllers;
 public class SearchController : Controller
 {
     private readonly IHashids _hashids;
-    private readonly ApplicationDbContext _context;
+    private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    public SearchController(IHashids hashids, IMapper mapper, ApplicationDbContext context)
+    public SearchController(IHashids hashids, IMapper mapper, IApplicationDbContext context)
     {
         _hashids = hashids;
         _mapper = mapper;

@@ -7,13 +7,13 @@ namespace Bookify.Web.Tasks;
 
 public class HangfireTasks
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IApplicationDbContext _context;
     private readonly IWhatsAppClient _whatsAppClient;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IEmailBodyBuilder _emailBodyBuilder;
     private readonly IEmailSender _emailSender;
 
-    public HangfireTasks(ApplicationDbContext context, IWhatsAppClient whatsAppClient, IWebHostEnvironment webHostEnvironment, IEmailBodyBuilder emailBodyBuilder, IEmailSender emailSender)
+    public HangfireTasks(IApplicationDbContext context, IWhatsAppClient whatsAppClient, IWebHostEnvironment webHostEnvironment, IEmailBodyBuilder emailBodyBuilder, IEmailSender emailSender)
     {
         _context = context;
         _whatsAppClient = whatsAppClient;

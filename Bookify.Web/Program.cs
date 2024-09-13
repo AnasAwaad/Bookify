@@ -1,4 +1,4 @@
-using Bookify.Web.Extensions;
+using Bookify.Infrastructure;
 using Bookify.Web.Seeds;
 using Bookify.Web.Services;
 using Bookify.Web.Tasks;
@@ -17,7 +17,8 @@ namespace Bookify.Web
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddBookifyServices(builder);
+            builder.Services.AddInfrastructureServices(builder.Configuration);
+            builder.Services.AddWebServices(builder);
 
             // Add serilog
             Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
@@ -79,7 +80,7 @@ namespace Bookify.Web
                 }
             });
 
-            var applicationDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var applicationDbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
             var whatsAppClient = scope.ServiceProvider.GetRequiredService<IWhatsAppClient>();
             var webHostEnvironment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
             var emailBodyBuilder = scope.ServiceProvider.GetRequiredService<IEmailBodyBuilder>();

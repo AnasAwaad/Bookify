@@ -4,7 +4,6 @@
 
 using Bookify.Web.Services;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using UserManagement.Consts;
 
 namespace Bookify.Web.Areas.Identity.Pages.Account.Manage
 {

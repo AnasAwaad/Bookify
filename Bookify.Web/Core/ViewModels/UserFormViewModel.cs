@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using UoN.ExpressiveAnnotations.NetCore.Attributes;
-using UserManagement.Consts;
 
 namespace Bookify.Web.Core.ViewModels;
 
