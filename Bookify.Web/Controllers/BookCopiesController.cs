@@ -4,19 +4,19 @@ namespace Bookify.Web.Controllers;
 [Authorize(Roles = AppRoles.Archive)]
 public class BookCopiesController : Controller
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
-    public BookCopiesController(IApplicationDbContext context, IMapper mapper)
+    public BookCopiesController(IMapper mapper, IUnitOfWork unitOfWork)
     {
-        _context = context;
         _mapper = mapper;
+        _unitOfWork = unitOfWork;
     }
 
     [HttpPost]
     public IActionResult ToggleStatus(int id)
     {
-        var model = _context.BookCopies.Find(id);
+        var model = _unitOfWork.BookCopies.GetById(id);
         if (model == null)
         {
             return BadRequest();
@@ -24,14 +24,16 @@ public class BookCopiesController : Controller
         model.IsActive = !model.IsActive;
         model.LastUpdatedOn = DateTime.Now;
         model.LastUpdatedById = User.GetUserId();
-        _context.SaveChanges();
+
+        _unitOfWork.SaveChanges();
+
         return Ok();
     }
 
     [AjaxOnly]
     public IActionResult Create(int bookId)
     {
-        var book = _context.Books.Find(bookId);
+        var book = _unitOfWork.Books.GetById(bookId);
         if (book is null) return NotFound();
 
         BookCopyFormViewModel viewModel = new()
@@ -45,7 +47,7 @@ public class BookCopiesController : Controller
     [HttpPost]
     public IActionResult Create(BookCopyFormViewModel model)
     {
-        var book = _context.Books.Find(model.BookId);
+        var book = _unitOfWork.Books.GetById(model.BookId);
         if (book is null) return NotFound();
         var bookCopy = new BookCopy()
         {
@@ -56,7 +58,8 @@ public class BookCopiesController : Controller
         };
 
         book.BookCopies.Add(bookCopy);
-        _context.SaveChanges();
+
+        _unitOfWork.SaveChanges();
 
         var bookcopyViewModel = _mapper.Map<BookCopyViewModel>(bookCopy);
         return PartialView("_BookCopyRow", bookcopyViewModel);
@@ -65,7 +68,7 @@ public class BookCopiesController : Controller
     [AjaxOnly]
     public IActionResult Update(int id)
     {
-        var model = _context.BookCopies.Include(b => b.Book).SingleOrDefault(b => b.Id == id);
+        var model = _unitOfWork.BookCopies.Find(b => b.Id == id, b => b.Include(c => c.Book)!);
         if (model == null)
         {
             return BadRequest();
@@ -87,7 +90,7 @@ public class BookCopiesController : Controller
     {
         if (!ModelState.IsValid) return BadRequest();
 
-        var bookCopy = _context.BookCopies.SingleOrDefault(b => b.Id == model.Id);
+        var bookCopy = _unitOfWork.BookCopies.Find(b => b.Id == model.Id);
 
         if (bookCopy == null)
         {
@@ -98,7 +101,7 @@ public class BookCopiesController : Controller
         bookCopy.IsAvailableForRental = model.IsAvailableForRental;
         bookCopy.LastUpdatedById = User.GetUserId();
 
-        _context.SaveChanges();
+        _unitOfWork.SaveChanges();
 
         var viewModel = _mapper.Map<BookCopyViewModel>(bookCopy);
 

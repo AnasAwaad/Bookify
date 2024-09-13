@@ -1,4 +1,5 @@
 ﻿
+using Bookify.Application.Common.Interfaces.Repositories;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Bookify.Web.Controllers
@@ -6,18 +7,18 @@ namespace Bookify.Web.Controllers
     [Authorize(Roles = AppRoles.Archive)]
     public class CategoriesController : Controller
     {
-        private readonly IApplicationDbContext _context;
         private readonly IMapper mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CategoriesController(IApplicationDbContext context, IMapper mapper)
+        public CategoriesController(IMapper mapper,  IUnitOfWork unitOfWork)
         {
-            _context = context;
             this.mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
         {
-            var category = _context.Categories.AsNoTracking().ToList();
+            var category = _unitOfWork.Categories.GetAll();
 
             return View(mapper.Map<IEnumerable<CategoryViewModel>>(category));
         }
@@ -42,8 +43,8 @@ namespace Bookify.Web.Controllers
             category.CreatedOn = DateTime.Now;
             category.CreatedById = User.GetUserId();
 
-            _context.Categories.Add(category);
-            _context.SaveChanges();
+            _unitOfWork.Categories.Add(category);
+            _unitOfWork.SaveChanges();
 
             var cateogryVM = mapper.Map<CategoryViewModel>(category);
             return PartialView("_CategoryRow", cateogryVM);
@@ -56,7 +57,7 @@ namespace Bookify.Web.Controllers
             {
                 return NotFound();
             }
-            var category = _context.Categories.Find(id);
+            var category = _unitOfWork.Categories.GetById(id.Value);
             if (category == null)
             {
                 return NotFound();
@@ -75,7 +76,7 @@ namespace Bookify.Web.Controllers
             {
                 return View("_UpsertForm", model);
             }
-            var category = _context.Categories.Find(model.Id);
+            var category = _unitOfWork.Categories.GetById(model.Id);
 
             if (category == null)
                 return NotFound();
@@ -85,35 +86,26 @@ namespace Bookify.Web.Controllers
             category.LastUpdatedOn = DateTime.Now;
             category.LastUpdatedById = User.GetUserId();
 
-            _context.SaveChanges();
+            _unitOfWork.SaveChanges();
             return PartialView("_CategoryRow", mapper.Map<CategoryViewModel>(category));
         }
 
 
         public IActionResult IsCategoryAllowed(UpsertCategoryViewModel model)
         {
-            var category = _context.Categories.SingleOrDefault(c => c.Name == model.Name);
-            // for new category null 
-            // for update category without change the name => category will be filled 
-            // check for id of the category with the same name equal model.Id
+            var category = _unitOfWork.Categories.Find(c => c.Name == model.Name);
+            
             if (category == null || category.Id == model.Id)
                 return Json(true);
             return Json(false);
         }
-
-
-
-
-
-
-
 
         #region Ajax Request Handles
 
         [HttpPost]
         public IActionResult ToggleStatus(int id)
         {
-            var category = _context.Categories.Find(id);
+            var category = _unitOfWork.Categories.GetById(id);
             if (category == null)
             {
                 return NotFound();
@@ -123,7 +115,7 @@ namespace Bookify.Web.Controllers
             category.IsActive = !category.IsActive;
             category.LastUpdatedById = User.GetUserId(); ;
 
-            _context.SaveChanges();
+            _unitOfWork.SaveChanges();
             return Json(new { lastUpdatedOn = category.LastUpdatedOn.ToString() });
         }
         #endregion

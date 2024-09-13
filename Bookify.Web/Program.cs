@@ -1,3 +1,4 @@
+using Bookify.Application;
 using Bookify.Infrastructure;
 using Bookify.Web.Seeds;
 using Bookify.Web.Services;
@@ -17,8 +18,10 @@ namespace Bookify.Web
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddInfrastructureServices(builder.Configuration);
-            builder.Services.AddWebServices(builder);
+            builder.Services
+                .AddApplicationServices()
+                .AddInfrastructureServices(builder.Configuration)
+                .AddWebServices(builder);
 
             // Add serilog
             Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
