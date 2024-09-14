@@ -1,3 +1,4 @@
+using Bookify.Application.Common.Services.Books;
 using HashidsNet;
 using Microsoft.AspNetCore.WebUtilities;
 
@@ -5,18 +6,16 @@ namespace Bookify.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly IApplicationDbContext _context;
+        private readonly IBookService _bookService;
         private readonly IMapper _mapper;
         private readonly IHashids _hashids;
 
 
-        public HomeController(ILogger<HomeController> logger, IApplicationDbContext context, IMapper mapper, IHashids hashids)
+        public HomeController( IMapper mapper, IHashids hashids, IBookService bookService)
         {
-            _logger = logger;
-            _context = context;
             _mapper = mapper;
             _hashids = hashids;
+            _bookService = bookService;
         }
 
         public IActionResult Index()
@@ -24,19 +23,14 @@ namespace Bookify.Web.Controllers
             if (User.Identity!.IsAuthenticated)
                 return RedirectToAction(nameof(Index), "Dashboard");
 
-            var latestBooks = _context.Books
-                .Include(b => b.Author)
-                .Where(b => b.IsActive)
-                .OrderByDescending(b => b.PublishingDate)
-                .Take(10)
-                .ToList();
+            
+            var latestBooks = _bookService.GetLatestBooks(10);
 
             var viewModel = _mapper.Map<IEnumerable<BookViewModel>>(latestBooks);
 
             foreach (var book in viewModel)
-            {
-                book.Key = _hashids.Encode(book.Id);
-            }
+                book.Key = _hashids.EncodeHex(book.Id.ToString());
+
             return View(viewModel);
         }
 

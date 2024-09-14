@@ -15,6 +15,8 @@ public class UnitOfWork : IUnitOfWork
     public IBookRepository Books => new BookRepository(_context);
     public IGenericRepository<BookCopy> BookCopies => new GenericRepository<BookCopy>(_context);
     public IGenericRepository<Category> Categories => new GenericRepository<Category>(_context);
+    public IGenericRepository<RentalCopy> RentalCopies => new GenericRepository<RentalCopy>(_context);
+    public IGenericRepository<Subscriper> Subscripers => new GenericRepository<Subscriper>(_context);
 
     public int SaveChanges()
     {

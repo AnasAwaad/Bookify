@@ -1,63 +1,38 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using System.Linq.Dynamic.Core;
+﻿using Bookify.Application.Common.Services.Books;
+using Bookify.Application.Common.Services.RentalCopies;
+using Bookify.Application.Common.Services.Subscriper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bookify.Web.Controllers;
 [Authorize]
 public class DashboardController : Controller
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IBookService _bookService;
+    private readonly ISubscriperService _subscriperService;
+    private readonly IRentalCopiesService _rentalCopiesService;
     private readonly IMapper _mapper;
 
-    public DashboardController(IApplicationDbContext context, IMapper mapper)
+    public DashboardController(IMapper mapper, IBookService bookService, ISubscriperService subscriperService, IRentalCopiesService rentalCopiesService)
     {
-        _context = context;
         _mapper = mapper;
+        _bookService = bookService;
+        _subscriperService = subscriperService;
+        _rentalCopiesService = rentalCopiesService;
     }
 
     public IActionResult Index()
     {
-        var numberOfBooks = _context.Books.Count(b => b.IsActive);
-        var numberOfSubscripers = _context.Subscripers.Count(b => b.IsActive);
-        var latestBooks = _context.Books.Include(b => b.Author).Where(b => b.IsActive).OrderByDescending(b => b.PublishingDate).Take(8).ToList();
-
-        var topBooks = _context.RentalCopies
-                    .Include(r => r.BookCopy)
-                    .ThenInclude(c => c!.Book)
-                    .ThenInclude(b => b!.Author)
-                    .GroupBy(r => new
-                    {
-                        r.BookCopy!.BookId,
-                        r.BookCopy!.Book!.Title,
-                        r.BookCopy!.Book!.ImageThumbnailUrl,
-                        AuthorName = r.BookCopy!.Book!.Author!.Name,
-
-                    })
-                    .Select(b => new
-                    {
-                        b.Key.BookId,
-                        b.Key.AuthorName,
-                        b.Key.Title,
-                        b.Key.ImageThumbnailUrl,
-                        Count = b.Count()
-                    })
-                    .OrderByDescending(b => b.Count)
-                    .Take(6)
-                    .Select(b => new BookViewModel
-                    {
-                        Id = b.BookId,
-                        AuthorName = b.AuthorName,
-                        Title = b.Title,
-                        ImageThumbnailUrl = b.ImageThumbnailUrl
-                    })
-                    .ToList();
-
+        var numberOfBooks = _bookService.GetActiveBooksCount();
+        var numberOfSubscripers = _subscriperService.GetActiveSubscripersCount();
+        var latestBooks = _bookService.GetLatestBooks(8);
+        var topBooks = _bookService.GetTopBooks(6);
 
         DashboardViewModel viewModel = new()
         {
             NumberOfBooks = numberOfBooks,
             NumberOfSubscriber = numberOfSubscripers,
             LatestBooks = _mapper.Map<IEnumerable<BookViewModel>>(latestBooks),
-            TopBooks = topBooks
+            TopBooks = _mapper.Map<IEnumerable<BookViewModel>>(topBooks)
         };
         return View(viewModel);
     }
@@ -68,30 +43,13 @@ public class DashboardController : Controller
         startDate ??= DateTime.Today.AddDays(-29);
         endDate ??= DateTime.Today;
 
-        var rentals = _context.RentalCopies
-            .Where(r => r.RentalDate >= startDate && r.RentalDate <= endDate)
-            .GroupBy(r => new { r.RentalDate })
-            .Select(r => new
-            {
-                text = r.Key.RentalDate.ToString("d MMM"),
-                value = r.Count().ToString()
-            }).ToList();
+        var rentals=_rentalCopiesService.GetRentalsPerDay(startDate, endDate);
 
         return Ok(rentals);
     }
 
     public IActionResult GetSubscribersPerCities()
     {
-        var subscribers = _context.Subscripers
-            .Where(s => s.IsActive)
-            .Include(s => s.City)
-            .GroupBy(s => new { s.City!.Name })
-            .Select(s => new
-            {
-                text = s.Key.Name,
-                value = s.Count()
-            }).ToList();
-
-        return Ok(subscribers);
+        return Ok(_subscriperService.GetSubscripersPerCity());
     }
 }

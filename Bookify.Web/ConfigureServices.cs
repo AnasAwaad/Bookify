@@ -48,7 +48,7 @@ public static class ConfigureServices
         services.AddAutoMapper(typeof(DomainProfile));
         services.AddExpressiveAnnotations();
 
-        services.AddSingleton<IHashids>(_ => new Hashids(minHashLength: 11));
+        services.AddSingleton<IHashids>(_ => new Hashids("f1nd1ngn2m0",minHashLength: 11));
 
         services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
 

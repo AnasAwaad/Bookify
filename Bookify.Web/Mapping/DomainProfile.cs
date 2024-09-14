@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Bookify.Domain.Dtos;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Bookify.Web.Mapping;
 
@@ -26,6 +27,11 @@ public class DomainProfile : Profile
         CreateMap<Book, BookViewModel>()
             .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author!.Name))
             .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories.Select(b => b.Category!.Name).ToList()));
+
+        CreateMap<LatestBookDto, BookViewModel>();
+        CreateMap<TopBookDto, BookViewModel>();
+        CreateMap<Book, BookSearchResaultViewModel>();
+
 
         CreateMap<Book, BookRowViewModel>()
             .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author!.Name))

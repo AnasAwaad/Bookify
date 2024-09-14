@@ -7,5 +7,7 @@ public interface IUnitOfWork
     public IBookRepository Books { get; }
     public IGenericRepository<BookCopy> BookCopies { get; }
     public IGenericRepository<Category> Categories { get; }
+    public IGenericRepository<RentalCopy> RentalCopies { get; }
+    public IGenericRepository<Subscriper> Subscripers { get; }
     int SaveChanges();
 }
