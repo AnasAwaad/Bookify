@@ -2,12 +2,9 @@
 using Bookify.Application.Common.Services.Books;
 using Bookify.Application.Common.Services.Categories;
 using Bookify.Domain.Dtos;
-using Bookify.Domain.Entities;
 using Bookify.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Linq.Dynamic.Core;
-using static System.Reflection.Metadata.BlobBuilder;
 
 namespace Bookify.Web.Controllers;
 [Authorize(Roles = AppRoles.Archive)]
