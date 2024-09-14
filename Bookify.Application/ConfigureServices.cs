@@ -1,6 +1,7 @@
 ﻿using Bookify.Application.Common.Services.Authors;
 using Bookify.Application.Common.Services.BookCopies;
 using Bookify.Application.Common.Services.Books;
+using Bookify.Application.Common.Services.Categories;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bookify.Application;
@@ -11,6 +12,7 @@ public static class ConfigureServices
         services.AddScoped<IAuthorService, AuthorService>();
         services.AddScoped<IBookCopyService, BookCopyService>();
         services.AddScoped<IBookService, BookService>();
+        services.AddScoped<ICategoryService, CategoryService>();
         return services;
     }
 }

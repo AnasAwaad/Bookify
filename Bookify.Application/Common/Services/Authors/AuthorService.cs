@@ -36,6 +36,11 @@ internal class AuthorService : IAuthorService
         return _unitOfWork.Authors.GetAll();
     }
 
+    public IEnumerable<Author>? GetActiveAuthors()
+    {
+        return _unitOfWork.Authors.FindAll(a => a.IsActive, a => a.Name);
+    }
+
     public Author? Update(int authorId, string name, string lastUpdatedById)
     {
         var author = GetById(authorId);
@@ -71,4 +76,6 @@ internal class AuthorService : IAuthorService
         var author = _unitOfWork.Authors.Find(a => a.Name == name);
         return author is null || author.Id == authorId;
     }
+
+    
 }
