@@ -1,40 +1,29 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Bookify.Application.Common.Services.BookCopies;
+using Bookify.Application.Common.Services.Books;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bookify.Web.Controllers;
 [Authorize(Roles = AppRoles.Archive)]
 public class BookCopiesController : Controller
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IBookCopyService _bookCopyService;
+    private readonly IBookService _bookService;
     private readonly IMapper _mapper;
 
-    public BookCopiesController(IMapper mapper, IUnitOfWork unitOfWork)
+    public BookCopiesController(IMapper mapper, IBookCopyService bookCopyService, IBookService bookService)
     {
         _mapper = mapper;
-        _unitOfWork = unitOfWork;
+        _bookCopyService = bookCopyService;
+        _bookService = bookService;
     }
 
-    [HttpPost]
-    public IActionResult ToggleStatus(int id)
-    {
-        var model = _unitOfWork.BookCopies.GetById(id);
-        if (model == null)
-        {
-            return BadRequest();
-        }
-        model.IsActive = !model.IsActive;
-        model.LastUpdatedOn = DateTime.Now;
-        model.LastUpdatedById = User.GetUserId();
-
-        _unitOfWork.SaveChanges();
-
-        return Ok();
-    }
 
     [AjaxOnly]
     public IActionResult Create(int bookId)
     {
-        var book = _unitOfWork.Books.GetById(bookId);
-        if (book is null) return NotFound();
+        var book = _bookService.GetById(bookId);
+        if (book is null)
+            return NotFound();
 
         BookCopyFormViewModel viewModel = new()
         {
@@ -47,19 +36,11 @@ public class BookCopiesController : Controller
     [HttpPost]
     public IActionResult Create(BookCopyFormViewModel model)
     {
-        var book = _unitOfWork.Books.GetById(model.BookId);
-        if (book is null) return NotFound();
-        var bookCopy = new BookCopy()
-        {
-            IsAvailableForRental = model.IsAvailableForRental,
-            EditionNumber = model.EditionNumber,
-            CreatedById = User.GetUserId(),
-            CreatedOn = DateTime.Now
-        };
 
-        book.BookCopies.Add(bookCopy);
+        var bookCopy = _bookCopyService.Add(model.BookId, model.IsAvailableForRental, model.EditionNumber, User.GetUserId());
 
-        _unitOfWork.SaveChanges();
+        if (bookCopy == null)
+            return NotFound();
 
         var bookcopyViewModel = _mapper.Map<BookCopyViewModel>(bookCopy);
         return PartialView("_BookCopyRow", bookcopyViewModel);
@@ -68,19 +49,11 @@ public class BookCopiesController : Controller
     [AjaxOnly]
     public IActionResult Update(int id)
     {
-        var model = _unitOfWork.BookCopies.Find(b => b.Id == id, b => b.Include(c => c.Book)!);
+        var model = _bookCopyService.GetDetails(id);
         if (model == null)
-        {
             return BadRequest();
-        }
-        var viewModel = new BookCopyFormViewModel()
-        {
-            Id = id,
-            BookId = model.Id,
-            EditionNumber = model.EditionNumber,
-            IsAvailableForRental = model.IsAvailableForRental,
-            IsBookAvailableForRental = model.Book!.IsAvailableForRental,
-        };
+
+        var viewModel = _mapper.Map<BookCopyFormViewModel>(model);
         return PartialView("Form", viewModel);
 
     }
@@ -88,23 +61,26 @@ public class BookCopiesController : Controller
     [HttpPost]
     public IActionResult Update(BookCopyFormViewModel model)
     {
-        if (!ModelState.IsValid) return BadRequest();
-
-        var bookCopy = _unitOfWork.BookCopies.Find(b => b.Id == model.Id);
-
-        if (bookCopy == null)
-        {
+        if (!ModelState.IsValid)
             return BadRequest();
-        }
-        bookCopy.EditionNumber = model.EditionNumber;
-        bookCopy.LastUpdatedOn = DateTime.Now;
-        bookCopy.IsAvailableForRental = model.IsAvailableForRental;
-        bookCopy.LastUpdatedById = User.GetUserId();
 
-        _unitOfWork.SaveChanges();
+        var bookCopy = _bookCopyService.Update(model.Id, model.IsAvailableForRental, model.EditionNumber, User.GetUserId());
+
+        if (bookCopy is null)
+            return BadRequest();
 
         var viewModel = _mapper.Map<BookCopyViewModel>(bookCopy);
 
         return PartialView("_BookCopyRow", viewModel);
+    }
+
+    [HttpPost]
+    public IActionResult ToggleStatus(int id)
+    {
+        var bookCopy = _bookCopyService.ToggleStatus(id, User.GetUserId());
+        if (bookCopy == null)
+            return BadRequest();
+
+        return bookCopy is null ? BadRequest() : Ok();
     }
 }

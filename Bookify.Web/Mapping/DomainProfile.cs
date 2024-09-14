@@ -37,6 +37,8 @@ public class DomainProfile : Profile
             .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Book!.Title))
             .ForMember(dest => dest.ImageThumbnailUrl, opt => opt.MapFrom(src => src.Book!.ImageThumbnailUrl));
 
+        CreateMap<BookCopy, BookCopyFormViewModel>();
+            
 
         // Users
         CreateMap<ApplicationUser, UserViewModel>();
