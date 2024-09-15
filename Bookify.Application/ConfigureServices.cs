@@ -1,7 +1,9 @@
-﻿using Bookify.Application.Common.Services.Authors;
+﻿using Bookify.Application.Common.Services.Areas;
+using Bookify.Application.Common.Services.Authors;
 using Bookify.Application.Common.Services.BookCopies;
 using Bookify.Application.Common.Services.Books;
 using Bookify.Application.Common.Services.Categories;
+using Bookify.Application.Common.Services.Cities;
 using Bookify.Application.Common.Services.RentalCopies;
 using Bookify.Application.Common.Services.RentalService;
 using Bookify.Application.Common.Services.Subscripers;
@@ -16,9 +18,11 @@ public static class ConfigureServices
         services.AddScoped<IBookCopyService, BookCopyService>();
         services.AddScoped<IBookService, BookService>();
         services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<ICityService, CityService>();
         services.AddScoped<ISubscriperService, SubscriperService>();
         services.AddScoped<IRentalService, RentalService>();
         services.AddScoped<IRentalCopiesService, RentalCopiesService>();
+        services.AddScoped<IAreaService, AreaService>();
         return services;
     }
 }

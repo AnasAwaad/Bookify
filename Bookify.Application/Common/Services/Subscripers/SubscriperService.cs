@@ -15,6 +15,28 @@ internal class SubscriperService : ISubscriperService
         _unitOfWork = unitOfWork;
     }
 
+    public Subscriper AddSubscriper(Subscriper subscriper, string createdById)
+    {
+
+        var subscription = new Subscription
+        {
+            CreatedById = subscriper.CreatedById,
+            CreatedOn = subscriper.CreatedOn,
+            StartDate = DateTime.Today,
+            EndDate = DateTime.Today.AddYears(1),
+        };
+
+        subscriper.CreatedOn = DateTime.Now;
+        subscriper.CreatedById = createdById;
+
+        subscriper.Subscriptions.Add(subscription);
+
+        _unitOfWork.Subscripers.Add(subscriper);
+        _unitOfWork.SaveChanges();
+
+        return subscriper;
+    }
+
     public int GetActiveSubscripersCount()
     {
         return _unitOfWork.Subscripers.Count(s=>s.IsActive);
@@ -84,5 +106,83 @@ internal class SubscriperService : ISubscriperService
         _unitOfWork.SaveChanges();
 
         return subscriper;
+    }
+
+    public IQueryable<Subscriper>? GetDatails()
+    {
+        return _unitOfWork.Subscripers.GetQueryable()
+            .Include(s => s.Area)
+            .Include(s => s.City)
+            .Include(s => s.Subscriptions)
+            .Include(s => s.Rentals)
+            .ThenInclude(r => r.RentalCopies);
+
+    }
+
+    public Subscriper? GetById(int id)
+    {
+        return _unitOfWork.Subscripers.GetById(id);
+    }
+
+    public Subscriper Update(Subscriper subscriper, string updatedById)
+    {
+        subscriper.LastUpdatedOn = DateTime.Now;
+        subscriper.LastUpdatedById = updatedById;
+
+        _unitOfWork.Subscripers.Update(subscriper);
+
+        _unitOfWork.SaveChanges();
+        return subscriper;
+    }
+
+    public Subscriper? SearchForSubscriper(string value)
+    {
+        var subscriper = _unitOfWork.Subscripers
+            .Find(s => s.MobileNumber == value || s.Email == value || s.NationalId == value);
+
+        return subscriper;
+    }
+
+    public bool IsAllowedEmail(int id, string email)
+    {
+        var subscriper = _unitOfWork.Subscripers.Find(s => s.Email == email);
+        return subscriper is null || subscriper.Id.Equals(id);
+    }
+
+    public bool IsAllowedMobileNumber(int id, string mobileNumber)
+    {
+        var subscriper = _unitOfWork.Subscripers.Find(s => s.MobileNumber == mobileNumber);
+        return subscriper is null || subscriper.Id.Equals(id);
+    }
+
+    public bool IsAllowedNationalId(int id, string nationalId)
+    {
+        var subscriper = _unitOfWork.Subscripers.Find(s => s.NationalId == nationalId);
+        return subscriper is null || subscriper.Id.Equals(id);
+    }
+
+    public Subscriper? GetSubscriperWithSubscription(int subscriperId)
+    {
+        return _unitOfWork.Subscripers.Find(s => s.Id == subscriperId, include: s => s.Include(x => x.Subscriptions));
+    }
+
+    public Subscription RenewSubscription(int subscriperId,string createdById)
+    {
+        var subscriper = GetSubscriperWithSubscription(subscriperId);
+        
+        var lastSubscription = subscriper!.Subscriptions.Last();
+        var startDate = lastSubscription.EndDate > DateTime.Today ? lastSubscription.EndDate.AddDays(1) : DateTime.Today;
+        var newSubscription = new Subscription()
+        {
+            CreatedById = createdById,
+            CreatedOn = DateTime.Now,
+            StartDate = startDate,
+            EndDate = startDate.AddYears(1)
+        };
+
+        subscriper.Subscriptions.Add(newSubscription);
+        _unitOfWork.SaveChanges();
+
+        return newSubscription;
     }
 }

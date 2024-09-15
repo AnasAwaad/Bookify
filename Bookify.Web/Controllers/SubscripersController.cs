@@ -1,4 +1,7 @@
-﻿using Bookify.Web.Services;
+﻿using Bookify.Application.Common.Services.Areas;
+using Bookify.Application.Common.Services.Cities;
+using Bookify.Application.Common.Services.Subscripers;
+using Bookify.Web.Services;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -10,7 +13,9 @@ namespace Bookify.Web.Controllers;
 [Authorize(Roles = AppRoles.Reception)]
 public class SubscripersController : Controller
 {
-    private readonly IApplicationDbContext _context;
+    private readonly ISubscriperService _subscriperService;
+    private readonly IAreaService _areaService;
+    private readonly ICityService _cityService;
     private readonly IMapper _mapper;
     private readonly IImageService _imageService;
     private readonly IDataProtector _dataProtector;
@@ -19,9 +24,8 @@ public class SubscripersController : Controller
     private readonly IEmailBodyBuilder _emailBodyBuilder;
     private readonly IEmailSender _emailSender;
 
-    public SubscripersController(IApplicationDbContext context, IMapper mapper, IImageService imageService, IDataProtectionProvider dataProtector, IWhatsAppClient whatsAppClient, IWebHostEnvironment webHostEnvironment, IEmailBodyBuilder emailBodyBuilder, IEmailSender emailSender)
+    public SubscripersController(IMapper mapper, IImageService imageService, IDataProtectionProvider dataProtector, IWhatsAppClient whatsAppClient, IWebHostEnvironment webHostEnvironment, IEmailBodyBuilder emailBodyBuilder, IEmailSender emailSender, ISubscriperService subscriperService, IAreaService areaService, ICityService cityService)
     {
-        _context = context;
         _mapper = mapper;
         _imageService = imageService;
         _dataProtector = dataProtector.CreateProtector("MySecureKey");
@@ -29,6 +33,9 @@ public class SubscripersController : Controller
         _webHostEnvironment = webHostEnvironment;
         _emailBodyBuilder = emailBodyBuilder;
         _emailSender = emailSender;
+        _subscriperService = subscriperService;
+        _areaService = areaService;
+        _cityService = cityService;
     }
 
     public IActionResult Index()
@@ -61,21 +68,7 @@ public class SubscripersController : Controller
         model.ImageUrl = "/images/subscripers/" + imageName;
         model.ImageThumbnailUrl = "/images/subscripers/thumb/" + imageName;
 
-        model.CreatedById = User.GetUserId();
-        model.CreatedOn = DateTime.Now;
-
-        var subscription = new Subscription
-        {
-            CreatedById = model.CreatedById,
-            CreatedOn = model.CreatedOn,
-            StartDate = DateTime.Today,
-            EndDate = DateTime.Today.AddYears(1),
-        };
-
-        model.Subscriptions.Add(subscription);
-
-        _context.Subscripers.Add(model);
-        _context.SaveChanges();
+        var subscriper=_subscriperService.AddSubscriper(model,User.GetUserId());
 
         // send welcome message to email user
         var placeholders = new Dictionary<string, string>()
@@ -115,7 +108,7 @@ public class SubscripersController : Controller
 
 
         }
-        var subscriperId = _dataProtector.Protect(model.Id.ToString());
+        var subscriperId = _dataProtector.Protect(subscriper.Id.ToString());
 
         return RedirectToAction(nameof(Details), new { Id = subscriperId });
     }
@@ -124,11 +117,13 @@ public class SubscripersController : Controller
     {
         var subscriperId = int.Parse(_dataProtector.Unprotect(Id));
 
-        var subscriper = _context.Subscripers.Include(s => s.Area).Include(s => s.City).Include(s => s.Subscriptions).Include(s => s.Rentals).ThenInclude(r => r.RentalCopies).FirstOrDefault(s => s.Id == subscriperId);
+        var subscriper = _subscriperService.GetDatails();
 
-        if (subscriper is null)
+        var viewModel = _mapper.ProjectTo<SubscriberViewModel>(subscriper).SingleOrDefault(s=>s.Id==subscriperId);
+
+        if (viewModel is null)
             return NotFound();
-        var viewModel = _mapper.Map<SubscriberViewModel>(subscriper);
+
         viewModel.Key = Id;
 
         return View(viewModel);
@@ -139,7 +134,8 @@ public class SubscripersController : Controller
     {
         var subscriperId = int.Parse(_dataProtector.Unprotect(id));
 
-        var subscriper = _context.Subscripers.Find(subscriperId);
+        var subscriper = _subscriperService.GetById(subscriperId);
+
         if (subscriper is null)
             return NotFound();
         var viewModel = PopulateViewModel(_mapper.Map<SubscriperFormViewModel>(subscriper));
@@ -157,16 +153,16 @@ public class SubscripersController : Controller
 
         var subscriperId = int.Parse(_dataProtector.Unprotect(viewModel.Key!));
 
-        var model = _context.Subscripers.Find(subscriperId);
+        var subscriper = _subscriperService.GetById(subscriperId);
 
-        if (model is null) return NotFound();
+        if (subscriper is null) return NotFound();
 
 
         if (viewModel.Image is not null)
         {
             var imageName = $"{Guid.NewGuid()}{Path.GetExtension(viewModel.Image.FileName)}";
-            if (!string.IsNullOrEmpty(model.ImageUrl))
-                _imageService.DeleteImage(model.ImageUrl, model.ImageThumbnailUrl);
+            if (!string.IsNullOrEmpty(subscriper.ImageUrl))
+                _imageService.DeleteImage(subscriper.ImageUrl, subscriper.ImageThumbnailUrl);
 
             (bool isUploaded, string? errorMessage) = _imageService.UploadImage(viewModel.Image, imageName, "images\\subscripers", true);
             if (!isUploaded)
@@ -179,16 +175,13 @@ public class SubscripersController : Controller
         }
         else
         {
-            viewModel.ImageUrl = model.ImageUrl;
-            viewModel.ImageThumbnailUrl = model.ImageThumbnailUrl;
+            viewModel.ImageUrl = subscriper.ImageUrl;
+            viewModel.ImageThumbnailUrl = subscriper.ImageThumbnailUrl;
         }
 
-        model = _mapper.Map(viewModel, model);
-        model.LastUpdatedOn = DateTime.Now;
-        model.LastUpdatedById = User.GetUserId();
+        subscriper = _mapper.Map(viewModel, subscriper);
 
-        _context.SaveChanges();
-
+        _subscriperService.Update(subscriper, User.GetUserId());
 
         return RedirectToAction(nameof(Details), new { Id = viewModel.Key });
     }
@@ -198,8 +191,8 @@ public class SubscripersController : Controller
     public IActionResult SearchForSubscriper(SearchFormViewModel model)
     {
         if (!ModelState.IsValid) return BadRequest();
-        var subscriper = _context.Subscripers.SingleOrDefault(s => s.MobileNumber == model.Value || s.Email == model.Value || s.NationalId == model.Value);
-
+        
+        var subscriper=_subscriperService.SearchForSubscriper(model.Value);
         var viewModel = _mapper.Map<SubscriperSearchResultViewModel>(subscriper);
 
         if (subscriper is not null)
@@ -216,9 +209,7 @@ public class SubscripersController : Controller
         if (!string.IsNullOrEmpty(model.Key))
             subscriperId = int.Parse(_dataProtector.Unprotect(model.Key));
 
-        var subscriper = _context.Subscripers.Where(s => s.Email == model.Email).FirstOrDefault();
-        var isAllowed = subscriper is null || subscriper.Id.Equals(subscriperId);
-
+        var isAllowed = _subscriperService.IsAllowedEmail(subscriperId, model.Email);
         return Json(isAllowed);
     }
 
@@ -229,9 +220,7 @@ public class SubscripersController : Controller
         if (!string.IsNullOrEmpty(model.Key))
             subscriperId = int.Parse(_dataProtector.Unprotect(model.Key));
 
-        var subscriper = _context.Subscripers.Where(s => s.MobileNumber == model.MobileNumber).FirstOrDefault();
-        var isAllowed = subscriper is null || subscriper.Id.Equals(subscriperId);
-
+        var isAllowed = _subscriperService.IsAllowedMobileNumber(subscriperId, model.MobileNumber);
         return Json(isAllowed);
     }
 
@@ -243,16 +232,14 @@ public class SubscripersController : Controller
         if (!string.IsNullOrEmpty(model.Key))
             subscriperId = int.Parse(_dataProtector.Unprotect(model.Key));
 
-        var subscriper = _context.Subscripers.Where(s => s.NationalId == model.NationalId).FirstOrDefault();
-        var isAllowed = subscriper is null || subscriper.Id.Equals(subscriperId);
-
+        var isAllowed = _subscriperService.IsAllowedNationalId(subscriperId, model.NationalId);
         return Json(isAllowed);
-
     }
     [AjaxOnly]
     public IActionResult GetAreasBasedOnCity(int cityId)
     {
-        var areas = _context.Areas.Where(a => a.CityId == cityId).Select(a => new { Id = a.Id, Text = a.Name }).ToList();
+        //var areas = _context.Areas.Where(a => a.CityId == cityId).Select(a => new { Id = a.Id, Text = a.Name }).ToList();
+        var areas = _areaService.GetAreasByCity(cityId);
         return Json(new { areas });
     }
 
@@ -260,26 +247,17 @@ public class SubscripersController : Controller
     public IActionResult renewSubscription(string subscriperKey)
     {
         var subscriberId = int.Parse(_dataProtector.Unprotect(subscriperKey));
-        var subscriber = _context.Subscripers.Include(s => s.Subscriptions).SingleOrDefault(s => s.Id == subscriberId);
+        var subscriper = _subscriperService.GetSubscriperWithSubscription(subscriberId);
 
-        if (subscriber is null)
+        if (subscriper is null)
             return NotFound();
-        if (subscriber.IsBlackListed)
+
+        if (subscriper.IsBlackListed)
             return BadRequest();
 
-        var lastSubscription = subscriber.Subscriptions.Last();
-        var startDate = lastSubscription.EndDate > DateTime.Today ? lastSubscription.EndDate.AddDays(1) : DateTime.Today;
-        var newSubscription = new Subscription()
-        {
-            CreatedById = User.GetUserId(),
-            CreatedOn = DateTime.Now,
-            StartDate = startDate,
-            EndDate = startDate.AddYears(1)
-        };
-        subscriber.Subscriptions.Add(newSubscription);
-        _context.SaveChanges();
+        var newSubscription = _subscriperService.RenewSubscription(subscriberId, User.GetUserId());
 
-        if (subscriber.HasWhatsApp)
+        if (subscriper.HasWhatsApp)
         {
             var component = new List<WhatsAppComponent>()
             {
@@ -290,13 +268,13 @@ public class SubscripersController : Controller
                     {
                         new WhatsAppTextParameter
                         {
-                            Text=subscriber.FirstName
+                            Text=subscriper.FirstName
                         }
                     }
                 }
             };
 
-            var mobileNumber = _webHostEnvironment.IsDevelopment() ? "201067873327" : $"2{subscriber.MobileNumber}";
+            var mobileNumber = _webHostEnvironment.IsDevelopment() ? "201067873327" : $"2{subscriper.MobileNumber}";
 
             BackgroundJob.Enqueue(() => _whatsAppClient.SendMessage(mobileNumber, WhatsAppLanguageCode.English, WhatsAppTemplates.WelcomeMessage, component));
         }
@@ -306,15 +284,13 @@ public class SubscripersController : Controller
     private SubscriperFormViewModel PopulateViewModel(SubscriperFormViewModel? model = null)
     {
         var viewModel = model is null ? new SubscriperFormViewModel() : model;
-        var cities = _context.Cities.Where(c => c.IsActive);
+        var cities = _cityService.GetActiveCities();
+
         viewModel.Cities = _mapper.Map<IEnumerable<SelectListItem>>(cities);
 
         if (model?.CityId > 0)
         {
-            var areas = _context.Areas
-                     .Include(a => a.City)
-                     .Where(a => a.City.Id == viewModel.CityId && a.IsActive)
-                     .ToList();
+            var areas = _areaService.GetAreasByCity(model.CityId);
             viewModel.Areas = _mapper.Map<IEnumerable<SelectListItem>>(areas);
         }
 
