@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Book>
+﻿@model IEnumerable<BookViewModel>
 @{
 	Layout = "_ReportsLayout";
 }
@@ -21,8 +21,8 @@
 		{
 			<tr>
 				<td>@book.Title</td>
-				<td>@book.Author!.Name</td>
-				<td>@string.Join(", ", book.Categories!.Select(c => c.Category!.Name))</td>
+				<td>@book.AuthorName</td>
+				<td>@string.Join(", ", book.Categories)</td>
 				<td>@book.Publisher</td>
 				<td>@book.PublishingDate.ToString("d MMM, yyyy")</td>
 				<td>@book.Hall</td>

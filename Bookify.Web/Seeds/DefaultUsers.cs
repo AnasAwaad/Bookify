@@ -11,6 +11,7 @@ public static class DefaultUsers
             UserName = "Admin",
             Email = "Admin@gmail.com",
             EmailConfirmed = true,
+            IsActive=true,
         };
 
         var user = await userManager.FindByEmailAsync(admin.Email);

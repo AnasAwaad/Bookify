@@ -1,15 +1,14 @@
-﻿using Bookify.Web.Core.Utilities;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace Bookify.Web.Core.ViewModels;
+namespace Bookify.Application.Common.Models;
 
 public class BooksReportViewModel
 {
 
-    public IEnumerable<SelectListItem> Authors { get; set; }=new List<SelectListItem>();
-    public IEnumerable<SelectListItem> Categories { get; set; }=new List<SelectListItem>();
+    public IEnumerable<SelectListItem> Authors { get; set; } = new List<SelectListItem>();
+    public IEnumerable<SelectListItem> Categories { get; set; } = new List<SelectListItem>();
 
-    [Display(Name ="Authors")]
+    [Display(Name = "Authors")]
     public List<int>? SelectedAuthors { get; set; } = new List<int>();
 
     [Display(Name = "Categories")]

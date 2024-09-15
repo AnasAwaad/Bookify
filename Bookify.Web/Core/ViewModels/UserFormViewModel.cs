@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using UoN.ExpressiveAnnotations.NetCore.Attributes;
-using UserManagement.Consts;
 
 namespace Bookify.Web.Core.ViewModels;
 
@@ -14,11 +13,11 @@ public class UserFormViewModel
 
     [Display(Name = "Username"), MaxLength(20, ErrorMessage = Errors.MaxLength)]
     [RegularExpression(RegexPattern.Username, ErrorMessage = Errors.AllowUsername)]
-    [Remote("AllowUserName", null!, HttpMethod = "POST", AdditionalFields = "Id", ErrorMessage = Errors.Dublicated)]
+    [Remote("AllowUserName", null!,  AdditionalFields = "Id", ErrorMessage = Errors.Dublicated)]
     public string UserName { get; set; } = null!;
 
     [EmailAddress, MaxLength(200, ErrorMessage = Errors.MaxLength)]
-    [Remote("AllowEmail", null!, HttpMethod = "POST", AdditionalFields = "Id", ErrorMessage = Errors.Dublicated)]
+    [Remote("AllowEmail", null!, AdditionalFields = "Id", ErrorMessage = Errors.Dublicated)]
     public string Email { get; set; } = null!;
 
     [StringLength(100, MinimumLength = 6, ErrorMessage = Errors.MinMaxLength), DataType(DataType.Password)]

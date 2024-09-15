@@ -1,21 +1,22 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Bookify.Application.Common.Services.Authors;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bookify.Web.Controllers;
 [Authorize(Roles = AppRoles.Archive)]
 public class AuthorsController : Controller
 {
-    private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IAuthorService _authorService;
 
-    public AuthorsController(ApplicationDbContext context, IMapper mapper)
+    public AuthorsController(IMapper mapper,IAuthorService authorService)
     {
-        _context = context;
         _mapper = mapper;
+        _authorService = authorService;
     }
 
     public IActionResult Index()
     {
-        var authors = _context.Authors.AsNoTracking().ToList();
+        var authors = _authorService.GetAll();
         var authorsVM = _mapper.Map<IEnumerable<AuthorViewModel>>(authors);
         return View(authorsVM);
     }
@@ -28,7 +29,6 @@ public class AuthorsController : Controller
 
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public IActionResult Create(UpsertAuthorViewModel model)
     {
         if (!ModelState.IsValid)
@@ -36,29 +36,18 @@ public class AuthorsController : Controller
             return NotFound();
         }
 
-        var author = _mapper.Map<Author>(model);
-        author.CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-        author.CreatedOn = DateTime.Now;
+        var author =_authorService.Add(model.Name, User.GetUserId());
 
-        _context.Authors.Add(author);
-        _context.SaveChanges();
-
-        var authorVM = _mapper.Map<AuthorViewModel>(author);
-        return PartialView("_AuthorRow", authorVM);
+        return PartialView("_AuthorRow", _mapper.Map<AuthorViewModel>(author));
     }
 
     [AjaxOnly]
-    public IActionResult Update(int? id)
+    public IActionResult Update(int id)
     {
-        if (id == null || id == 0)
-        {
-            return NotFound();
-        }
-        var author = _context.Authors.Find(id);
+        var author = _authorService.GetById(id);
+
         if (author == null)
-        {
             return NotFound();
-        }
 
         var authorVM = _mapper.Map<UpsertAuthorViewModel>(author);
 
@@ -67,58 +56,38 @@ public class AuthorsController : Controller
 
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public IActionResult Update(UpsertAuthorViewModel model)
     {
         if (!ModelState.IsValid)
         {
             return View("_UpsertForm", model);
         }
-        var author = _context.Authors.Find(model.Id);
 
-        if (author == null)
+        var author=_authorService.Update(model.Id, model.Name, User.GetUserId());
+
+        if (author is null)
             return NotFound();
 
-        author = _mapper.Map(model, author);
-
-        author.LastUpdatedOn = DateTime.Now;
-        author.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-
-        _context.SaveChanges();
         return PartialView("_AuthorRow", _mapper.Map<AuthorViewModel>(author));
     }
 
-    [HttpPost]
+
     public IActionResult IsAuthorAllowed(UpsertAuthorViewModel model)
     {
-        var author = _context.Authors.SingleOrDefault(c => c.Name == model.Name);
-        // for new category null 
-        // for update category without change the name => category will be filled 
-        // check for id of the category with the same name equal model.Id
-        if (author == null || author.Id == model.Id)
-            return Json(true);
-        return Json(false);
+        var isAllowed = _authorService.IsAuthorAllowed(model.Id, model.Name);
+        return Json(isAllowed);
     }
-
-
 
     #region Ajax Request Handles
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public IActionResult ToggleStatus(int id)
     {
-        var author = _context.Authors.Find(id);
-        if (author == null)
-        {
+        var author=_authorService.ToggleStatus(id, User.GetUserId());
+
+        if (author is null)
             return NotFound();
-        }
 
-        author.LastUpdatedOn = DateTime.Now;
-        author.IsActive = !author.IsActive;
-        author.LastUpdatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-
-        _context.SaveChanges();
         return Json(new { lastUpdatedOn = author.LastUpdatedOn.ToString() });
     }
     #endregion

@@ -1,5 +1,4 @@
 ﻿
-using Bookify.Web.Settings;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
 using System.Net;
@@ -22,7 +21,7 @@ public class EmailSender : IEmailSender
     {
         var message = new MailMessage()
         {
-            From = new MailAddress(_webHostEnvironment.IsDevelopment()?"anas.shaban.awaad@gmail.com": _mailSettings.Email, _mailSettings.DisplayName),
+            From = new MailAddress(_webHostEnvironment.IsDevelopment() ? "anas.shaban.awaad@gmail.com" : _mailSettings.Email, _mailSettings.DisplayName),
             Subject = subject,
             Body = htmlMessage,
             IsBodyHtml = true,
@@ -34,7 +33,7 @@ public class EmailSender : IEmailSender
         {
             Port = _mailSettings.Port,
             Credentials = new NetworkCredential(_mailSettings.Email, _mailSettings.Password),
-            EnableSsl=true
+            EnableSsl = true
         };
         await smtpClient.SendMailAsync(message);
         smtpClient.Dispose();

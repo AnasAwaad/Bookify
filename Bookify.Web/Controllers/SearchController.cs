@@ -1,56 +1,51 @@
-﻿using HashidsNet;
-using Microsoft.AspNetCore.Mvc;
+﻿using Bookify.Application.Common.Services.Books;
+using HashidsNet;
 
 namespace Bookify.Web.Controllers;
 public class SearchController : Controller
 {
-	private readonly IHashids _hashids;
-	private readonly ApplicationDbContext _context;
-	private readonly IMapper _mapper;
+    private readonly IHashids _hashids;
+    private readonly IBookService _bookService;
+    private readonly IMapper _mapper;
 
-    public SearchController(IHashids hashids, IMapper mapper, ApplicationDbContext context)
+    public SearchController(IHashids hashids, IMapper mapper, IBookService bookService)
     {
         _hashids = hashids;
         _mapper = mapper;
-        _context = context;
+        _bookService = bookService;
     }
 
     public IActionResult Index()
-	{
-		return View();
-	}
+    {
+        return View();
+    }
 
-	public IActionResult FindBook(string query)
-	{
-		var books=_context.Books
-			.Include(b=>b.Author)
-			.Where(b=> b.IsActive && (b.Title.Contains(query) || b.Author!.Name.Contains(query)))
-			.Select(b => new 
-			{
-				b.Title,
-				Author=b.Author!.Name,
-				Image=b.ImageThumbnailUrl,
-				Key=_hashids.Encode(b.Id)
-			})
-			.ToList();
+    public IActionResult FindBook(string query)
+    {
+        
+        var books=_bookService.Search(query);
+        var viewModel = _mapper.ProjectTo<BookSearchResaultViewModel>(books).ToList();
 
-		return Ok(books);
-	}
+        foreach (var book in viewModel)
+        {
+            book.Key = _hashids.EncodeHex(book.Id.ToString());
+        }
 
-	public IActionResult Details(string bookKey)
-	{
-		var bookId = _hashids.Decode(bookKey)[0];
+        return Ok(viewModel);
+    }
 
-		var book=_context.Books
-			.Include(b=>b.BookCopies)
-			.Include(b=>b.Author)
-			.Include(b=>b.Categories)
-				.ThenInclude(c=>c.Category)
-			.SingleOrDefault(b=>b.Id==bookId && b.IsActive);
+    public IActionResult Details(string bookKey)
+    {
+        var bookId = _hashids.DecodeHex(bookKey);
 
-		if(book is null)
-			return NotFound();
+        var book = _bookService.GetDetails();
 
-		return View(_mapper.Map<BookViewModel>(book));
-	}
+        var viewModel=_mapper.ProjectTo<BookViewModel>(book)
+            .SingleOrDefault(b => b.Id == int.Parse(bookId) && b.IsActive);
+        
+        if (viewModel is null)
+            return NotFound();
+
+        return View(viewModel);
+    }
 }

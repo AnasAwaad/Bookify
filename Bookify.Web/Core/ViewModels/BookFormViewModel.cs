@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using UoN.ExpressiveAnnotations.NetCore.Attributes;
-using UserManagement.Consts;
 
 namespace Bookify.Web.Core.ViewModels;
 
@@ -9,12 +8,12 @@ public class BookFormViewModel
     public int Id { get; set; }
 
     [MaxLength(100, ErrorMessage = Errors.MaxLength)]
-    [Remote("IsBookAllowed", "Books", AdditionalFields = "Id,AuthorId", HttpMethod = "Post", ErrorMessage = Errors.BookAuthorDublicated)]
+    [Remote("IsBookAllowed", "Books", AdditionalFields = "Id,AuthorId", ErrorMessage = Errors.BookAuthorDublicated)]
     [RegularExpression(RegexPattern.CharactersOnly_Eng, ErrorMessage = Errors.OnlyEnglishLetters)]
     public string Title { get; set; } = null!;
 
     [Display(Name = "Author")]
-    [Remote("IsBookAllowed", "Books", AdditionalFields = "Id,Title", HttpMethod = "Post", ErrorMessage = Errors.BookTitleDublicated)]
+    [Remote("IsBookAllowed", "Books", AdditionalFields = "Id,Title", ErrorMessage = Errors.BookTitleDublicated)]
     public int AuthorId { get; set; }
 
     [MaxLength(50, ErrorMessage = Errors.MaxLength)]

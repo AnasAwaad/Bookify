@@ -27,14 +27,14 @@ $(function () {
             ].join('\n'),
             suggestion: Handlebars.compile(`<div class="d-flex flex-stack">  
                                                 <div class="symbol symbol-40px me-5">
-                                                    <img src="{{image}}" class="h-50 align-self-center" alt="{{title}}">                         
+                                                    <img src="{{imageThumbnailUrl}}" class="h-50 align-self-center" alt="{{title}}">                         
                                                 </div>
 
                                                 <div class="d-flex align-items-center flex-row-fluid flex-wrap">
                                                     <div class="flex-grow-1 me-2">
                                                         <h5 class="text-gray-800  fs-6 fw-bold">{{title}}</h5>
                         
-                                                        <span class="text-muted fw-semibold d-block fs-7">by {{author}}</span>
+                                                        <span class="text-muted fw-semibold d-block fs-7">by {{authorName}}</span>
                                                     </div>
                                                 </div>
                                             </div > `)

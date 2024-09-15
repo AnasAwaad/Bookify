@@ -1,51 +1,44 @@
+using Bookify.Application.Common.Services.Books;
 using HashidsNet;
-using Microsoft.AspNetCore.Authorization;
-using System.Diagnostics;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Bookify.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-		private readonly ApplicationDbContext _context;
-		private readonly IMapper _mapper;
-		private readonly IHashids _hashids;
+        private readonly IBookService _bookService;
+        private readonly IMapper _mapper;
+        private readonly IHashids _hashids;
 
 
-		public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IMapper mapper, IHashids hashids)
-		{
-			_logger = logger;
-			_context = context;
-			_mapper = mapper;
-			_hashids = hashids;
-		}
+        public HomeController( IMapper mapper, IHashids hashids, IBookService bookService)
+        {
+            _mapper = mapper;
+            _hashids = hashids;
+            _bookService = bookService;
+        }
 
-		public IActionResult Index()
+        public IActionResult Index()
         {
             if (User.Identity!.IsAuthenticated)
-                return RedirectToAction(nameof(Index),"Dashboard");
+                return RedirectToAction(nameof(Index), "Dashboard");
 
-			var latestBooks = _context.Books
-                .Include(b => b.Author)
-                .Where(b => b.IsActive)
-                .OrderByDescending(b => b.PublishingDate)
-                .Take(10)
-                .ToList();
+            
+            var latestBooks = _bookService.GetLatestBooks(10);
 
             var viewModel = _mapper.Map<IEnumerable<BookViewModel>>(latestBooks);
 
-			foreach (var book in viewModel)
-            {
-                book.Key = _hashids.Encode(book.Id);
-            }
-			return View(viewModel);
+            foreach (var book in viewModel)
+                book.Key = _hashids.EncodeHex(book.Id.ToString());
+
+            return View(viewModel);
         }
 
-        
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public IActionResult Error(int statusCode = 500)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel { ErrorDescription = ReasonPhrases.GetReasonPhrase(statusCode) });
         }
     }
 }
