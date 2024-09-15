@@ -11,6 +11,7 @@ public interface ISubscriperService
     IEnumerable<KeyValuePairDto> GetSubscripersPerCity();
     Subscriper? GetSubscriperWithRentals(int subscriperId);
     Subscriper? GetSubscriperWithSubscription(int subscriperId);
+    IEnumerable<Subscriper> GetExpiredSubscripers(int expiredWithin);
     (string? errorMessage, int? maxAllowedCopies) CanRent(int subscriperId);
     IQueryable<Subscriper>? GetDatails();
     Subscriper? SearchForSubscriper(string value);

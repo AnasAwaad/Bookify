@@ -13,7 +13,6 @@ namespace Bookify.Web.Controllers;
 [Authorize(Roles = AppRoles.Admin)]
 public class ReportsController : Controller
 {
-    private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IViewRendererService _viewRendererService;
     private readonly IAuthorService _authorService;
@@ -21,14 +20,13 @@ public class ReportsController : Controller
     private readonly IBookService _bookService;
     private readonly IRentalCopiesService _rentalCopiesService;
 
-    public ReportsController(IMapper mapper, IViewRendererService viewRendererService, IAuthorService authorService, ICategoryService categoryService, IBookService bookService, IApplicationDbContext context, IRentalCopiesService rentalCopiesService)
+    public ReportsController(IMapper mapper, IViewRendererService viewRendererService, IAuthorService authorService, ICategoryService categoryService, IBookService bookService, IRentalCopiesService rentalCopiesService)
     {
         _mapper = mapper;
         _viewRendererService = viewRendererService;
         _authorService = authorService;
         _categoryService = categoryService;
         _bookService = bookService;
-        _context = context;
         _rentalCopiesService = rentalCopiesService;
     }
 

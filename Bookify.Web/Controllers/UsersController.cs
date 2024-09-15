@@ -1,4 +1,7 @@
-﻿using Bookify.Web.Services;
+﻿using Bookify.Application.Common.Services.Auth;
+using Bookify.Domain.Consts;
+using Bookify.Domain.Dtos;
+using Bookify.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -10,31 +13,29 @@ namespace Bookify.Web.Controllers;
 [Authorize(Roles = AppRoles.Admin)]
 public class UsersController : Controller
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly IAuthService _authService;
     private readonly IEmailSender _emailSender;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IEmailBodyBuilder _emailBodyBuilder;
     private readonly IMapper _mapper;
 
-    public UsersController(UserManager<ApplicationUser> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager, IEmailSender emailSender, IWebHostEnvironment webHostEnvironment, IEmailBodyBuilder emailBodyBuilder)
-    {
-        _userManager = userManager;
-        _mapper = mapper;
-        _roleManager = roleManager;
-        _emailSender = emailSender;
-        _webHostEnvironment = webHostEnvironment;
-        _emailBodyBuilder = emailBodyBuilder;
-    }
+	public UsersController(IMapper mapper, IEmailSender emailSender, IWebHostEnvironment webHostEnvironment, IEmailBodyBuilder emailBodyBuilder, IAuthService authService)
+	{
+		_mapper = mapper;
+		_emailSender = emailSender;
+		_webHostEnvironment = webHostEnvironment;
+		_emailBodyBuilder = emailBodyBuilder;
+		_authService = authService;
+	}
 
-    public async Task<IActionResult> Index()
+	public async Task<IActionResult> Index()
     {
-        var users = await _userManager.Users.ToListAsync();
+        var users = await _authService.GetUsersAsync();
         List<UserViewModel> viewModel = new List<UserViewModel>();
         foreach (var user in users)
         {
             var item = _mapper.Map<UserViewModel>(user);
-            item.IsLockedOut = await _userManager.IsLockedOutAsync(user);
+            item.IsLockedOut = await _authService.IsLockedOutAsync(user);
             viewModel.Add(item);
         }
         return View(viewModel);
@@ -42,13 +43,10 @@ public class UsersController : Controller
 
     public async Task<IActionResult> Create()
     {
+        var roles = await _authService.GetRolesAsync();
         var viewModel = new UserFormViewModel
         {
-            RolesSelectList = await _roleManager.Roles.Select(r => new SelectListItem()
-            {
-                Value = r.Name,
-                Text = r.Name
-            }).ToListAsync()
+            RolesSelectList = roles.Select(r => new SelectListItem(){ Value = r.Name, Text = r.Name })
         };
         return PartialView("_Form", viewModel);
     }
@@ -58,31 +56,20 @@ public class UsersController : Controller
     {
         if (!ModelState.IsValid) return BadRequest();
 
-        var user = new ApplicationUser
+        var dto = _mapper.Map<CreateUserDto>(model);
+        
+
+        var (user,isSucceeded,code,errors) = await _authService.CreateAsync(dto,User.GetUserId());
+
+        if (isSucceeded)
         {
-            FullName = model.FullName,
-            UserName = model.UserName,
-            Email = model.Email,
-            CreatedOn = DateTime.Now,
-            CreatedById = User.GetUserId(),
-            IsActive = true
-
-        };
-
-        var result = await _userManager.CreateAsync(user, model.Password!);
-        if (result.Succeeded)
-        {
-            var res = await _userManager.AddToRolesAsync(user, model.SelectedRoles);
-
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code!));
 
             var callbackUrl = Url.Page(
                 "/Account/ConfirmEmail",
                 pageHandler: null,
-                values: new { area = "Identity", userId = user.Id, code = code },
+                values: new { area = "Identity", userId = user!.Id, code },
                 protocol: Request.Scheme);
-
 
             var placeholders = new Dictionary<string, string>()
             {
@@ -96,14 +83,11 @@ public class UsersController : Controller
 
             var body = _emailBodyBuilder.GetEmailBody(EmailTemplates.Email, placeholders);
 
-            await _emailSender.SendEmailAsync(user.Email, "Confirm your email", body);
-
-
-
+            await _emailSender.SendEmailAsync(user.Email!, "Confirm your email", body);
 
             return PartialView("_UserRow", _mapper.Map<UserViewModel>(user));
         }
-        return BadRequest(string.Join(",", result.Errors.Select(e => e.Description)));
+        return BadRequest(errors);
 
     }
 
@@ -111,16 +95,19 @@ public class UsersController : Controller
     [AjaxOnly]
     public async Task<IActionResult> Update(string id)
     {
-        var user = _userManager.Users.SingleOrDefault(u => u.Id == id);
+        var user = await _authService.GetUsersByIdAsync(id);
         if (user is null)
             return NotFound();
         var viewModel = _mapper.Map<UserFormViewModel>(user);
-        viewModel.RolesSelectList = await _roleManager.Roles.Select(r => new SelectListItem
+        var roles = await _authService.GetRolesAsync();
+
+		viewModel.RolesSelectList = roles.Select(r => new SelectListItem
         {
             Value = r.Name,
             Text = r.Name
-        }).ToListAsync();
-        viewModel.SelectedRoles = await _userManager.GetRolesAsync(user);
+        });
+
+        viewModel.SelectedRoles = await _authService.GetUsersRolesAsync(user);
         return PartialView("_Form", viewModel);
     }
 
@@ -129,40 +116,28 @@ public class UsersController : Controller
     {
         if (!ModelState.IsValid) return BadRequest();
 
-        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == model.Id);
+        var user = await _authService.GetUsersByIdAsync(model.Id!);
+
         if (user is null)
             return NotFound();
+
         user = _mapper.Map(model, user);
 
-        user.LastUpdatedById = User.GetUserId();
-        user.LastUpdatedOn = DateTime.Now;
+        var (isSucceeded, updatedUser, errors) =await _authService.UpdateAsync(user, User.GetUserId(),model.SelectedRoles);
 
-        var result = await _userManager.UpdateAsync(user);
-
-        if (result.Succeeded)
+        if (isSucceeded)
         {
-            var currentRoles = await _userManager.GetRolesAsync(user);
-            var rolesUpdated = !currentRoles.SequenceEqual(model.SelectedRoles);
-
-            if (rolesUpdated)
-            {
-                await _userManager.RemoveFromRolesAsync(user, currentRoles);
-                await _userManager.AddToRolesAsync(user, model.SelectedRoles);
-
-            }
-
-            await _userManager.UpdateSecurityStampAsync(user);
-
-            return PartialView("_UserRow", _mapper.Map<UserViewModel>(user));
-        }
-        return BadRequest(string.Join(",", result.Errors.Select(e => e.Description)));
+			return PartialView("_UserRow", _mapper.Map<UserViewModel>(updatedUser));
+		}
+		
+		return BadRequest(errors);
     }
 
     [HttpGet]
     [AjaxOnly]
     public async Task<IActionResult> ResetPassword(string id)
     {
-        var user = await _userManager.FindByIdAsync(id);
+        var user = await _authService.GetUsersByIdAsync(id);
 
         if (user is null)
             return BadRequest();
@@ -175,69 +150,54 @@ public class UsersController : Controller
     public async Task<IActionResult> ResetPassword(UserResetPasswordViewModel model)
     {
         if (!ModelState.IsValid) return BadRequest();
-        var user = await _userManager.FindByIdAsync(model.Id!);
+        var user = await _authService.GetUsersByIdAsync(model.Id!);
 
         if (user is null)
             return NotFound();
 
-        var currentPasswordHash = user.PasswordHash;
-
-        await _userManager.RemovePasswordAsync(user);
-
-        var res = await _userManager.AddPasswordAsync(user, model.Password);
-
-        if (res.Succeeded)
+        var (isSucceeded, resultUser,errors) = await _authService.ResetPasswordAsync(user, User.GetUserId(), model.Password);
+        
+        if(isSucceeded)
         {
-            user.LastUpdatedOn = DateTime.Now;
-            user.LastUpdatedById = User.GetUserId();
-
-            await _userManager.UpdateAsync(user);
-
-            var viewModel = _mapper.Map<UserViewModel>(user);
+            var viewModel = _mapper.Map<UserViewModel>(resultUser);
             return PartialView("_UserRow", viewModel);
         }
 
-        user.PasswordHash = currentPasswordHash;
-        await _userManager.UpdateAsync(user);
+		
+
+		user.PasswordHash = user.PasswordHash;
+        await _authService.UpdateAsync(user,User.GetUserId(),null);
 
 
-        return BadRequest(string.Join(",", res.Errors.Select(e => e.Description)));
+        return BadRequest(errors);
     }
 
     public async Task<IActionResult> AllowUserName(UserFormViewModel model)
     {
-        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == model.UserName);
-
-        var isAllowed = user is null || user.Id == model.Id;
-        return Json(isAllowed);
+        return Json(await _authService.IsAllowedUserName(model.UserName,model.Id!));
     }
 
     public async Task<IActionResult> AllowEmail(UserFormViewModel model)
     {
-        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+		return Json(await _authService.IsAllowedEmail(model.Email, model.Id!));
 
-        var isAllowed = user is null || user.Id == model.Id;
-        return Json(isAllowed);
-    }
+	}
 
-    [HttpPost]
+	[HttpPost]
     public async Task<IActionResult> UnlockUser(string id)
     {
-        var user = await _userManager.FindByIdAsync(id);
+        var user = await _authService.GetUsersByIdAsync(id);
+
         if (user == null)
             return NotFound();
 
-        var isLocked = await _userManager.IsLockedOutAsync(user);
+        var isLocked = await _authService.IsLockedOutAsync(user);
         if (!isLocked)
-        {
             return BadRequest("User is Unlock already");
-        }
 
-        var setLockoutEndDateTask = await _userManager.SetLockoutEndDateAsync(user, DateTime.Now - TimeSpan.FromMinutes(1));
+        var isSucceeded = await _authService.SetLockoutEndDateAsync(user, DateTime.Now + TimeSpan.FromMinutes(5));
 
-        if (setLockoutEndDateTask.Succeeded)
-            return Ok();
-        return BadRequest();
+        return isSucceeded ? Ok() : BadRequest();
     }
 
 
@@ -248,18 +208,10 @@ public class UsersController : Controller
     [HttpPost]
     public async Task<IActionResult> ToggleStatus(string id)
     {
-        var user = await _userManager.FindByIdAsync(id);
-        if (user == null)
+        var user=await _authService.ToggleStatus(id, User.GetUserId());
+
+        if (user == null) 
             return NotFound();
-
-        user.LastUpdatedOn = DateTime.Now;
-        user.IsActive = !user.IsActive;
-        user.LastUpdatedById = User.GetUserId();
-
-        await _userManager.UpdateAsync(user);
-
-        if (!user.IsActive)
-            await _userManager.UpdateSecurityStampAsync(user);
 
         return Json(new { lastUpdatedOn = user.LastUpdatedOn.ToString() });
     }

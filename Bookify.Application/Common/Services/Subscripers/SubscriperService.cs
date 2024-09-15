@@ -185,4 +185,12 @@ internal class SubscriperService : ISubscriperService
 
         return newSubscription;
     }
+
+	public IEnumerable<Subscriper> GetExpiredSubscripers(int expiredWithin)
+	{
+		return _unitOfWork.Subscripers.GetQueryable()
+			.Include(s => s.Subscriptions)
+			.Where(s => !s.IsBlackListed && s.Subscriptions.OrderBy(s => s.EndDate).Last().EndDate == DateTime.Today.AddDays(expiredWithin))
+			.ToList();
+	}
 }

@@ -1,4 +1,5 @@
 using Bookify.Application;
+using Bookify.Application.Common.Services.Subscripers;
 using Bookify.Infrastructure;
 using Bookify.Web.Seeds;
 using Bookify.Web.Services;
@@ -83,13 +84,13 @@ namespace Bookify.Web
                 }
             });
 
-            var applicationDbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+            var subscriperService = scope.ServiceProvider.GetRequiredService<ISubscriperService>();
             var whatsAppClient = scope.ServiceProvider.GetRequiredService<IWhatsAppClient>();
             var webHostEnvironment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
             var emailBodyBuilder = scope.ServiceProvider.GetRequiredService<IEmailBodyBuilder>();
             var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
 
-            var hangfireTasks = new HangfireTasks(applicationDbContext, whatsAppClient, webHostEnvironment, emailBodyBuilder, emailSender);
+            var hangfireTasks = new HangfireTasks(subscriperService, whatsAppClient, webHostEnvironment, emailBodyBuilder, emailSender);
 
             RecurringJob.AddOrUpdate(() => hangfireTasks.PrepareExpirationAlert(), "0 14 * * *");
 

@@ -1,4 +1,5 @@
-﻿using Bookify.Web.Services;
+﻿using Bookify.Application.Common.Services.Subscripers;
+using Bookify.Web.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using WhatsAppCloudApi;
 using WhatsAppCloudApi.Services;
@@ -7,27 +8,24 @@ namespace Bookify.Web.Tasks;
 
 public class HangfireTasks
 {
-    private readonly IApplicationDbContext _context;
+    private readonly ISubscriperService _subscriperService;
     private readonly IWhatsAppClient _whatsAppClient;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IEmailBodyBuilder _emailBodyBuilder;
     private readonly IEmailSender _emailSender;
 
-    public HangfireTasks(IApplicationDbContext context, IWhatsAppClient whatsAppClient, IWebHostEnvironment webHostEnvironment, IEmailBodyBuilder emailBodyBuilder, IEmailSender emailSender)
-    {
-        _context = context;
-        _whatsAppClient = whatsAppClient;
-        _webHostEnvironment = webHostEnvironment;
-        _emailBodyBuilder = emailBodyBuilder;
-        _emailSender = emailSender;
-    }
+	public HangfireTasks(ISubscriperService subscriperService, IWhatsAppClient whatsAppClient, IWebHostEnvironment webHostEnvironment, IEmailBodyBuilder emailBodyBuilder, IEmailSender emailSender)
+	{
+		_whatsAppClient = whatsAppClient;
+		_webHostEnvironment = webHostEnvironment;
+		_emailBodyBuilder = emailBodyBuilder;
+		_emailSender = emailSender;
+		_subscriperService = subscriperService;
+	}
 
-    public async Task PrepareExpirationAlert()
+	public async Task PrepareExpirationAlert()
     {
-        var subscripers = _context.Subscripers
-            .Include(s => s.Subscriptions)
-            .Where(s => !s.IsBlackListed && s.Subscriptions.OrderBy(s => s.EndDate).Last().EndDate == DateTime.Today.AddDays(7))
-            .ToList();
+        var subscripers = _subscriperService.GetExpiredSubscripers(7);
 
         foreach (var subscriper in subscripers)
         {
