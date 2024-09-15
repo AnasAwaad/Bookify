@@ -25,4 +25,9 @@ internal class RentalCopiesService : IRentalCopiesService
             .ToList();
 
     }
+
+    public bool CopyIsInRental(int bookCopyId)
+    {
+        return _unitOfWork.RentalCopies.IsExists(c => c.BookCopyId == bookCopyId && !c.ReturnDate.HasValue);
+    }
 }

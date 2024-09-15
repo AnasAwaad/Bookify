@@ -10,4 +10,7 @@ public interface IBookCopyService
     BookCopy? Add(int bookId,bool isAvailableForRental, int editionNumber, string CreatedById);
 
     BookCopy? Update(int id,bool isAvailableForRental, int editionNumber, string lastUpdatedById);
+    (string? errorMessage, ICollection<RentalCopy>? copies) CanBeRentaled(IList<int> selectedCopiesItems, int subscriperId);
+
+    BookCopy? SearchForBookCopy(string value);
 }

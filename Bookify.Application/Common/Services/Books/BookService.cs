@@ -28,9 +28,6 @@ internal class BookService : IBookService
     {
         return _unitOfWork.Books.GetDetails();
     }
-
-
-
     public (IQueryable<Book> books, int count) GetFiltered(FilteredDto dto)
     {
         var countOfBooks = _unitOfWork.Books.Count();

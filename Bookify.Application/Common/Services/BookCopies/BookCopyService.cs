@@ -1,5 +1,7 @@
 ﻿using Bookify.Application.Common.Interfaces;
 using Bookify.Application.Common.Interfaces.Repositories;
+using Bookify.Domain.Consts;
+using Bookify.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bookify.Application.Common.Services.BookCopies;
@@ -70,5 +72,50 @@ internal class BookCopyService : IBookCopyService
         _unitOfWork.SaveChanges();
 
         return bookCopy;
+    }
+
+    public (string? errorMessage,ICollection<RentalCopy>? copies) CanBeRentaled(IList<int> selectedCopiesItems,int subscriperId)
+    {
+        
+        var selectedCopies = _unitOfWork.BookCopies
+            .FindAll(
+                c => selectedCopiesItems.Contains(c.SerialNumber),
+                c=>c.Include(x=>x.Book).Include(x=>x.RentalCopies))
+            .ToList();
+
+        var currentSubscriperRentals = _unitOfWork.Rentals.GetQueryable()
+            .Include(r => r.RentalCopies)
+            .ThenInclude(c => c.BookCopy)
+            .Where(r => r.SubscriperId == subscriperId)
+            .SelectMany(r => r.RentalCopies)
+            .Where(c => !c.ReturnDate.HasValue)
+            .Select(r => r.BookCopy!.BookId);
+
+        List<RentalCopy> copies = new();
+        foreach (var copy in selectedCopies)
+        {
+            if (!copy.IsAvailableForRental || !copy.Book!.IsAvailableForRental)
+                return (Errors.NotAvailableForRental,null);
+
+            if (copy.RentalCopies.Any(r => !r.ReturnDate.HasValue))
+                return (Errors.CopyInRental, null);
+
+            if (currentSubscriperRentals.Any(bookId => bookId == copy.BookId))
+                return ($"This subscriber already has a copy for '{copy.Book.Title}' Book",null);
+
+            copies.Add(new RentalCopy { BookCopyId = copy.Id });
+        }
+
+        return (null, copies);
+
+    }
+
+    public BookCopy? SearchForBookCopy(string value)
+    {
+        var copy = _unitOfWork.BookCopies.GetQueryable()
+            .Include(c => c.Book)
+            .SingleOrDefault(c => c.SerialNumber.ToString().Equals(value) && c.IsActive && c.Book!.IsActive);
+
+        return copy is null ? null : copy;
     }
 }

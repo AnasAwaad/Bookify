@@ -1,6 +1,6 @@
 ﻿using Bookify.Application.Common.Services.Books;
 using Bookify.Application.Common.Services.RentalCopies;
-using Bookify.Application.Common.Services.Subscriper;
+using Bookify.Application.Common.Services.Subscripers;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Bookify.Web.Controllers;
