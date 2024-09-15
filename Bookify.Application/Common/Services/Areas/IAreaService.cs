@@ -3,5 +3,5 @@
 namespace Bookify.Application.Common.Services.Areas;
 public interface IAreaService
 {
-    IEnumerable<KeyValuePairDto> GetAreasByCity(int cityId);
+    IEnumerable<AreaItemDto> GetAreasByCity(int cityId);
 }

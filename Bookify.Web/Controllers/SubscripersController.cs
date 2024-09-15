@@ -238,7 +238,6 @@ public class SubscripersController : Controller
     [AjaxOnly]
     public IActionResult GetAreasBasedOnCity(int cityId)
     {
-        //var areas = _context.Areas.Where(a => a.CityId == cityId).Select(a => new { Id = a.Id, Text = a.Name }).ToList();
         var areas = _areaService.GetAreasByCity(cityId);
         return Json(new { areas });
     }

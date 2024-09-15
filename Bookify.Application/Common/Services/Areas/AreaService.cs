@@ -12,11 +12,11 @@ internal class AreaService : IAreaService
         _unitOfWork = unitOfWork;
     }
 
-    public IEnumerable<KeyValuePairDto> GetAreasByCity(int cityId)
+    public IEnumerable<AreaItemDto> GetAreasByCity(int cityId)
     {
         return _unitOfWork.Areas.GetQueryable()
                 .Where(a => a.CityId == cityId && a.IsActive)
-                .Select(a => new KeyValuePairDto(a.Name, a.Id.ToString()))
+                .Select(a => new AreaItemDto(a.Id, a.Name))
                 .ToList();
 
     }

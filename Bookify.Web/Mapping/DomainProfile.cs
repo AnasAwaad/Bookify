@@ -76,5 +76,13 @@ public class DomainProfile : Profile
         CreateMap<Rental, RentalViewModel>();
         CreateMap<RentalCopy, RentalCopyViewModel>();
 
+        CreateMap<RentalCopy, RentalReportRowViewModel>()
+            .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.BookCopy!.Book!.Author!.Name))
+            .ForMember(dest => dest.SubscriperId, opt => opt.MapFrom(src => src.Rental!.Subscriper!.Id))
+            .ForMember(dest => dest.SubscriberName, opt => opt.MapFrom(src => $"{src.Rental!.Subscriper!.FirstName} {src.Rental!.Subscriper!.LastName}"))
+            .ForMember(dest => dest.MobileNumber, opt => opt.MapFrom(src => src.Rental!.Subscriper!.MobileNumber))
+            .ForMember(dest => dest.BookTitle, opt => opt.MapFrom(src => src.BookCopy!.Book!.Title));
+
+
     }
 }

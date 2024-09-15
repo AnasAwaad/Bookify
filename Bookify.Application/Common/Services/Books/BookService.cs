@@ -1,5 +1,7 @@
 ﻿using Bookify.Application.Common.Interfaces;
+using Bookify.Application.Common.Models;
 using Bookify.Domain.Dtos;
+using Bookify.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.Buffers;
 using System.Linq.Dynamic.Core;
@@ -155,5 +157,34 @@ internal class BookService : IBookService
         return books
             .Include(b => b.Author)
             .Where(b => b.IsActive && (b.Title.Contains(query) || b.Author!.Name.Contains(query)));
+    }
+
+    public PaginatedList<Book> GetPaginatedList(int pageNumber,List<int> selectedCategories, List<int> selectedAuthors)
+    {
+
+        var books = _unitOfWork.Books.GetQueryable()
+            .Include(b => b.Author)
+            .Include(b => b.Categories)
+            .ThenInclude(c => c.Category)
+            .Where(b => (!selectedCategories.Any() || b.Categories.Any(c => selectedCategories.Contains(c.CategoryId)))
+                  && (!selectedAuthors.Any() || selectedAuthors.Contains(b.AuthorId)));
+
+
+        return PaginatedList<Book>.Create(books, pageNumber, (int)ReportsConfiguration.pageSize);
+        
+    }
+
+    public IQueryable<Book> GetQurableRowData(string authors, string categories)
+    {
+        var selectedAuthors = authors?.Split(',');
+        var selectedCategories = categories?.Split(',');
+
+        return _unitOfWork.Books.GetQueryable()
+            .Include(b => b.Author)
+            .Include(b => b.Categories)
+            .ThenInclude(c => c.Category)
+            .Where(b => (selectedCategories == null || b.Categories.Any(c => selectedCategories.Contains(c.CategoryId.ToString())))
+                  && (selectedAuthors == null || selectedAuthors.Contains(b.AuthorId.ToString())));
+            
     }
 }

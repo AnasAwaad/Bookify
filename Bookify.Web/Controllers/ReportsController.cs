@@ -1,4 +1,8 @@
-﻿using ClosedXML.Excel;
+﻿using Bookify.Application.Common.Services.Authors;
+using Bookify.Application.Common.Services.Books;
+using Bookify.Application.Common.Services.Categories;
+using Bookify.Application.Common.Services.RentalCopies;
+using ClosedXML.Excel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OpenHtmlToPdf;
@@ -12,12 +16,20 @@ public class ReportsController : Controller
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IViewRendererService _viewRendererService;
+    private readonly IAuthorService _authorService;
+    private readonly ICategoryService _categoryService;
+    private readonly IBookService _bookService;
+    private readonly IRentalCopiesService _rentalCopiesService;
 
-    public ReportsController(IApplicationDbContext context, IMapper mapper, IViewRendererService viewRendererService)
+    public ReportsController(IMapper mapper, IViewRendererService viewRendererService, IAuthorService authorService, ICategoryService categoryService, IBookService bookService, IApplicationDbContext context, IRentalCopiesService rentalCopiesService)
     {
-        _context = context;
         _mapper = mapper;
         _viewRendererService = viewRendererService;
+        _authorService = authorService;
+        _categoryService = categoryService;
+        _bookService = bookService;
+        _context = context;
+        _rentalCopiesService = rentalCopiesService;
     }
 
     public IActionResult Index()
@@ -27,15 +39,10 @@ public class ReportsController : Controller
 
     public IActionResult Book(int? pageNumber, List<int> selectedCategories, List<int> selectedAuthors)
     {
-        var authors = _context.Authors.OrderBy(a => a.Name).ToList();
-        var categories = _context.Categories.OrderBy(c => c.Name).ToList();
-        IQueryable<Book> books = _context.Books
-            .Include(b => b.Author)
-            .Include(b => b.Categories)
-            .ThenInclude(c => c.Category)
-            .Where(b => (!selectedCategories.Any() || b.Categories.Any(c => selectedCategories.Contains(c.CategoryId)))
-                  && (!selectedAuthors.Any() || selectedAuthors.Contains(b.AuthorId)));
+        var authors = _authorService.GetActiveAuthors();
+        var categories = _categoryService.GetActiveCategories();
 
+        
         var viewModel = new BooksReportViewModel()
         {
             Authors = _mapper.Map<IEnumerable<SelectListItem>>(authors),
@@ -44,8 +51,8 @@ public class ReportsController : Controller
             SelectedCategories = selectedCategories
         };
 
-        if (pageNumber is not null)
-            viewModel.Data = PaginatedList<Book>.Create(books, pageNumber.Value, (int)ReportsConfiguration.pageSize);
+        if(pageNumber is not null)
+            viewModel.Data = _bookService.GetPaginatedList(pageNumber.Value!, selectedCategories, selectedAuthors);
 
         return View(viewModel);
     }
@@ -54,16 +61,9 @@ public class ReportsController : Controller
     public async Task<IActionResult> ExportBooksToExcel(string authors, string categories)
     {
 
-        var selectedAuthors = authors?.Split(',');
-        var selectedCategories = categories?.Split(',');
+        var bookDataRows = _bookService.GetQurableRowData(authors, categories);
 
-        var books = _context.Books
-            .Include(b => b.Author)
-            .Include(b => b.Categories)
-            .ThenInclude(c => c.Category)
-            .Where(b => (selectedCategories == null || b.Categories.Any(c => selectedCategories.Contains(c.CategoryId.ToString())))
-                  && (selectedAuthors == null || selectedAuthors.Contains(b.AuthorId.ToString())))
-            .ToList();
+        var books=_mapper.ProjectTo<BookViewModel>(bookDataRows).ToList();
 
         using var wb = new XLWorkbook();
 
@@ -78,8 +78,8 @@ public class ReportsController : Controller
         for (int i = 0; i < books.Count; i++)
         {
             sheet.Cell(i + 2, 1).SetValue(books[i].Title);
-            sheet.Cell(i + 2, 2).SetValue(books[i].Author!.Name);
-            sheet.Cell(i + 2, 3).SetValue(string.Join(", ", books[i].Categories.Select(c => c.Category!.Name)));
+            sheet.Cell(i + 2, 2).SetValue(books[i].AuthorName);
+            sheet.Cell(i + 2, 3).SetValue(string.Join(", ", books[i].Categories));
             sheet.Cell(i + 2, 4).SetValue(books[i].Publisher);
             sheet.Cell(i + 2, 5).SetValue(books[i].PublishingDate.ToString("d MMM, yyyy"));
             sheet.Cell(i + 2, 6).SetValue(books[i].Hall);
@@ -98,17 +98,9 @@ public class ReportsController : Controller
 
     public async Task<IActionResult> ExportBooksToPDF(string authors, string categories)
     {
+        var bookDataRows = _bookService.GetQurableRowData(authors, categories);
 
-        var selectedAuthors = authors?.Split(',');
-        var selectedCategories = categories?.Split(',');
-
-        var books = _context.Books
-            .Include(b => b.Author)
-            .Include(b => b.Categories)
-            .ThenInclude(c => c.Category)
-            .Where(b => (selectedCategories == null || b.Categories.Any(c => selectedCategories.Contains(c.CategoryId.ToString())))
-                  && (selectedAuthors == null || selectedAuthors.Contains(b.AuthorId.ToString())))
-            .ToList();
+        var books = _mapper.ProjectTo<BookViewModel>(bookDataRows).ToList();
 
         var templatePath = "~/Views/Reports/BooksTemplate.cshtml";
 
@@ -117,9 +109,6 @@ public class ReportsController : Controller
 
         return File(pdf.ToArray(), "application/octet-stream", "Books.pdf");
     }
-
-
-
 
     public IActionResult Rentals(int pageNumber, string duration)
     {
@@ -142,16 +131,7 @@ public class ReportsController : Controller
                 return View(viewModel);
             }
 
-            IQueryable<RentalCopy> rentals = _context.RentalCopies
-                .Include(r => r.Rental)
-                .ThenInclude(r => r!.Subscriper)
-                .Include(r => r.BookCopy)
-                .ThenInclude(c => c!.Book)
-                .ThenInclude(b => b!.Author)
-                .OrderBy(r => r.RentalDate)
-                .Where(r => r.RentalDate >= startDate && r.RentalDate <= endDate);
-
-            viewModel.Data = PaginatedList<RentalCopy>.Create(rentals, pageNumber, (int)ReportsConfiguration.pageSize);
+            viewModel.Data = _rentalCopiesService.GetPaginatedList(pageNumber, startDate, endDate);
         }
         ModelState.Clear();
         return View(viewModel);
@@ -165,16 +145,9 @@ public class ReportsController : Controller
         var date = duration.Split(" - ");
 
 
-        var rentals = _context.RentalCopies
-            .Include(r => r.Rental)
-            .ThenInclude(r => r!.Subscriper)
-            .Include(r => r.BookCopy)
-            .ThenInclude(c => c!.Book)
-            .ThenInclude(b => b!.Author)
-            .OrderBy(r => r.RentalDate)
-            .Where(r => r.RentalDate >= Convert.ToDateTime(date[0]) && r.RentalDate <= Convert.ToDateTime(date[1]))
-            .ToList();
+        var rentalsData=_rentalCopiesService.GetQurableRowData(Convert.ToDateTime(date[0]), Convert.ToDateTime(date[1]));
 
+        var rentals = _mapper.ProjectTo<RentalReportRowViewModel>(rentalsData).ToList();
 
         using var wb = new XLWorkbook();
 
@@ -188,11 +161,11 @@ public class ReportsController : Controller
 
         for (int i = 0; i < rentals.Count; i++)//@(rental.ReturnDate == null ? " - " : rental.ReturnDate!.Value.ToString("d MMM, yyyy"))
         {
-            sheet.Cell(i + 2, 1).SetValue(rentals[i].Rental!.Subscriper!.Id);
-            sheet.Cell(i + 2, 2).SetValue(rentals[i].Rental!.Subscriper!.FirstName);
-            sheet.Cell(i + 2, 3).SetValue(rentals[i].Rental!.Subscriper!.MobileNumber);
-            sheet.Cell(i + 2, 4).SetValue(rentals[i].BookCopy!.Book!.Title);
-            sheet.Cell(i + 2, 5).SetValue(rentals[i].BookCopy!.Book!.Author!.Name);
+            sheet.Cell(i + 2, 1).SetValue(rentals[i].SubscriperId);
+            sheet.Cell(i + 2, 2).SetValue(rentals[i].SubscriberName);
+            sheet.Cell(i + 2, 3).SetValue(rentals[i].MobileNumber);
+            sheet.Cell(i + 2, 4).SetValue(rentals[i].BookTitle);
+            sheet.Cell(i + 2, 5).SetValue(rentals[i].AuthorName);
             sheet.Cell(i + 2, 6).SetValue(rentals[i].RentalDate.ToString("d MMM, yyyy"));
             sheet.Cell(i + 2, 7).SetValue(rentals[i].EndDate.ToString("d MMM, yyyy"));
             sheet.Cell(i + 2, 8).SetValue(rentals[i].ReturnDate == null ? " - " : rentals[i].ReturnDate!.Value.ToString("d MMM, yyyy"));
@@ -216,17 +189,9 @@ public class ReportsController : Controller
 
         var date = duration.Split(" - ");
 
+        var rentalsData = _rentalCopiesService.GetQurableRowData(Convert.ToDateTime(date[0]), Convert.ToDateTime(date[1]));
 
-        var rentals = _context.RentalCopies
-            .Include(r => r.Rental)
-            .ThenInclude(r => r!.Subscriper)
-            .Include(r => r.BookCopy)
-            .ThenInclude(c => c!.Book)
-            .ThenInclude(b => b!.Author)
-            .OrderBy(r => r.RentalDate)
-            .Where(r => r.RentalDate >= Convert.ToDateTime(date[0]) && r.RentalDate <= Convert.ToDateTime(date[1]))
-            .ToList();
-
+        var rentals = _mapper.ProjectTo<RentalReportRowViewModel>(rentalsData).ToList();
 
         var templatePath = "~/Views/Reports/RentalsTemplate.cshtml";
 
